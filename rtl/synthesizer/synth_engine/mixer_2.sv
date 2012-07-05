@@ -24,12 +24,14 @@ module mixer_2 (
     output signed [15:0]             rsound_out   // 16-bits
 );
 
-parameter   VOICES = 8;
-parameter   V_OSC = 4; // oscs per Voice
-parameter   V_ENVS = V_OSC * 2; // envs per Voice
-parameter V_WIDTH = 3;
-parameter O_WIDTH = 2;
-parameter E_WIDTH = O_WIDTH+1;
+parameter VOICES	= 8;
+parameter V_OSC		= 4; // oscs per Voice
+parameter O_ENVS	= 2; // envs per Oscilator
+parameter V_ENVS	= V_OSC * O_ENVS; // envs per Voice
+parameter V_WIDTH	= 3;
+parameter O_WIDTH	= 2;
+parameter OE_WIDTH	= 1;
+parameter E_WIDTH	= O_WIDTH + OE_WIDTH;
 
 
    reg  signed [7:0]osc_lvl[V_OSC-1:0];      // osc_lvl  osc_buf[2]
@@ -58,7 +60,7 @@ parameter E_WIDTH = O_WIDTH+1;
 	reg signed [V_WIDTH+15:0] reg_voice_sound_sum_r;
 	
 	reg[2:0] sh_voice_reg = 0;
-	reg[V_ENVS-1:0] sh_osc_reg = 0;
+	reg[3:0] sh_osc_reg = 0;
  
 	wire signed [52:0] sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_l;
 	wire signed [52:0] sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_r;
@@ -68,8 +70,8 @@ parameter E_WIDTH = O_WIDTH+1;
 
    wire [O_WIDTH-1:0]  ox;
    wire [V_WIDTH-1:0]  vx;
-   assign ox = xxxx[O_WIDTH:1];
-   assign vx = xxxx[V_WIDTH+O_WIDTH:O_WIDTH+1];
+   assign ox = xxxx[E_WIDTH-1:OE_WIDTH];
+   assign vx = xxxx[V_WIDTH+E_WIDTH-1:E_WIDTH];
 	 
    integer loop,oloop,iloop,osc1,ol1,il1,ol2,il2;
 	integer slmloop,shloop;
@@ -144,14 +146,8 @@ parameter E_WIDTH = O_WIDTH+1;
 	always @(posedge sCLK_XVXENVS) begin
 		if(sh_voice_reg[2]) begin voice_vol_env_lvl <= level_mul; end
 	end
-/*
-	always @[posedge sCLK_XVXENVS] begin
-		if(xxxx == 3) begin
-			reg_level_mul[0] <= level_mul;
-			reg_level_mul[4:1] <= reg_level_mul[3:0];
-		end
-	end
-*/	
+
+	
 /**	@brief main mix summing machine
 *		multiply sine level mul data with main vol env (1), left/right pan value, osc vol level and main volume
 *	
@@ -189,7 +185,6 @@ parameter E_WIDTH = O_WIDTH+1;
 		else begin sh_voice_reg <= sh_voice_reg << 1; end
 		if(sh_o_counter == 0 ) begin sh_osc_reg <= (sh_osc_reg << 1)+ 1; end 
 		else begin sh_osc_reg <= sh_osc_reg << 1; end
-//		end
 	end
 	
 endmodule

@@ -26,7 +26,6 @@ module env_gen_indexed (
 		
 parameter VOICES = 8;
 parameter V_ENVS = 8;
-//parameter V_WIDTH = clogb2(VOICES);
 parameter V_WIDTH = 3;
 parameter E_WIDTH = 3;
 

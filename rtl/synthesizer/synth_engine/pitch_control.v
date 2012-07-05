@@ -17,7 +17,8 @@ parameter VOICES = 8;
 parameter V_OSC = 4;
 parameter V_WIDTH = 3;
 parameter O_WIDTH = 2;
-parameter E_WIDTH = 3;
+parameter OE_WIDTH = 1;
+parameter E_WIDTH = O_WIDTH + OE_WIDTH;
 
 
     reg           [7:0]rkey_val[VOICES-1:0];
@@ -133,8 +134,8 @@ parameter E_WIDTH = 3;
     wire [30:0]osc_transp_val_h;
     wire [7:0]osc_ct_64;
 //    reg [O_WIDTH+V_WIDTH-1:0]x;// not double size !
-    assign ox = xxxx[O_WIDTH:1];
-    assign vx = xxxx[V_WIDTH+O_WIDTH:O_WIDTH+1];
+    assign ox = xxxx[E_WIDTH-1:OE_WIDTH];
+    assign vx = xxxx[V_WIDTH+E_WIDTH-1:E_WIDTH];
     reg signed [23:0]osc_index_val;
 
     assign osc_pitch_val =  (osc_ft[ox] <= 8'h40) ?

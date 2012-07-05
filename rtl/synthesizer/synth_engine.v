@@ -38,42 +38,44 @@ module synth_engine (
 	);	
 
 
-parameter 	VOICES;// = 8;
-parameter 	V_OSC = 4; // oscs per Voice
-parameter 	V_ENVS = 2*V_OSC; // envs per Voice
-parameter V_WIDTH = 3;
-parameter O_WIDTH = 2;
-parameter E_WIDTH = 3;
+parameter VOICES	= 8;
+parameter V_OSC		= 4;				// number of oscilators pr. voice.
+parameter O_ENVS	= 2;				// number of envelope generators pr. oscilator.
+parameter V_ENVS	= O_ENVS * V_OSC;	// number of envelope generators  pr. voice.
+
+parameter V_WIDTH	= 3;
+parameter O_WIDTH	= 2;
+parameter OE_WIDTH	= 1;
+parameter E_WIDTH	= O_WIDTH + OE_WIDTH;
 
 //-----		Wires		-----//
 wire          sCLK_XVXENVS;       // ObjectKind=Net|PrimaryId=sCLK_XVXENVS
 wire          sCLK_XVXOSC;        // ObjectKind=Net|PrimaryId=sCLK_XVXOSC
 wire          n_xxxx_zero;            // ObjectKind=Net|PrimaryId=NetU1_xxxx_max
 wire [V_WIDTH+E_WIDTH-1:0]  xxxx;                  // ObjectKind=Net|PrimaryId=NetU1_xxxx[5..0]
-wire [7 : 0]  level_mul;        // ObjectKind=Net|PrimaryId=level_mul
+wire [7:0]  level_mul;        // ObjectKind=Net|PrimaryId=level_mul
 
 wire          byteready;              // ObjectKind=Net|PrimaryId=byteready
-wire [7 : 0]  cur_status;             // ObjectKind=Net|PrimaryId=cur_status
-wire [7 : 0]  octrl;               // ObjectKind=Net|PrimaryId=ictrl
-wire [7 : 0]  octrl_data;          // ObjectKind=Net|PrimaryId=ictrl_data
+wire [7:0]  cur_status;             // ObjectKind=Net|PrimaryId=cur_status
+wire [7:0]  octrl;               // ObjectKind=Net|PrimaryId=ictrl
+wire [7:0]  octrl_data;          // ObjectKind=Net|PrimaryId=ictrl_data
 wire          pitch_cmd;           // ObjectKind=Net|PrimaryId=pitch_cmd
-wire [7 : 0]  midibyte;               // ObjectKind=Net|PrimaryId=midibyte
-wire [7 : 0]  midibyte_nr;            // ObjectKind=Net|PrimaryId=midibyte_nr
-wire [10 : 0] modulation;                 // ObjectKind=Net|PrimaryId=modulation
-wire [23 : 0] lsound_out;                 // ObjectKind=Net|PrimaryId=NetU1_rsound_out[23..0]
-wire [23 : 0] rsound_out;                 // ObjectKind=Net|PrimaryId=NetU1_rsound_out[23..0]
-wire [16 : 0] sine_lut_out;                 // ObjectKind=Net|PrimaryId=sine_lut_out
-wire [23 : 0] osc_pitch_val;      // ObjectKind=Net|PrimaryId=osc_pitch_val
+wire [7:0]  midibyte;               // ObjectKind=Net|PrimaryId=midibyte
+wire [7:0]  midibyte_nr;            // ObjectKind=Net|PrimaryId=midibyte_nr
+wire [10:0] modulation;                 // ObjectKind=Net|PrimaryId=modulation
+wire [15:0] lsound_out;                 // ObjectKind=Net|PrimaryId=NetU1_rsound_out[23..0]
+wire [15:0] rsound_out;                 // ObjectKind=Net|PrimaryId=NetU1_rsound_out[23..0]
+wire [16:0] sine_lut_out;                 // ObjectKind=Net|PrimaryId=sine_lut_out
+wire [23:0] osc_pitch_val;      // ObjectKind=Net|PrimaryId=osc_pitch_val
 
 wire [V_ENVS-1:0] osc_accum_zero;
 assign LTM_SCEN = sCLK_XVXENVS;
 
 assign LTM_GREST = n_xxxx_zero;
 
-	
 	reg               reg_note_on[2:0];
-   reg [V_WIDTH-1:0] reg_cur_key_adr;
-   reg [7:0]         reg_cur_key_val;
+	reg [V_WIDTH-1:0] reg_cur_key_adr;
+	reg [7:0]         reg_cur_key_val;
 	
 	reg [VOICES-1:0]	reg_keys_on;
 	reg [VOICES-1:0] 	reg_voice_free;
@@ -127,7 +129,7 @@ timing_gen #(.VOICES(VOICES),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.E_WIDTH(E_WIDTH)
 
 
 
-pitch_control #(.VOICES(VOICES),.V_OSC(V_OSC),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH),.E_WIDTH(E_WIDTH)) pitch_control_inst  // ObjectKind=Sheet Symbol|PrimaryId=U_pitch_control
+pitch_control #(.VOICES(VOICES),.V_OSC(V_OSC),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH),.OE_WIDTH(OE_WIDTH)) pitch_control_inst  // ObjectKind=Sheet Symbol|PrimaryId=U_pitch_control
 (
 	.iRST_N( iRST_N ),                               // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-iRST_N
 	.xxxx( xxxx ),                  // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-xxxx[5..0]
@@ -143,7 +145,7 @@ pitch_control #(.VOICES(VOICES),.V_OSC(V_OSC),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH
 	.osc_pitch_val( osc_pitch_val )// ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-osc_pitch_val[23..0]
 );
 		
-osc #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH),.E_WIDTH(E_WIDTH)) osc_inst // ObjectKind=Sheet Symbol|PrimaryId=U_osc
+osc #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH),.OE_WIDTH(OE_WIDTH)) osc_inst // ObjectKind=Sheet Symbol|PrimaryId=U_osc
 (
 	.iRST_N( iRST_N ),                               // ObjectKind=Sheet Entry|PrimaryId=osc.v-iRST_N
 	.OSC_CLK( OSC_CLK ),                 // ObjectKind=Sheet Entry|PrimaryId=osc.v-OSC_CLK
@@ -161,7 +163,7 @@ osc #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.O_WIDTH(O
 	.sine_lut_out( sine_lut_out )        // ObjectKind=Sheet Entry|PrimaryId=osc.v-sine_lut_out[16..0]
 );
 
-mixer_2 #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH),.E_WIDTH(E_WIDTH)) mixer_2_inst  // ObjectKind=Sheet Symbol|PrimaryId=U_mixer
+mixer_2 #(.VOICES(VOICES),.V_OSC(V_OSC),.O_ENVS(O_ENVS),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH),.OE_WIDTH(OE_WIDTH)) mixer_2_inst  // ObjectKind=Sheet Symbol|PrimaryId=U_mixer
 (
 	.iRST_N( iRST_N ),                               // ObjectKind=Sheet Entry|PrimaryId=mixer.v-iRST_N
 	.sCLK_XVXENVS( sCLK_XVXENVS ),// ObjectKind=Sheet Entry|PrimaryId=mixer.v-sCLK_XVXENVS

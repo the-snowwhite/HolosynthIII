@@ -71,7 +71,7 @@ module synthesizer (
 //parameter VOICES = 32;
 //parameter VOICES = 16;
 //parameter VOICES = 8;
-parameter VOICES = 4;
+parameter VOICES = 4;	// number of simultainious voices
 //parameter VOICES = 2;
 //parameter VOICES = 1;
 
@@ -79,14 +79,17 @@ parameter VOICES = 4;
 //parameter V_OSC = 6;
 //parameter V_OSC = 4;
 //parameter V_OSC = 3;
-parameter V_OSC = 2;
+parameter V_OSC = 2;	// number of oscilators pr. voice.
 //parameter V_OSC = 1;
 
-parameter V_ENVS = V_OSC*2;
+parameter O_ENVS = 2;	// number of envelope generators pr. oscilator.
+
+parameter V_ENVS = V_OSC * O_ENVS;	// number of envelope generators  pr. voice.
 
 parameter V_WIDTH = utils::clogb2(VOICES);
 parameter O_WIDTH = utils::clogb2(V_OSC);
-parameter E_WIDTH = utils::clogb2(V_ENVS);
+parameter OE_WIDTH = utils::clogb2(O_ENVS);
+parameter E_WIDTH = O_WIDTH + OE_WIDTH;
 
 parameter V_1 = 1;
 parameter V_2 = 2;
@@ -115,14 +118,14 @@ parameter VW_9 = utils::clogb2(V_9);
 
 //-----		Wires		-----//
 	wire   sysclk = VGA_CLK_o[10];
-	wire 	 touch_clk = VGA_CLK_o[10];
+//	wire 	 touch_clk = VGA_CLK_o[10];
 //---	Reset gen		---//	
 
-	wire initial_reset=(MCNT<12)?1:0;
+	wire initial_reset=(MCNT<12)?1'b1:1'b0;
 
 	wire reset1 = button[1];
 	wire reset2 = button[2];
-	wire iRST_N = ((MCNT==200) || (!reset2))?0:1;
+	wire iRST_N = ((MCNT==200) || (!reset2))?1'b0:1'b1;
 
 //---	Midi	---//
 // inputs
@@ -326,7 +329,7 @@ assign	AUD_ADCLRCK	=	AUD_DACLRCK;
 assign	AUD_XCK		=	AUD_CTRL_CLK;			
 					
 // 2CH Audio Sound output -- Audio Generater //
-synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH),.E_WIDTH(E_WIDTH)) synth_engine_inst	(		        
+synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH),.OE_WIDTH(OE_WIDTH)) synth_engine_inst	(		        
 // AUDIO CODEC //		
 	.OSC_CLK( TONE_CTRL_CLK ),	//input
 	.AUDIO_CLK( AUD_CTRL_CLK ),		//input
@@ -338,8 +341,6 @@ synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.
     	.switch	  ( SW[17:0]),			//input			
 	.button	  ( button[4:1]),		//input			
 	// -- Sound Control -- //
-//    	.clock_25 ( CLOCK_25 ),			// input 25 Mhz clock    		
-//	.sys_clk  ( sysclk ),  		//input system clock		
 //	to pitch control //
 	.note_on(note_on) ,	// output  note_on_sig
 	.keys_on(keys_on) ,	// output [VOICES-1:0] keys_on_sig
@@ -347,9 +348,6 @@ synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.
 	.cur_key_val(cur_key_val) ,	// output [7:0] cur_key_val_sig
 	.cur_vel_on(cur_vel_on) ,	// output [7:0] cur_vel_on_sig
 	.cur_vel_off(cur_vel_off) ,	// output [7:0] cur_vel_off_sig
-
-// from env gen // 
-	.voice_free( voice_free ),		//output from envgen
 // from midi_controller_unit
 	.pitch_val ( pitch_val ),
 // controller data bus
@@ -362,7 +360,9 @@ synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.
 	.m2_sel(m2_sel) ,	// output  m2_sel_sig
 	.com_sel(com_sel), 	// output  com_sel_sig
    .LTM_SCEN(LTM_SCEN),
-   .LTM_GREST(LTM_GREST)
+   .LTM_GREST(LTM_GREST),
+// from env gen // 
+	.voice_free( voice_free )		//output from envgen
 );
 
 	
