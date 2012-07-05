@@ -1,52 +1,43 @@
 module audio_i2s_driver (
-  //  input               mCLK,
-    input               iRST_N,
-    input [15:0]        i_lsound_out, // 16-bits
-    input [15:0]        i_rsound_out, // 16-bits
-//    input [23:0]        i_rsound_out, // 24-bits
-     input               iAUD_LRCK,
-    input               iAUD_BCK,
-   output              oAUD_DATA
-//    output [3:0]        s_cnt
+	input               iRST_N,
+	input               iAUD_LRCK,
+	input               iAUD_BCK,
+	input [15:0]        i_lsound_out, // 16-bits
+	input [15:0]        i_rsound_out, // 16-bits
+	output              oAUD_DATA
 );
 
-    reg [4:0]         SEL_Cont;
-    reg signed [15:0] sound_out; // 16-bits
-//    reg signed [23:0] sound_out; // 24-bits
+	reg [3:0]         SEL_Cont;
+	reg signed [15:0] sound_out; // 16-bits
+	reg reg_edge_detected;
+	reg reg_lrck_dly;
 
-//    assign s_cnt = SEL_Cont[3:0];
-
-
-    reg reset1,r_done;
-
+	wire edge_detected = reg_lrck_dly ^ iAUD_LRCK;
+	
 ////////////        SoundOut        ///////////////
-    always@(posedge iAUD_LRCK or posedge r_done)begin
-        if (r_done) reset1 <= 1'b0;
-        else if(iAUD_LRCK) reset1 <= 1'b1;
-    end
+	always@(posedge iAUD_BCK)begin
+		reg_edge_detected <= edge_detected;
+	end
 
-    always@(posedge reset1 or negedge iAUD_BCK or negedge iRST_N)begin
+    always@(negedge iAUD_BCK or negedge iRST_N)begin
         if(!iRST_N)begin
-            SEL_Cont    <=  0; r_done <= 1'b0;
-        end
-        else if(reset1) begin
-            SEL_Cont <= 31; r_done <= 1'b1; // 16-bits
-//            SEL_Cont <= 24; r_done <= 1'b1; // 24-bits
+            SEL_Cont    <=  4'h0;
         end
         else begin
-            SEL_Cont    <=  SEL_Cont-1;
-            if(SEL_Cont == 5'h10) begin
-                sound_out <= i_rsound_out;
-            end
-            if(SEL_Cont == 5'h00) begin
-                sound_out <= i_lsound_out;
-            end
-            r_done <= 1'b0;
+            reg_lrck_dly <= iAUD_LRCK;
+
+			if (reg_edge_detected) begin 	SEL_Cont <= 4'h1; 				end
+			else begin 						SEL_Cont <= SEL_Cont + 4'h1;	end
+
+            if (SEL_Cont == 4'hf) begin
+                if (iAUD_LRCK) begin 	sound_out <= i_rsound_out; end
+				else begin 				sound_out <= i_lsound_out; end
+			end	
         end
     end
 
 //    assign  oAUD_DATA   =  (SEL_Cont < 16) ? sound_out[SEL_Cont[3:0]] : 1'b0; // 16-bits
-    assign  oAUD_DATA   =  sound_out[SEL_Cont[3:0]]; // 16-bits
+    assign  oAUD_DATA   =  sound_out[~SEL_Cont]; // 16-bits
 //    assign  oAUD_DATA   =  (SEL_Cont < 24) ? sound_out[SEL_Cont] : 1'b0; // 24-bits
 
 
