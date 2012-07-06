@@ -17,7 +17,9 @@ parameter V_ENVS = 8;
 parameter V_WIDTH = 3;
 parameter O_WIDTH = 2;
 
-parameter x_offset = V_OSC * (VOICES -1);
+//parameter x_offset = V_OSC * (VOICES -1);
+//parameter x_offset = 14; //V_OSC * (VOICES -1); 4 x 4
+parameter x_offset = (V_OSC * VOICES ) - 2;
 
 	assign phase_acc = reg_phase_acc;
 	

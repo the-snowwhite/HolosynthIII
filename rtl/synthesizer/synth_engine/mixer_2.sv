@@ -47,26 +47,26 @@ parameter E_WIDTH	= O_WIDTH + OE_WIDTH;
    reg [O_WIDTH-1:0]  ox_dly[1:0];
    reg [V_WIDTH-1:0]  vx_dly[1:0];
 
-	reg signed [23:0] reg_sine_level_mul_data;
-	reg signed [37:0] reg_sine_level_mul_osc_lvl_m_vol_data;
+	reg signed [63:0] reg_sine_level_mul_data;
+	reg signed [63:0] reg_sine_level_mul_osc_lvl_m_vol_data;
 	
-	reg signed [O_WIDTH+15:0] reg_osc_data_sum_l;
-	reg signed [O_WIDTH+15:0] reg_osc_data_sum_r;
+	reg signed [63:0] reg_osc_data_sum_l;
+	reg signed [63:0] reg_osc_data_sum_r;
 	
-	reg signed [7:0]	voice_vol_env_lvl;
+	reg signed [7:0]	reg_voice_vol_env_lvl;
 //	reg signed [7:0]	reg_level_mul[4:0];
 
-	reg signed [V_WIDTH+15:0] reg_voice_sound_sum_l;
-	reg signed [V_WIDTH+15:0] reg_voice_sound_sum_r;
+	reg signed [63:0] reg_voice_sound_sum_l;
+	reg signed [63:0] reg_voice_sound_sum_r;
 	
-	reg[2:0] sh_voice_reg = 0;
-	reg[3:0] sh_osc_reg = 0;
+	reg[2:0] sh_voice_reg;
+	reg[3:0] sh_osc_reg;
  
-	wire signed [52:0] sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_l;
-	wire signed [52:0] sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_r;
+	wire signed [63:0] sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_l;
+	wire signed [63:0] sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_r;
 
-	assign sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_l = reg_sine_level_mul_osc_lvl_m_vol_data * voice_vol_env_lvl * (127 - osc_pan[ox_dly[1]]);
-	assign sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_r = reg_sine_level_mul_osc_lvl_m_vol_data * voice_vol_env_lvl * osc_pan[ox_dly[1]];
+	assign sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_l = reg_sine_level_mul_osc_lvl_m_vol_data * reg_voice_vol_env_lvl * (127 - osc_pan[ox_dly[1]]);
+	assign sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_r = reg_sine_level_mul_osc_lvl_m_vol_data * reg_voice_vol_env_lvl * osc_pan[ox_dly[1]];
 
    wire [O_WIDTH-1:0]  ox;
    wire [V_WIDTH-1:0]  vx;
@@ -133,18 +133,20 @@ parameter E_WIDTH	= O_WIDTH + OE_WIDTH;
 */	 
 	always @(negedge sCLK_XVXENVS)begin : sound_out
 		if (sh_voice_reg[2])begin 
-			reg_voice_sound_sum_l <= reg_voice_sound_sum_l + (reg_osc_data_sum_l >>> O_WIDTH); 
-			reg_voice_sound_sum_r <= reg_voice_sound_sum_r + (reg_osc_data_sum_r >>> O_WIDTH); 
+			reg_voice_sound_sum_l <= reg_voice_sound_sum_l + reg_osc_data_sum_l; 
+			reg_voice_sound_sum_r <= reg_voice_sound_sum_r + reg_osc_data_sum_r; 
 		end
 		if ( xxxx == ((VOICES - 1) * V_ENVS) )begin
-			lsound_out <= reg_voice_sound_sum_l >>> V_WIDTH; 
-			rsound_out <= reg_voice_sound_sum_r >>> V_WIDTH;
+//			lsound_out <= (reg_voice_sound_sum_l * m_vol) >>> (36 + V_WIDTH + O_WIDTH );// - + 1 
+//			rsound_out <= (reg_voice_sound_sum_r * m_vol) >>> (36 + V_WIDTH + O_WIDTH );// - + 1 
+			lsound_out <= (reg_voice_sound_sum_l * m_vol) >>> (34 + V_WIDTH + O_WIDTH );// - + 1 
+			rsound_out <= (reg_voice_sound_sum_r * m_vol) >>> (34 + V_WIDTH + O_WIDTH );// - + 1 
 		end	
 		if (xxxx == ((VOICES - 1) * V_ENVS) + 1)begin reg_voice_sound_sum_l <= 0; reg_voice_sound_sum_r <= 0; end
 	end
 
 	always @(posedge sCLK_XVXENVS) begin
-		if(sh_voice_reg[2]) begin voice_vol_env_lvl <= level_mul; end
+		if(sh_voice_reg[2]) begin reg_voice_vol_env_lvl <= level_mul; end
 	end
 
 	
@@ -157,11 +159,11 @@ parameter E_WIDTH	= O_WIDTH + OE_WIDTH;
 			reg_sine_level_mul_data <= (level_mul * sine_lut_out);
 		end
 		if (sh_osc_reg[2])begin
-			reg_sine_level_mul_osc_lvl_m_vol_data <= reg_sine_level_mul_data * osc_lvl[ox_dly[1]] * m_vol;
+			reg_sine_level_mul_osc_lvl_m_vol_data <= reg_sine_level_mul_data * osc_lvl[ox_dly[1]];
 		end
 		if(sh_osc_reg[3])begin
-			reg_osc_data_sum_l <= reg_osc_data_sum_l + (sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_l >>> 37);
-			reg_osc_data_sum_r <= reg_osc_data_sum_r + (sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_r >>> 37);
+			reg_osc_data_sum_l <= reg_osc_data_sum_l + sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_l;
+			reg_osc_data_sum_r <= reg_osc_data_sum_r + sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_r;
 		end
 		if(sh_voice_reg[2])begin reg_osc_data_sum_l <= 16'h0000; reg_osc_data_sum_r <= 16'h0000; end
 	end
@@ -175,14 +177,16 @@ parameter E_WIDTH	= O_WIDTH + OE_WIDTH;
 	
 /**	@brief main shiftreg state driver
 */	 
-	reg [V_WIDTH-1:0] sh_v_counter;
-	reg [O_WIDTH-1:0] sh_o_counter;
+	reg [E_WIDTH-1:0] sh_v_counter;
+	reg [OE_WIDTH-1:0] sh_o_counter;
 	
 	always @(posedge sCLK_XVXENVS )begin : main_sh_regs_state_driver
 		if (n_xxxx_zero) begin sh_v_counter <= 0;sh_o_counter <= 0; end
 		else begin sh_v_counter <= sh_v_counter + 1; sh_o_counter <= sh_o_counter + 1; end
+
 		if(sh_v_counter == 0 ) begin sh_voice_reg <= (sh_voice_reg << 1)+ 1; end 
 		else begin sh_voice_reg <= sh_voice_reg << 1; end
+
 		if(sh_o_counter == 0 ) begin sh_osc_reg <= (sh_osc_reg << 1)+ 1; end 
 		else begin sh_osc_reg <= sh_osc_reg << 1; end
 	end

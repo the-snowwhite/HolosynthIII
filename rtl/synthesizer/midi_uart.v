@@ -40,7 +40,7 @@ module MIDI_UART(
       reg carry;
     reg [2:0]reset_cnt;
     reg [7:0]samplebyte;
-    wire byte_end = (revcnt[4:0]==18)? 1 : 0;
+    wire byte_end = (revcnt[4:0]==18)? 1'b1 : 1'b0;
 
     always @(negedge iRST_N or posedge CLOCK_25)begin //! divide clock by 200
         if(!iRST_N)begin counter <= 8'h00; carry <=1'b0; end
@@ -74,7 +74,7 @@ always @(negedge CLOCK_25 or negedge iRST_N)begin
         if (!startbit_d)
             reset_cnt <= 0;
         else if(reset_cnt <= 1 && startbit_d)begin
-            reset_cnt <= reset_cnt+1;
+            reset_cnt <= reset_cnt+1'b1;
             reset_mod_cnt <= 1;
         end
         else reset_mod_cnt <= 0;
@@ -88,7 +88,7 @@ end
         else begin
             if (!startbit_d) revcnt <= 0;
             else if (revcnt >= 18) revcnt <= 0;
-            else revcnt <= revcnt+1;
+            else revcnt <= revcnt+1'b1;
         end
     end
 
@@ -135,7 +135,7 @@ end
                     midibyte_nr <= 0;
                     cur_status <= samplebyte;
                 end
-                else midibyte_nr <= midibyte_nr+1;
+                else midibyte_nr <= midibyte_nr+1'b1;
             end
         end
     end

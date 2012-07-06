@@ -12,7 +12,7 @@ parameter E_WIDTH = 3;
 
 	reg r_xxxx_max;
 
-	wire xxxx_max = (xxxx == (VOICES*V_ENVS)-1) ? 1:0;
+	wire xxxx_max = (xxxx == (VOICES*V_ENVS)-1) ? 1'b1:1'b0;
 	assign n_xxxx_zero = r_xxxx_max;
 	
 	always @(negedge sCLK_XVXENVS)begin r_xxxx_max <= xxxx_max; end
@@ -21,7 +21,7 @@ parameter E_WIDTH = 3;
 		if(!iRST_N) begin xxxx <= 0; end
 		else begin
 			if(xxxx_max ) begin xxxx <= 0; end
-			else begin xxxx <= xxxx + 1; end
+			else begin xxxx <= xxxx + 1'b1; end
 		end
 	end
 

@@ -23,7 +23,9 @@ parameter O_WIDTH = 2;
 parameter OE_WIDTH = 1;
 parameter E_WIDTH = O_WIDTH + OE_WIDTH;
 
-parameter ox_offset = (V_OSC * (VOICES -1)) + 1;
+//parameter ox_offset = (V_OSC * (VOICES -1)) + 1;
+//parameter ox_offset = 15; //(V_OSC * (VOICES -1)) + 1; 4x 4
+parameter ox_offset = (V_OSC * VOICES ) - 1;
 
     wire [10:0]tablelookup;
     wire signed [10:0]phase_acc;

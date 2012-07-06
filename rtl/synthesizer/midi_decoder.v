@@ -207,7 +207,7 @@ wire is_st_note_on=(
             if(is_st_note_on)begin // Note on omni
                 if(is_data_byte)begin
                     if(active_keys >= VOICES) begin
-                        active_keys <= active_keys-1;
+                        active_keys <= active_keys-1'b1;
                         key_on[on_slot[0]]<=1'b0;
                         cur_key_adr <= on_slot[0];
                         cur_key_val <=8'hff;
@@ -225,7 +225,7 @@ wire is_st_note_on=(
                     end
                     cur_note<=databyte;
                 end else if(is_velocity)begin
-                    active_keys <= active_keys+1;
+                    active_keys <= active_keys+1'b1;
                     key_on[cur_slot]<=1'b1;
                     cur_key_adr <= cur_slot;
                     cur_key_val <= cur_note;
@@ -280,7 +280,7 @@ wire is_st_note_on=(
                     for(i2=0,note_found=0;i2<VOICES;i2=i2+1)begin
                         off_note_error_flag <= 1'b1;
                         if(databyte==key_val[i2])begin
-                            active_keys <= active_keys-1;
+                            active_keys <= active_keys-1'b1;
                             slot_off<=i2;
                             key_on[i2]<=1'b0;
                             cur_key_adr <= i2;

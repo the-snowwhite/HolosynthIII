@@ -55,7 +55,7 @@ begin
             LRCK_1X <=  ~LRCK_1X;
         end
         else
-        LRCK_1X_DIV     <=  LRCK_1X_DIV+1;
+        LRCK_1X_DIV     <=  LRCK_1X_DIV+1'b1;
  /////////// AUD_BCK Generator   //////////////
        //  AUD_BCK
         if(BCK_DIV >= BCK_DIV_FAC )
@@ -64,7 +64,7 @@ begin
             oAUD_BCK    <=  ~oAUD_BCK;
         end
         else
-        BCK_DIV     <=  BCK_DIV+1;
+        BCK_DIV     <=  BCK_DIV+1'b1;
     end
 end
 //////////////////////////////////////////////////
@@ -85,7 +85,7 @@ begin
             sCLK_XVXOSC <=  ~sCLK_XVXOSC;
         end
         else
-        sCLK_XVXOSC_DIV     <=  sCLK_XVXOSC_DIV+1;
+        sCLK_XVXOSC_DIV     <=  sCLK_XVXOSC_DIV+1'b1;
         
         if(sCLK_XVXENVS_DIV >= XVXENVS_DIV)
         begin
@@ -93,7 +93,7 @@ begin
             sCLK_XVXENVS    <=  ~sCLK_XVXENVS;
         end
         else
-        sCLK_XVXENVS_DIV        <=  sCLK_XVXENVS_DIV+1; 
+        sCLK_XVXENVS_DIV        <=  sCLK_XVXENVS_DIV+1'b1; 
     end 
 end
 

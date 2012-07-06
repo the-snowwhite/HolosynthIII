@@ -70,16 +70,16 @@ module synthesizer (
 //parameter VOICES = 64;
 //parameter VOICES = 32;
 //parameter VOICES = 16;
-//parameter VOICES = 8;
-parameter VOICES = 4;	// number of simultainious voices
-//parameter VOICES = 2;
-//parameter VOICES = 1;
+parameter VOICES = 8;	// number of simultainious voices 
+//parameter VOICES = 4;	// number of simultainious voices
+//parameter VOICES = 2;	// number of simultainious voices
+//parameter VOICES = 1;	// number of simultainious voices
 
 //parameter V_OSC = 8;  //!NEEK
 //parameter V_OSC = 6;
-//parameter V_OSC = 4;
+parameter V_OSC = 4;	// number of oscilators pr. voice.
 //parameter V_OSC = 3;
-parameter V_OSC = 2;	// number of oscilators pr. voice.
+//parameter V_OSC = 2;	// number of oscilators pr. voice.
 //parameter V_OSC = 1;
 
 parameter O_ENVS = 2;	// number of envelope generators pr. oscilator.
@@ -121,7 +121,7 @@ parameter VW_9 = utils::clogb2(V_9);
 //	wire 	 touch_clk = VGA_CLK_o[10];
 //---	Reset gen		---//	
 
-	wire initial_reset=(MCNT<12)?1'b1:1'b0;
+//	wire initial_reset=(MCNT<12)?1'b1:1'b0;
 
 	wire reset1 = button[1];
 	wire reset2 = button[2];
@@ -202,7 +202,7 @@ reset_delay	reset_delay_inst  (
 
 	always @(negedge reset1 or posedge sysclk) begin
 		if (!reset1) MCNT=0;
-		else if(MCNT < 500) MCNT=MCNT+1;
+		else if(MCNT < 500) MCNT=MCNT+ 1'b1;
 	end
 
 //-----	Clockgens & Timing	----//
@@ -373,7 +373,8 @@ synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.
 /////// LED Display ////////
 //assign GLED[8:1] = {key_on[7],key_on[6],key_on[5],key_on[4],key_on[3],key_on[2],key_on[1],key_on[0]};
 
-assign GLED[VOICES+1:1] = keys_on[VOICES-1:0];
+assign GLED[VOICES:1] = keys_on[VOICES-1:0];
+//assign GLED[8:1] = keys_on[7:0];
 
 assign RLED[VOICES+1:1] = voice_free[VOICES-1:0];
 
