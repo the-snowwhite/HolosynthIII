@@ -17,3 +17,6 @@ HolosynthII_test.sta.summary
 PLLJ_PLLSPE_INFO.txt
 *.bak
 *.cdf
+*.rpt
+*.ddb
+*.stp
