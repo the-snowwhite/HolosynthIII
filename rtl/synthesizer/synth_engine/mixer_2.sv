@@ -18,7 +18,8 @@ module mixer_2 (
     input                m2_sel,
     // Outputs -- //
     // osc
-    output reg [10:0]modulation,
+//    output reg [10:0]modulation,
+    output reg signed [10:0] modulation,
     // sound data out
     output signed [15:0]             lsound_out,   // 16-bits
     output signed [15:0]             rsound_out   // 16-bits
@@ -33,6 +34,7 @@ parameter O_WIDTH	= 2;
 parameter OE_WIDTH	= 1;
 parameter E_WIDTH	= O_WIDTH + OE_WIDTH;
 
+parameter x_offset = (V_OSC * VOICES ) - 2;
 
    reg  signed [7:0]osc_lvl[V_OSC-1:0];      // osc_lvl  osc_buf[2]
    reg  signed [7:0]osc_mod[V_OSC-1:0];      // osc_mod    osc_buf[3]
@@ -44,8 +46,8 @@ parameter E_WIDTH	= O_WIDTH + OE_WIDTH;
    reg  signed [7:0]mat_buf1[15:0][V_OSC-1:0];
    reg  signed [7:0]mat_buf2[15:0][V_OSC-1:0];
 
-   reg [O_WIDTH-1:0]  ox_dly[1:0];
-   reg [V_WIDTH-1:0]  vx_dly[1:0];
+   reg [O_WIDTH-1:0]  ox_dly[x_offset:0];
+   reg [V_WIDTH-1:0]  vx_dly[x_offset:0];
 
 	reg signed [63:0] reg_sine_level_mul_data;
 	reg signed [63:0] reg_sine_level_mul_osc_lvl_m_vol_data;
@@ -53,28 +55,45 @@ parameter E_WIDTH	= O_WIDTH + OE_WIDTH;
 	reg signed [63:0] reg_osc_data_sum_l;
 	reg signed [63:0] reg_osc_data_sum_r;
 	
-	reg signed [7:0]	reg_voice_vol_env_lvl;
-//	reg signed [7:0]	reg_level_mul[4:0];
-
 	reg signed [63:0] reg_voice_sound_sum_l;
 	reg signed [63:0] reg_voice_sound_sum_r;
 	
-	reg[2:0] sh_voice_reg;
-	reg[3:0] sh_osc_reg;
+	reg signed [7:0] reg_voice_vol_env_lvl;
+
+	reg signed [47:0] reg_sine_mod_data[V_OSC-1:0];
+	reg signed [47:0] reg_sine_fb_data[V_OSC-1:0];
+	reg signed [47:0] reg_mod_matrix_mul[V_OSC-1:0];	
+	reg signed [47:0] reg_fb_matrix_mul[V_OSC-1:0];
+	wire signed [47:0] mod_matrix_mul[V_OSC-1:0];
+	wire signed [47:0] fb_matrix_mul[V_OSC-1:0];
+	
+	wire signed [47:0] mod_matrix_out_sum;
+	wire signed [47:0] fb_matrix_out_sum;
+	
+	reg signed [10:0] reg_matrix_data[VOICES-1:0][V_OSC-1:0];
+	
+	
+	reg[V_OSC+2:0] sh_voice_reg;
+	reg[V_ENVS:0] sh_osc_reg;
+//	reg[(V_ENVS * VOICES )-1:0] sh_mod_reg;
  
 	wire signed [63:0] sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_l;
 	wire signed [63:0] sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_r;
-
+			
+	wire signed [10:0] modulation_sum;
+	
 	assign sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_l = reg_sine_level_mul_osc_lvl_m_vol_data * reg_voice_vol_env_lvl * (127 - osc_pan[ox_dly[1]]);
 	assign sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_r = reg_sine_level_mul_osc_lvl_m_vol_data * reg_voice_vol_env_lvl * osc_pan[ox_dly[1]];
 
-   wire [O_WIDTH-1:0]  ox;
-   wire [V_WIDTH-1:0]  vx;
-   assign ox = xxxx[E_WIDTH-1:OE_WIDTH];
-   assign vx = xxxx[V_WIDTH+E_WIDTH-1:E_WIDTH];
+	assign modulation_sum = (( mod_matrix_out_sum + fb_matrix_out_sum ) >>> (26 + O_WIDTH ));  
+	
+	wire [O_WIDTH-1:0]  ox;
+	wire [V_WIDTH-1:0]  vx;
+	assign ox = xxxx[E_WIDTH-1:OE_WIDTH];
+	assign vx = xxxx[V_WIDTH+E_WIDTH-1:E_WIDTH];
 	 
    integer loop,oloop,iloop,osc1,ol1,il1,ol2,il2;
-	integer slmloop,shloop;
+	integer slmloop,shloop,d1;
 /**		@brief get midi controller data from midi decoder
 */	
     always@(negedge iRST_N or negedge write)begin : receive_midi_controller_data
@@ -129,6 +148,44 @@ parameter E_WIDTH	= O_WIDTH + OE_WIDTH;
         end
     end
 
+/**	@brief sum modulation data and multiply with martix in for pr osc.
+*/	 
+
+	genvar modmatloop;
+	generate
+		for (modmatloop=0;modmatloop<V_OSC;modmatloop=modmatloop+1) begin : cal_mod_mat_mul
+			assign mod_matrix_mul[modmatloop] = reg_sine_mod_data[ox_dly[V_OSC-1]] * mat_buf1[modmatloop][ox_dly[V_OSC-1]];
+		end
+	endgenerate
+	
+	genvar fbmatloop;
+	generate
+		for (fbmatloop=0;fbmatloop<V_OSC;fbmatloop=fbmatloop+1) begin : cal_fb_mat_mul
+			assign fb_matrix_mul[fbmatloop] = reg_sine_fb_data[ox_dly[V_OSC-1]] * mat_buf1[fbmatloop+8][ox_dly[V_OSC-1]];
+		end
+	endgenerate
+
+	genvar modloop;
+	generate
+		wire [48:0 ]mod_sum[V_OSC:0];
+		assign mod_sum[0] = 0;
+		assign mod_matrix_out_sum = (mod_sum[V_OSC] * osc_mod_in[ox_dly[V_OSC+2]]);// >>> ( O_WIDTH + V_WIDTH);
+		for (modloop=0;modloop<V_OSC;modloop=modloop+1) begin : cal_mod_mat_out_sum
+			assign mod_sum[modloop+1] = mod_sum[modloop] + reg_mod_matrix_mul[modloop];
+		end
+	endgenerate
+
+	
+	genvar fbloop;
+	generate
+		wire [48:0 ]fb_sum[V_OSC:0];
+		assign fb_sum[0] = 0;
+		assign fb_matrix_out_sum = (fb_sum[V_OSC] * osc_feedb_in[ox_dly[V_OSC+2]]);// >>> (O_WIDTH + V_WIDTH);
+		for (fbloop=0;fbloop<V_OSC;fbloop=fbloop+1) begin : cal_fb_mat_out_sum
+			assign fb_sum[fbloop+1] = fb_sum[fbloop] + reg_fb_matrix_mul[fbloop];
+		end
+	endgenerate
+	
 /**	@brief output mixed sounddata to out register
 */	 
 	always @(negedge sCLK_XVXENVS)begin : sound_out
@@ -154,9 +211,13 @@ parameter E_WIDTH	= O_WIDTH + OE_WIDTH;
 *		multiply sine level mul data with main vol env (1), left/right pan value, osc vol level and main volume
 *	
 */	
+	integer mmmloop, mmcloop;
+	
 	always @(posedge sCLK_XVXENVS )begin : main_mix_summing
 		if (sh_osc_reg[1])begin
 			reg_sine_level_mul_data <= (level_mul * sine_lut_out);
+			reg_sine_mod_data[ox_dly[0]] <= (level_mul * sine_lut_out * osc_mod[ox_dly[0]]);
+			reg_sine_fb_data[ox_dly[0]] <= sine_lut_out * osc_feedb[ox_dly[0]];
 		end
 		if (sh_osc_reg[2])begin
 			reg_sine_level_mul_osc_lvl_m_vol_data <= reg_sine_level_mul_data * osc_lvl[ox_dly[1]];
@@ -165,14 +226,34 @@ parameter E_WIDTH	= O_WIDTH + OE_WIDTH;
 			reg_osc_data_sum_l <= reg_osc_data_sum_l + sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_l;
 			reg_osc_data_sum_r <= reg_osc_data_sum_r + sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_r;
 		end
-		if(sh_voice_reg[2])begin reg_osc_data_sum_l <= 16'h0000; reg_osc_data_sum_r <= 16'h0000; end
+		if (sh_osc_reg[V_OSC])begin
+			for(mmmloop=0;mmmloop<V_OSC;mmmloop=mmmloop+1) begin
+				reg_mod_matrix_mul[mmmloop] <= reg_mod_matrix_mul[mmmloop] + (mod_matrix_mul[mmmloop] >>> 7);
+				reg_fb_matrix_mul[mmmloop] <= reg_fb_matrix_mul[mmmloop] + fb_matrix_mul[mmmloop];
+			end
+		end
+
+		if (sh_osc_reg[V_OSC+3]) reg_matrix_data[vx_dly[V_OSC+2]][ox_dly[V_OSC+2]] <= modulation_sum;
+
+		if (sh_voice_reg[V_OSC+1])begin
+			for(mmcloop=0;mmcloop<V_OSC;mmcloop=mmcloop+1) begin
+				reg_mod_matrix_mul[mmcloop] <= 48'h0;
+				reg_fb_matrix_mul[mmcloop] <= 48'h0;
+			end
+		end
+
+		if(sh_voice_reg[2])begin 
+			reg_osc_data_sum_l <= 63'h0; reg_osc_data_sum_r <= 63'h0;
+		end
+//		if(sh_mod_reg[1])begin reg_osc_mod_data_sum[ox_dly[0]] <= 48'h0; reg_osc_fb_data_sum[ox_dly[0]] <= 48'h0; end
 	end
 
-	always @(posedge sCLK_XVXOSC)begin : sine_level_mul_menv_vol_osc_lvl_pan_main_vol
-		ox_dly[0] <= ox;
-		vx_dly[0] <= vx;
-		ox_dly[1] <= ox_dly[0];
-		vx_dly[1] <= vx_dly[0];
+	always @(posedge sCLK_XVXOSC)begin : ox_vx_delay_gen
+		vx_dly[0] <= vx; ox_dly[0] <= ox;
+		for(d1=0;d1<x_offset;d1=d1+1) begin // all Voices 2 osc's
+			vx_dly[d1+1] <= vx_dly[d1]; ox_dly[d1+1] <= ox_dly[d1];
+		end
+		modulation <= reg_matrix_data[vx_dly[x_offset]][ox_dly[x_offset]];
 	end
 	
 /**	@brief main shiftreg state driver
@@ -189,6 +270,9 @@ parameter E_WIDTH	= O_WIDTH + OE_WIDTH;
 
 		if(sh_o_counter == 0 ) begin sh_osc_reg <= (sh_osc_reg << 1)+ 1; end 
 		else begin sh_osc_reg <= sh_osc_reg << 1; end
+		
+//		if( xxxx < (V_OSC * O_ENVS) && (!xxxx[OE_WIDTH-1]) ) begin sh_mod_reg <= (sh_mod_reg << 1)+ 1; end
+//		else begin sh_mod_reg <= sh_mod_reg << 1; end
 	end
 	
 endmodule
