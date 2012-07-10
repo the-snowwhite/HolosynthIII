@@ -20,3 +20,6 @@ PLLJ_PLLSPE_INFO.txt
 *.rpt
 *.ddb
 *.stp
+audio_pll.qip
+vga_pll.qip
+*.orig
