@@ -98,15 +98,15 @@ end
         if(!iRST_N)begin samplebyte <= 0; midibyte <= 0;end
         else begin
             case (revcnt[4:0])
-            3:samplebyte[0] <= midi_dat;
-            5:samplebyte[1] <= midi_dat;
-            7:samplebyte[2] <= midi_dat;
-            9:samplebyte[3] <= midi_dat;
-            11:samplebyte[4] <= midi_dat;
-            13:samplebyte[5] <= midi_dat;
-            15:samplebyte[6] <= midi_dat;
-            17:samplebyte[7] <= midi_dat;
-            18:midibyte <= samplebyte;
+            5'd3:samplebyte[0] <= midi_dat;
+            5'd5:samplebyte[1] <= midi_dat;
+            5'd7:samplebyte[2] <= midi_dat;
+            5'd9:samplebyte[3] <= midi_dat;
+            5'd11:samplebyte[4] <= midi_dat;
+            5'd13:samplebyte[5] <= midi_dat;
+            5'd15:samplebyte[6] <= midi_dat;
+            5'd17:samplebyte[7] <= midi_dat;
+            5'd18:midibyte <= samplebyte;
             default:;
             endcase
         end

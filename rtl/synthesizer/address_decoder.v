@@ -40,11 +40,11 @@ module address_decoder (
         end
         else begin
             case (syx_bank_adr_r)
-                0: begin env_sel<=1'b1;osc_sel<=1'b0;m1_sel<=1'b0;m2_sel<=1'b0;com_sel<=1'b0;end
-                1: begin env_sel<=1'b0;osc_sel<=1'b1;m1_sel<=1'b0;m2_sel<=1'b0;com_sel<=1'b0;end
-                2: begin env_sel<=1'b0;osc_sel<=1'b0;m1_sel<=1'b1;m2_sel<=1'b0;com_sel<=1'b0;end
-                3: begin env_sel<=1'b0;osc_sel<=1'b0;m1_sel<=1'b0;m2_sel<=1'b1;com_sel<=1'b0;end
-                4: begin env_sel<=1'b0;osc_sel<=1'b0;m1_sel<=1'b0;m2_sel<=1'b0;com_sel<=1'b1;end
+                3'd0: begin env_sel<=1'b1;osc_sel<=1'b0;m1_sel<=1'b0;m2_sel<=1'b0;com_sel<=1'b0;end
+                3'd1: begin env_sel<=1'b0;osc_sel<=1'b1;m1_sel<=1'b0;m2_sel<=1'b0;com_sel<=1'b0;end
+                3'd2: begin env_sel<=1'b0;osc_sel<=1'b0;m1_sel<=1'b1;m2_sel<=1'b0;com_sel<=1'b0;end
+                3'd3: begin env_sel<=1'b0;osc_sel<=1'b0;m1_sel<=1'b0;m2_sel<=1'b1;com_sel<=1'b0;end
+                3'd4: begin env_sel<=1'b0;osc_sel<=1'b0;m1_sel<=1'b0;m2_sel<=1'b0;com_sel<=1'b1;end
                 default: begin env_sel <= 0; osc_sel <= 0; m1_sel <= 0; m2_sel <= 0; com_sel <= 0; end
             endcase
         end

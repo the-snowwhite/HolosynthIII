@@ -37,24 +37,15 @@
 `timescale 1 ps / 1 ps
 // synopsys translate_on
 module vga_pll (
-	areset,
 	inclk0,
 	c0,
 	c1,
 	c2);
 
-	input	  areset;
 	input	  inclk0;
 	output	  c0;
 	output	  c1;
 	output	  c2;
-`ifndef ALTERA_RESERVED_QIS
-// synopsys translate_off
-`endif
-	tri0	  areset;
-`ifndef ALTERA_RESERVED_QIS
-// synopsys translate_on
-`endif
 
 	wire [5:0] sub_wire0;
 	wire [0:0] sub_wire6 = 1'h0;
@@ -68,10 +59,10 @@ module vga_pll (
 	wire [1:0] sub_wire5 = {sub_wire6, sub_wire4};
 
 	altpll	altpll_component (
-				.areset (areset),
 				.inclk (sub_wire5),
 				.clk (sub_wire0),
 				.activeclock (),
+				.areset (1'b0),
 				.clkbad (),
 				.clkena ({6{1'b1}}),
 				.clkloss (),
@@ -106,25 +97,25 @@ module vga_pll (
 				.vcooverrange (),
 				.vcounderrange ());
 	defparam
-		altpll_component.clk0_divide_by = 19,
+		altpll_component.clk0_divide_by = 2,
 		altpll_component.clk0_duty_cycle = 50,
-		altpll_component.clk0_multiply_by = 15,
+		altpll_component.clk0_multiply_by = 1,
 		altpll_component.clk0_phase_shift = "0",
 		altpll_component.clk1_divide_by = 2,
 		altpll_component.clk1_duty_cycle = 50,
 		altpll_component.clk1_multiply_by = 3,
 		altpll_component.clk1_phase_shift = "0",
-		altpll_component.clk2_divide_by = 2,
+		altpll_component.clk2_divide_by = 19,
 		altpll_component.clk2_duty_cycle = 50,
-		altpll_component.clk2_multiply_by = 1,
+		altpll_component.clk2_multiply_by = 15,
 		altpll_component.clk2_phase_shift = "0",
-		altpll_component.compensate_clock = "CLK2",
+		altpll_component.compensate_clock = "CLK0",
 		altpll_component.inclk0_input_frequency = 20000,
 		altpll_component.intended_device_family = "Cyclone II",
 		altpll_component.lpm_type = "altpll",
 		altpll_component.operation_mode = "NORMAL",
 		altpll_component.port_activeclock = "PORT_UNUSED",
-		altpll_component.port_areset = "PORT_USED",
+		altpll_component.port_areset = "PORT_UNUSED",
 		altpll_component.port_clkbad0 = "PORT_UNUSED",
 		altpll_component.port_clkbad1 = "PORT_UNUSED",
 		altpll_component.port_clkloss = "PORT_UNUSED",
@@ -185,18 +176,18 @@ endmodule
 // Retrieval info: PRIVATE: CNX_NO_COMPENSATE_RADIO STRING "0"
 // Retrieval info: PRIVATE: CREATE_CLKBAD_CHECK STRING "0"
 // Retrieval info: PRIVATE: CREATE_INCLK1_CHECK STRING "0"
-// Retrieval info: PRIVATE: CUR_DEDICATED_CLK STRING "c2"
+// Retrieval info: PRIVATE: CUR_DEDICATED_CLK STRING "c0"
 // Retrieval info: PRIVATE: CUR_FBIN_CLK STRING "e0"
 // Retrieval info: PRIVATE: DEVICE_SPEED_GRADE STRING "Any"
-// Retrieval info: PRIVATE: DIV_FACTOR0 NUMERIC "19"
-// Retrieval info: PRIVATE: DIV_FACTOR1 NUMERIC "1"
-// Retrieval info: PRIVATE: DIV_FACTOR2 NUMERIC "2"
+// Retrieval info: PRIVATE: DIV_FACTOR0 NUMERIC "2"
+// Retrieval info: PRIVATE: DIV_FACTOR1 NUMERIC "2"
+// Retrieval info: PRIVATE: DIV_FACTOR2 NUMERIC "19"
 // Retrieval info: PRIVATE: DUTY_CYCLE0 STRING "50.00000000"
 // Retrieval info: PRIVATE: DUTY_CYCLE1 STRING "50.00000000"
 // Retrieval info: PRIVATE: DUTY_CYCLE2 STRING "50.00000000"
-// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE0 STRING "39.473682"
+// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE0 STRING "25.000000"
 // Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE1 STRING "75.000000"
-// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE2 STRING "25.000000"
+// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE2 STRING "39.473682"
 // Retrieval info: PRIVATE: EXPLICIT_SWITCHOVER_COUNTER STRING "0"
 // Retrieval info: PRIVATE: EXT_FEEDBACK_RADIO STRING "0"
 // Retrieval info: PRIVATE: GLOCKED_COUNTER_EDIT_CHANGED STRING "1"
@@ -223,15 +214,15 @@ endmodule
 // Retrieval info: PRIVATE: MIRROR_CLK0 STRING "0"
 // Retrieval info: PRIVATE: MIRROR_CLK1 STRING "0"
 // Retrieval info: PRIVATE: MIRROR_CLK2 STRING "0"
-// Retrieval info: PRIVATE: MULT_FACTOR0 NUMERIC "15"
-// Retrieval info: PRIVATE: MULT_FACTOR1 NUMERIC "1"
-// Retrieval info: PRIVATE: MULT_FACTOR2 NUMERIC "1"
+// Retrieval info: PRIVATE: MULT_FACTOR0 NUMERIC "1"
+// Retrieval info: PRIVATE: MULT_FACTOR1 NUMERIC "3"
+// Retrieval info: PRIVATE: MULT_FACTOR2 NUMERIC "15"
 // Retrieval info: PRIVATE: NORMAL_MODE_RADIO STRING "1"
-// Retrieval info: PRIVATE: OUTPUT_FREQ0 STRING "39.00000000"
+// Retrieval info: PRIVATE: OUTPUT_FREQ0 STRING "25.00000000"
 // Retrieval info: PRIVATE: OUTPUT_FREQ1 STRING "75.00000000"
-// Retrieval info: PRIVATE: OUTPUT_FREQ2 STRING "25.00000000"
+// Retrieval info: PRIVATE: OUTPUT_FREQ2 STRING "39.06250000"
 // Retrieval info: PRIVATE: OUTPUT_FREQ_MODE0 STRING "0"
-// Retrieval info: PRIVATE: OUTPUT_FREQ_MODE1 STRING "1"
+// Retrieval info: PRIVATE: OUTPUT_FREQ_MODE1 STRING "0"
 // Retrieval info: PRIVATE: OUTPUT_FREQ_MODE2 STRING "0"
 // Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT0 STRING "MHz"
 // Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT1 STRING "MHz"
@@ -246,7 +237,7 @@ endmodule
 // Retrieval info: PRIVATE: PHASE_SHIFT_UNIT1 STRING "ps"
 // Retrieval info: PRIVATE: PHASE_SHIFT_UNIT2 STRING "ps"
 // Retrieval info: PRIVATE: PLL_ADVANCED_PARAM_CHECK STRING "0"
-// Retrieval info: PRIVATE: PLL_ARESET_CHECK STRING "1"
+// Retrieval info: PRIVATE: PLL_ARESET_CHECK STRING "0"
 // Retrieval info: PRIVATE: PLL_AUTOPLL_CHECK NUMERIC "1"
 // Retrieval info: PRIVATE: PLL_ENA_CHECK STRING "0"
 // Retrieval info: PRIVATE: PLL_ENHPLL_CHECK NUMERIC "0"
@@ -282,25 +273,25 @@ endmodule
 // Retrieval info: PRIVATE: USE_MIL_SPEED_GRADE NUMERIC "0"
 // Retrieval info: PRIVATE: ZERO_DELAY_RADIO STRING "0"
 // Retrieval info: LIBRARY: altera_mf altera_mf.altera_mf_components.all
-// Retrieval info: CONSTANT: CLK0_DIVIDE_BY NUMERIC "19"
+// Retrieval info: CONSTANT: CLK0_DIVIDE_BY NUMERIC "2"
 // Retrieval info: CONSTANT: CLK0_DUTY_CYCLE NUMERIC "50"
-// Retrieval info: CONSTANT: CLK0_MULTIPLY_BY NUMERIC "15"
+// Retrieval info: CONSTANT: CLK0_MULTIPLY_BY NUMERIC "1"
 // Retrieval info: CONSTANT: CLK0_PHASE_SHIFT STRING "0"
 // Retrieval info: CONSTANT: CLK1_DIVIDE_BY NUMERIC "2"
 // Retrieval info: CONSTANT: CLK1_DUTY_CYCLE NUMERIC "50"
 // Retrieval info: CONSTANT: CLK1_MULTIPLY_BY NUMERIC "3"
 // Retrieval info: CONSTANT: CLK1_PHASE_SHIFT STRING "0"
-// Retrieval info: CONSTANT: CLK2_DIVIDE_BY NUMERIC "2"
+// Retrieval info: CONSTANT: CLK2_DIVIDE_BY NUMERIC "19"
 // Retrieval info: CONSTANT: CLK2_DUTY_CYCLE NUMERIC "50"
-// Retrieval info: CONSTANT: CLK2_MULTIPLY_BY NUMERIC "1"
+// Retrieval info: CONSTANT: CLK2_MULTIPLY_BY NUMERIC "15"
 // Retrieval info: CONSTANT: CLK2_PHASE_SHIFT STRING "0"
-// Retrieval info: CONSTANT: COMPENSATE_CLOCK STRING "CLK2"
+// Retrieval info: CONSTANT: COMPENSATE_CLOCK STRING "CLK0"
 // Retrieval info: CONSTANT: INCLK0_INPUT_FREQUENCY NUMERIC "20000"
 // Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Cyclone II"
 // Retrieval info: CONSTANT: LPM_TYPE STRING "altpll"
 // Retrieval info: CONSTANT: OPERATION_MODE STRING "NORMAL"
 // Retrieval info: CONSTANT: PORT_ACTIVECLOCK STRING "PORT_UNUSED"
-// Retrieval info: CONSTANT: PORT_ARESET STRING "PORT_USED"
+// Retrieval info: CONSTANT: PORT_ARESET STRING "PORT_UNUSED"
 // Retrieval info: CONSTANT: PORT_CLKBAD0 STRING "PORT_UNUSED"
 // Retrieval info: CONSTANT: PORT_CLKBAD1 STRING "PORT_UNUSED"
 // Retrieval info: CONSTANT: PORT_CLKLOSS STRING "PORT_UNUSED"
@@ -342,12 +333,10 @@ endmodule
 // Retrieval info: CONSTANT: PORT_extclk3 STRING "PORT_UNUSED"
 // Retrieval info: USED_PORT: @clk 0 0 6 0 OUTPUT_CLK_EXT VCC "@clk[5..0]"
 // Retrieval info: USED_PORT: @extclk 0 0 4 0 OUTPUT_CLK_EXT VCC "@extclk[3..0]"
-// Retrieval info: USED_PORT: areset 0 0 0 0 INPUT GND "areset"
 // Retrieval info: USED_PORT: c0 0 0 0 0 OUTPUT_CLK_EXT VCC "c0"
 // Retrieval info: USED_PORT: c1 0 0 0 0 OUTPUT_CLK_EXT VCC "c1"
 // Retrieval info: USED_PORT: c2 0 0 0 0 OUTPUT_CLK_EXT VCC "c2"
 // Retrieval info: USED_PORT: inclk0 0 0 0 0 INPUT_CLK_EXT GND "inclk0"
-// Retrieval info: CONNECT: @areset 0 0 0 0 areset 0 0 0 0
 // Retrieval info: CONNECT: @inclk 0 0 1 1 GND 0 0 0 0
 // Retrieval info: CONNECT: @inclk 0 0 1 0 inclk0 0 0 0 0
 // Retrieval info: CONNECT: c0 0 0 0 0 @clk 0 0 1 0

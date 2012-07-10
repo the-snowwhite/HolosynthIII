@@ -261,10 +261,10 @@ wire is_st_note_on=(
                 end
             end else if(is_st_sysex)begin // Sysex
                 case (midi_bytes)
-                    3:bank_adr  <=databyte[2:0];
-                    4:adr  <=databyte[6:0];
-                    5:data  <=databyte;
-                    6:if (midi_bytes == 6 && databyte == 8'hf7)syx_cmd <= 1'b1;
+                    8'd3:bank_adr  <=databyte[2:0];
+                    8'd4:adr  <=databyte[6:0];
+                    8'd5:data  <=databyte;
+                    8'd6:if (midi_bytes == 6 && databyte == 8'hf7)syx_cmd <= 1'b1;
                     default:;
                 endcase
             end else if(is_st_pitch)begin // Control Change omni
@@ -308,14 +308,13 @@ wire is_st_note_on=(
                             key_on[i8]<=1'b0;
                             cur_key_adr <= i8;
                             cur_key_val <= 8'hff;
-                            cur_vel_on <= 0;
-                            cur_vel_off <= 0;
+                            cur_vel_on <= 8'd0;
+                            cur_vel_off <= 8'd0;
                             key_val[i8] <= 8'hff;
                         end
+                        cur_note <= 8'd0;
                         slot_off <= 0;
-                        cur_note <= 0;
-                        slot_off<=0;
-                        cur_slot<=0;
+                        cur_slot <= 0;
                     end
                 end
             end

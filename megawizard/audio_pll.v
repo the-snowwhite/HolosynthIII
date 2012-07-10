@@ -93,20 +93,18 @@ module audio_pll (
 				.vcooverrange (),
 				.vcounderrange ());
 	defparam
-		altpll_component.bandwidth_type = "AUTO",
-		altpll_component.clk0_divide_by = 18,
-		altpll_component.clk0_duty_cycle = 50,
-		altpll_component.clk0_multiply_by = 65,
-		altpll_component.clk0_phase_shift = "0",
-		altpll_component.clk1_divide_by = 192,
-		altpll_component.clk1_duty_cycle = 50,
-		altpll_component.clk1_multiply_by = 65,
-		altpll_component.clk1_phase_shift = "0",
-		altpll_component.compensate_clock = "CLK0",
+		altpll_component.charge_pump_current_bits = 1,
+		altpll_component.compensate_clock = "CLK1",
 		altpll_component.inclk0_input_frequency = 20000,
 		altpll_component.intended_device_family = "Cyclone IV E",
+		altpll_component.loop_filter_c_bits = 0,
+		altpll_component.loop_filter_r_bits = 8,
 		altpll_component.lpm_hint = "CBX_MODULE_PREFIX=audio_pll",
 		altpll_component.lpm_type = "altpll",
+		altpll_component.m = 195,
+		altpll_component.m_initial = 1,
+		altpll_component.m_ph = 0,
+		altpll_component.n = 9,
 		altpll_component.operation_mode = "NORMAL",
 		altpll_component.pll_type = "AUTO",
 		altpll_component.port_activeclock = "PORT_UNUSED",
@@ -150,7 +148,20 @@ module audio_pll (
 		altpll_component.port_extclk1 = "PORT_UNUSED",
 		altpll_component.port_extclk2 = "PORT_UNUSED",
 		altpll_component.port_extclk3 = "PORT_UNUSED",
-		altpll_component.width_clock = 5;
+		altpll_component.vco_post_scale = 1,
+		altpll_component.width_clock = 5,
+		altpll_component.c0_high = 3,
+		altpll_component.c0_initial = 1,
+		altpll_component.c0_low = 3,
+		altpll_component.c0_mode = "even",
+		altpll_component.c0_ph = 0,
+		altpll_component.c1_high = 32,
+		altpll_component.c1_initial = 1,
+		altpll_component.c1_low = 32,
+		altpll_component.c1_mode = "even",
+		altpll_component.c1_ph = 0,
+		altpll_component.clk0_counter = "c0",
+		altpll_component.clk1_counter = "c1";
 
 
 endmodule
@@ -163,15 +174,15 @@ endmodule
 // Retrieval info: PRIVATE: BANDWIDTH_FEATURE_ENABLED STRING "1"
 // Retrieval info: PRIVATE: BANDWIDTH_FREQ_UNIT STRING "MHz"
 // Retrieval info: PRIVATE: BANDWIDTH_PRESET STRING "Low"
-// Retrieval info: PRIVATE: BANDWIDTH_USE_AUTO STRING "1"
-// Retrieval info: PRIVATE: BANDWIDTH_USE_PRESET STRING "0"
+// Retrieval info: PRIVATE: BANDWIDTH_USE_AUTO STRING "0"
+// Retrieval info: PRIVATE: BANDWIDTH_USE_PRESET STRING "1"
 // Retrieval info: PRIVATE: CLKBAD_SWITCHOVER_CHECK STRING "0"
 // Retrieval info: PRIVATE: CLKLOSS_CHECK STRING "0"
 // Retrieval info: PRIVATE: CLKSWITCH_CHECK STRING "0"
 // Retrieval info: PRIVATE: CNX_NO_COMPENSATE_RADIO STRING "0"
 // Retrieval info: PRIVATE: CREATE_CLKBAD_CHECK STRING "0"
 // Retrieval info: PRIVATE: CREATE_INCLK1_CHECK STRING "0"
-// Retrieval info: PRIVATE: CUR_DEDICATED_CLK STRING "c0"
+// Retrieval info: PRIVATE: CUR_DEDICATED_CLK STRING "c1"
 // Retrieval info: PRIVATE: CUR_FBIN_CLK STRING "c0"
 // Retrieval info: PRIVATE: DEVICE_SPEED_GRADE STRING "7"
 // Retrieval info: PRIVATE: DIV_FACTOR0 NUMERIC "18"
@@ -220,7 +231,7 @@ endmodule
 // Retrieval info: PRIVATE: PHASE_SHIFT_STEP_ENABLED_CHECK STRING "0"
 // Retrieval info: PRIVATE: PHASE_SHIFT_UNIT0 STRING "deg"
 // Retrieval info: PRIVATE: PHASE_SHIFT_UNIT1 STRING "deg"
-// Retrieval info: PRIVATE: PLL_ADVANCED_PARAM_CHECK STRING "0"
+// Retrieval info: PRIVATE: PLL_ADVANCED_PARAM_CHECK STRING "1"
 // Retrieval info: PRIVATE: PLL_ARESET_CHECK STRING "0"
 // Retrieval info: PRIVATE: PLL_AUTOPLL_CHECK NUMERIC "1"
 // Retrieval info: PRIVATE: PLL_ENHPLL_CHECK NUMERIC "0"
@@ -253,19 +264,17 @@ endmodule
 // Retrieval info: PRIVATE: USE_MIL_SPEED_GRADE NUMERIC "0"
 // Retrieval info: PRIVATE: ZERO_DELAY_RADIO STRING "0"
 // Retrieval info: LIBRARY: altera_mf altera_mf.altera_mf_components.all
-// Retrieval info: CONSTANT: BANDWIDTH_TYPE STRING "AUTO"
-// Retrieval info: CONSTANT: CLK0_DIVIDE_BY NUMERIC "18"
-// Retrieval info: CONSTANT: CLK0_DUTY_CYCLE NUMERIC "50"
-// Retrieval info: CONSTANT: CLK0_MULTIPLY_BY NUMERIC "65"
-// Retrieval info: CONSTANT: CLK0_PHASE_SHIFT STRING "0"
-// Retrieval info: CONSTANT: CLK1_DIVIDE_BY NUMERIC "192"
-// Retrieval info: CONSTANT: CLK1_DUTY_CYCLE NUMERIC "50"
-// Retrieval info: CONSTANT: CLK1_MULTIPLY_BY NUMERIC "65"
-// Retrieval info: CONSTANT: CLK1_PHASE_SHIFT STRING "0"
-// Retrieval info: CONSTANT: COMPENSATE_CLOCK STRING "CLK0"
+// Retrieval info: CONSTANT: CHARGE_PUMP_CURRENT_BITS NUMERIC "1"
+// Retrieval info: CONSTANT: COMPENSATE_CLOCK STRING "CLK1"
 // Retrieval info: CONSTANT: INCLK0_INPUT_FREQUENCY NUMERIC "20000"
 // Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Cyclone IV E"
+// Retrieval info: CONSTANT: LOOP_FILTER_C_BITS NUMERIC "0"
+// Retrieval info: CONSTANT: LOOP_FILTER_R_BITS NUMERIC "8"
 // Retrieval info: CONSTANT: LPM_TYPE STRING "altpll"
+// Retrieval info: CONSTANT: M NUMERIC "195"
+// Retrieval info: CONSTANT: M_INITIAL NUMERIC "1"
+// Retrieval info: CONSTANT: M_PH NUMERIC "0"
+// Retrieval info: CONSTANT: N NUMERIC "9"
 // Retrieval info: CONSTANT: OPERATION_MODE STRING "NORMAL"
 // Retrieval info: CONSTANT: PLL_TYPE STRING "AUTO"
 // Retrieval info: CONSTANT: PORT_ACTIVECLOCK STRING "PORT_UNUSED"
@@ -309,7 +318,20 @@ endmodule
 // Retrieval info: CONSTANT: PORT_extclk1 STRING "PORT_UNUSED"
 // Retrieval info: CONSTANT: PORT_extclk2 STRING "PORT_UNUSED"
 // Retrieval info: CONSTANT: PORT_extclk3 STRING "PORT_UNUSED"
+// Retrieval info: CONSTANT: VCO_POST_SCALE NUMERIC "1"
 // Retrieval info: CONSTANT: WIDTH_CLOCK NUMERIC "5"
+// Retrieval info: CONSTANT: c0_high NUMERIC "3"
+// Retrieval info: CONSTANT: c0_initial NUMERIC "1"
+// Retrieval info: CONSTANT: c0_low NUMERIC "3"
+// Retrieval info: CONSTANT: c0_mode STRING "even"
+// Retrieval info: CONSTANT: c0_ph NUMERIC "0"
+// Retrieval info: CONSTANT: c1_high NUMERIC "32"
+// Retrieval info: CONSTANT: c1_initial NUMERIC "1"
+// Retrieval info: CONSTANT: c1_low NUMERIC "32"
+// Retrieval info: CONSTANT: c1_mode STRING "even"
+// Retrieval info: CONSTANT: c1_ph NUMERIC "0"
+// Retrieval info: CONSTANT: clk0_counter STRING "c0"
+// Retrieval info: CONSTANT: clk1_counter STRING "c1"
 // Retrieval info: USED_PORT: @clk 0 0 5 0 OUTPUT_CLK_EXT VCC "@clk[4..0]"
 // Retrieval info: USED_PORT: c0 0 0 0 0 OUTPUT_CLK_EXT VCC "c0"
 // Retrieval info: USED_PORT: c1 0 0 0 0 OUTPUT_CLK_EXT VCC "c1"

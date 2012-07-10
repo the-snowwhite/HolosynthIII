@@ -476,12 +476,12 @@ synthesizer  synthesizer_inst(
 
 
 
-always @(negedge KEY[0] or posedge CLOCK_50) 
+always @(negedge KEY[3] or posedge CLOCK_50) 
     begin
-        if ( !KEY[0])
+        if ( !KEY[3])
             delay_1 <=0 ;
         else if ( !delay_1 [7] )
-            delay_1 <= delay_1 + 7'h01;
+            delay_1 <= delay_1 + 1'b1;
     end
 
 I2C_AV_Config       u3  (   //  Host Side

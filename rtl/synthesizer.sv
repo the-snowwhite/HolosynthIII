@@ -71,8 +71,8 @@ module synthesizer (
 //parameter VOICES = 32;
 //parameter VOICES = 16;
 //parameter VOICES = 8;	// number of simultainious voices 
-//parameter VOICES = 4;	// number of simultainious voices
-parameter VOICES = 2;	// number of simultainious voices
+parameter VOICES = 4;	// number of simultainious voices
+//parameter VOICES = 2;	// number of simultainious voices
 //parameter VOICES = 1;	// number of simultainious voices
 
 //parameter V_OSC = 8;  //!NEEK
@@ -208,12 +208,12 @@ reset_delay	reset_delay_inst  (
 //-----	Clockgens & Timing	----//
 //  PLL
 
-vga_pll	p1	(	
-	.areset ( 1'b0 ),								
+vga_pll	sys_disp_pll_inst	(	
+//	.areset ( 1'b0 ),								
 	.inclk0 ( CLOCK_50 ),
-	.c0		( HC_LCD_CLK ),	// 39Mhx
+	.c0		( CLOCK_25 ), 
 	.c1		( HC_VGA_CLOCK ),// 
-	.c2		( CLOCK_25 ) 
+	.c2		( HC_LCD_CLK )	// 39Mhx
 );
 
 // Sound clk gen //
@@ -321,18 +321,18 @@ midi_controllers #(.VOICES(VOICES),.V_OSC(V_OSC)) midi_controllers_inst(
 audio_pll	audio_pll_inst (
 	.inclk0 ( CLOCK_50 ),
 	.c0 ( TONE_CTRL_CLK ),  // 180.555556 Mhz
-	.c1 ( AUD_CTRL_CLK ) // 16.927083 Mhz
+	.c1 ( AUD_XCK ) // 16.927083 Mhz
 );
 
 assign	AUD_ADCLRCK	=	AUD_DACLRCK;
 
-assign	AUD_XCK		=	AUD_CTRL_CLK;			
+//assign	AUD_XCK		=	AUD_CTRL_CLK;			
 					
 // 2CH Audio Sound output -- Audio Generater //
 synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH),.OE_WIDTH(OE_WIDTH)) synth_engine_inst	(		        
 // AUDIO CODEC //		
 	.OSC_CLK( TONE_CTRL_CLK ),	//input
-	.AUDIO_CLK( AUD_CTRL_CLK ),		//input
+	.AUDIO_CLK( AUD_XCK ),		//input
 	.iRST_N(iRST_N) ,	// input  reset_sig
 	.AUD_BCK ( AUD_BCLK ),				//output
 	.AUD_DATA( AUD_DACDAT ),			//output

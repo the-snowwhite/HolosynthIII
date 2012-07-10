@@ -100,8 +100,8 @@ assign LTM_GREST = n_xxxx_zero;
 
 synth_clk_gen #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS))synth_clk_gen_inst  // ObjectKind=Sheet Symbol|PrimaryId=U_synth_clk_gen
  (
-	.AUDIO_CLK( AUDIO_CLK ),                        // ObjectKind=Sheet Entry|PrimaryId=synth_clk_gen.v-AUDIO_CLK
 	.iRST_N( iRST_N ),                               // ObjectKind=Sheet Entry|PrimaryId=synth_clk_gen.v-iRST_N
+	.AUDIO_CLK( AUDIO_CLK ),                        // ObjectKind=Sheet Entry|PrimaryId=synth_clk_gen.v-AUDIO_CLK
 	.OSC_CLK( OSC_CLK ),                 // ObjectKind=Sheet Entry|PrimaryId=synth_clk_gen.v-OSC_CLK
 	.sCLK_XVXENVS( sCLK_XVXENVS ),// ObjectKind=Sheet Entry|PrimaryId=synth_clk_gen.v-sCLK_XVXENVS
 	.sCLK_XVXOSC( sCLK_XVXOSC ), // ObjectKind=Sheet Entry|PrimaryId=synth_clk_gen.v-sCLK_XVXOSC

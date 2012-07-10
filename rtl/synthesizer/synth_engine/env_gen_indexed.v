@@ -188,7 +188,7 @@ parameter num_mul = 22;
                         st <= RATE4;
                     end
                     else begin
-                        if(distance_m)begin
+                        if(distance_m != 21'd0)begin
                             distance <= distance_m-1;
                             level <= level_m;
                             next_numer <= (l[0]-oldlevel_m)<<<num_mul;
@@ -247,7 +247,7 @@ parameter num_mul = 22;
                         st <= RATE4;
                     end
                     else begin
-                        if(distance_m)begin
+                        if(distance_m != 21'd0)begin
                             distance <= distance_m-1;
                             level <= level_m;
                             next_numer <= (l[1]-oldlevel_m)<<<num_mul;
@@ -306,7 +306,7 @@ parameter num_mul = 22;
                         st <=RATE4;
                     end
                     else begin
-                        if(distance_m)begin
+                        if(distance_m != 21'd0)begin
                             distance <= distance_m-1;
                             level <= level_m;
                             oldlevel <= oldlevel_m;
@@ -366,7 +366,7 @@ parameter num_mul = 22;
                         st <= RATE1;
                     end
                     else begin
-                        if(distance_m)begin // rate4
+                        if(distance_m != 21'd0)begin // rate4
                             distance <= distance_m-1;
                             next_numer <= (l[3]-oldlevel_m)<<<num_mul;
                             next_denom <= r[3]*r[3];
@@ -397,7 +397,7 @@ parameter num_mul = 22;
                     if(l[3] == 8'h00)begin
                         distance <= 20'h00000;
                         level <= 36'h0000000;
-                        oldlevel <= 36'h0000000;
+                        oldlevel <= 8'h0;
                         next_numer <= 36'h0000000;
                         next_denom <= 8'h01;
                         if(cur_env == mainvol_env_nr) begin
