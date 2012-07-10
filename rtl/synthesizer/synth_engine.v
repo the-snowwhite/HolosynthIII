@@ -78,7 +78,7 @@ assign LTM_GREST = n_xxxx_zero;
 	reg [7:0]         reg_cur_key_val;
 	
 	reg [VOICES-1:0]	reg_keys_on;
-	reg [VOICES-1:0] 	reg_voice_free;
+//	reg [VOICES-1:0] 	reg_voice_free;
 
 	always @(posedge OSC_CLK )begin
 		if(OSC_CLK)begin
@@ -93,7 +93,7 @@ assign LTM_GREST = n_xxxx_zero;
 			reg_cur_key_adr <= cur_key_adr;
 			reg_cur_key_val <= cur_key_val;
 			reg_keys_on <= keys_on;
-			reg_voice_free <= voice_free;
+//			reg_voice_free <= voice_free;
 		end
 	 end
 

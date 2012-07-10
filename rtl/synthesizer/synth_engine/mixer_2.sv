@@ -36,6 +36,9 @@ parameter E_WIDTH	= O_WIDTH + OE_WIDTH;
 
 parameter x_offset = (V_OSC * VOICES ) - 2;
 
+//parameter vo_x_offset = (V_ENVS * VOICES ) - 1;
+parameter vo_x_offset = x_offset;
+
    reg  signed [7:0]osc_lvl[V_OSC-1:0];      // osc_lvl  osc_buf[2]
    reg  signed [7:0]osc_mod[V_OSC-1:0];      // osc_mod    osc_buf[3]
    reg  signed [7:0]osc_feedb[V_OSC-1:0];        // osc_feedb  osc_buf[4]
@@ -62,8 +65,13 @@ parameter x_offset = (V_OSC * VOICES ) - 2;
 
 	reg signed [47:0] reg_sine_mod_data[V_OSC-1:0];
 	reg signed [47:0] reg_sine_fb_data[V_OSC-1:0];
+
+	reg signed [47:0] reg_mod_matrix_mul_sum[V_OSC-1:0];	
+	reg signed [47:0] reg_fb_matrix_mul_sum[V_OSC-1:0];
+
 	reg signed [47:0] reg_mod_matrix_mul[V_OSC-1:0];	
 	reg signed [47:0] reg_fb_matrix_mul[V_OSC-1:0];
+
 	wire signed [47:0] mod_matrix_mul[V_OSC-1:0];
 	wire signed [47:0] fb_matrix_mul[V_OSC-1:0];
 	
@@ -86,6 +94,7 @@ parameter x_offset = (V_OSC * VOICES ) - 2;
 	assign sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_r = reg_sine_level_mul_osc_lvl_m_vol_data * reg_voice_vol_env_lvl * osc_pan[ox_dly[1]];
 
 	assign modulation_sum = (( mod_matrix_out_sum + fb_matrix_out_sum ) >>> (26 + O_WIDTH ));  
+//	assign modulation_sum = (( mod_matrix_out_sum + fb_matrix_out_sum ) >>> (24 + O_WIDTH ));  
 	
 	wire [O_WIDTH-1:0]  ox;
 	wire [V_WIDTH-1:0]  vx;
@@ -154,21 +163,27 @@ parameter x_offset = (V_OSC * VOICES ) - 2;
 	genvar modmatloop;
 	generate
 		for (modmatloop=0;modmatloop<V_OSC;modmatloop=modmatloop+1) begin : cal_mod_mat_mul
-			assign mod_matrix_mul[modmatloop] = reg_sine_mod_data[ox_dly[V_OSC-1]] * mat_buf1[modmatloop][ox_dly[V_OSC-1]];
+			assign mod_matrix_mul[modmatloop] = reg_sine_mod_data[ox_dly[1]] * mat_buf1[modmatloop][ox_dly[1]];
+//			assign mod_matrix_mul[modmatloop] = reg_sine_mod_data[osc_counter] * mat_buf1[modmatloop][osc_counter];
 		end
 	endgenerate
 	
 	genvar fbmatloop;
 	generate
 		for (fbmatloop=0;fbmatloop<V_OSC;fbmatloop=fbmatloop+1) begin : cal_fb_mat_mul
-			assign fb_matrix_mul[fbmatloop] = reg_sine_fb_data[ox_dly[V_OSC-1]] * mat_buf1[fbmatloop+8][ox_dly[V_OSC-1]];
+			assign fb_matrix_mul[fbmatloop] = reg_sine_fb_data[ox_dly[1]] * mat_buf1[fbmatloop+8][ox_dly[1]];
+//			assign fb_matrix_mul[fbmatloop] = reg_sine_fb_data[osc_counter] * mat_buf1[fbmatloop+8][osc_counter];
 		end
 	endgenerate
 
+	assign mod_matrix_out_sum = (reg_mod_matrix_mul[ox_dly[V_OSC]] * osc_mod_in[ox_dly[V_OSC]]);// >>> ( O_WIDTH + V_WIDTH);
+	assign fb_matrix_out_sum = (reg_fb_matrix_mul[ox_dly[V_OSC]] * osc_feedb_in[ox_dly[V_OSC]]);// >>> (O_WIDTH + V_WIDTH);
+
+/*
 	genvar modloop;
 	generate
 		wire [48:0 ]mod_sum[V_OSC:0];
-		assign mod_sum[0] = 0;
+		assign mod_sum[0] = 0;ox_dly[V_OSC+2]]
 		assign mod_matrix_out_sum = (mod_sum[V_OSC] * osc_mod_in[ox_dly[V_OSC+2]]);// >>> ( O_WIDTH + V_WIDTH);
 		for (modloop=0;modloop<V_OSC;modloop=modloop+1) begin : cal_mod_mat_out_sum
 			assign mod_sum[modloop+1] = mod_sum[modloop] + reg_mod_matrix_mul[modloop];
@@ -185,11 +200,19 @@ parameter x_offset = (V_OSC * VOICES ) - 2;
 			assign fb_sum[fbloop+1] = fb_sum[fbloop] + reg_fb_matrix_mul[fbloop];
 		end
 	endgenerate
-	
+*/	
 /**	@brief output mixed sounddata to out register
 */	 
+	integer mmoloop;
+	
 	always @(negedge sCLK_XVXENVS)begin : sound_out
-		if (sh_voice_reg[2])begin 
+	if(sh_voice_reg[1]) begin
+		for(mmoloop=0;mmoloop<V_OSC;mmoloop=mmoloop+1) begin
+			reg_mod_matrix_mul[mmoloop] <= reg_mod_matrix_mul_sum[mmoloop];
+			reg_fb_matrix_mul[mmoloop]	<= reg_fb_matrix_mul_sum[mmoloop];
+		end
+	end
+	if (sh_voice_reg[2])begin 
 			reg_voice_sound_sum_l <= reg_voice_sound_sum_l + reg_osc_data_sum_l; 
 			reg_voice_sound_sum_r <= reg_voice_sound_sum_r + reg_osc_data_sum_r; 
 		end
@@ -221,24 +244,32 @@ parameter x_offset = (V_OSC * VOICES ) - 2;
 		end
 		if (sh_osc_reg[2])begin
 			reg_sine_level_mul_osc_lvl_m_vol_data <= reg_sine_level_mul_data * osc_lvl[ox_dly[1]];
+//			for(mmmloop=0;mmmloop<V_OSC;mmmloop=mmmloop+1) begin
+//				reg_mod_matrix_mul_sum[mmmloop] <= reg_mod_matrix_mul_sum[mmmloop] + (mod_matrix_mul[mmmloop] >>> 7);
+//				reg_fb_matrix_mul_sum[mmmloop] <= reg_fb_matrix_mul_sum[mmmloop] + fb_matrix_mul[mmmloop];
+//			end
 		end
+		for(mmmloop=0;mmmloop<V_OSC;mmmloop=mmmloop+1) begin
+//			if(osc_counter < V_OSC)begin
+			if(sh_osc_reg[0])begin
+				reg_mod_matrix_mul_sum[mmmloop] <= reg_mod_matrix_mul_sum[mmmloop] + (mod_matrix_mul[mmmloop] >>> 7);
+				reg_fb_matrix_mul_sum[mmmloop] <= reg_fb_matrix_mul_sum[mmmloop] + fb_matrix_mul[mmmloop];
+			end
+		end
+//		if(osc_counter == V_OSC +1)
 		if(sh_osc_reg[3])begin
 			reg_osc_data_sum_l <= reg_osc_data_sum_l + sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_l;
 			reg_osc_data_sum_r <= reg_osc_data_sum_r + sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_r;
-		end
-		if (sh_osc_reg[V_OSC])begin
-			for(mmmloop=0;mmmloop<V_OSC;mmmloop=mmmloop+1) begin
-				reg_mod_matrix_mul[mmmloop] <= reg_mod_matrix_mul[mmmloop] + (mod_matrix_mul[mmmloop] >>> 7);
-				reg_fb_matrix_mul[mmmloop] <= reg_fb_matrix_mul[mmmloop] + fb_matrix_mul[mmmloop];
-			end
+
+//			reg_matrix_data[vx_dly[2]][ox_dly[2]] <= modulation_sum;
 		end
 
-		if (sh_osc_reg[V_OSC+3]) reg_matrix_data[vx_dly[V_OSC+2]][ox_dly[V_OSC+2]] <= modulation_sum;
+//		if (sh_osc_reg[3]) reg_matrix_data[vx_dly[2]][ox_dly[2]] <= modulation_sum;
 
-		if (sh_voice_reg[V_OSC+1])begin
+		if (sh_voice_reg[1])begin
 			for(mmcloop=0;mmcloop<V_OSC;mmcloop=mmcloop+1) begin
-				reg_mod_matrix_mul[mmcloop] <= 48'h0;
-				reg_fb_matrix_mul[mmcloop] <= 48'h0;
+				reg_mod_matrix_mul_sum[mmcloop] <= 48'h0;
+				reg_fb_matrix_mul_sum[mmcloop] <= 48'h0;
 			end
 		end
 
@@ -253,7 +284,18 @@ parameter x_offset = (V_OSC * VOICES ) - 2;
 		for(d1=0;d1<x_offset;d1=d1+1) begin // all Voices 2 osc's
 			vx_dly[d1+1] <= vx_dly[d1]; ox_dly[d1+1] <= ox_dly[d1];
 		end
-		modulation <= reg_matrix_data[vx_dly[x_offset]][ox_dly[x_offset]];
+
+//		if (sh_osc_reg[3]) reg_matrix_data[vx_dly[V_OSC]][ox_dly[V_OSC]] <= modulation_sum;
+		reg_matrix_data[vx_dly[V_OSC]][ox_dly[V_OSC]] <= modulation_sum;
+
+		modulation <= reg_matrix_data[vx_dly[vo_x_offset]][ox_dly[vo_x_offset]];
+	end
+	
+	reg [E_WIDTH-1:0]osc_counter;
+	
+	always @(posedge sCLK_XVXENVS) begin
+		if(sh_voice_reg[1]) osc_counter <= 0;
+		else osc_counter <= osc_counter + 1;
 	end
 	
 /**	@brief main shiftreg state driver
