@@ -918,7 +918,7 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to aud_lrck
 set_global_assignment -name SEARCH_PATH "..\..\rtl"
 set_global_assignment -name SEARCH_PATH "..\..\rtl\synthesizer"
 set_global_assignment -name SEARCH_PATH "..\..\rtl\synthesizer\synth_engine"
-set_global_assignment -name SEARCH_PATH "..\..\megawizard"
+set_global_assignment -name SEARCH_PATH "megawizard"
 set_global_assignment -name SEARCH_PATH .\
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "NO HEAT SINK WITH STILL AIR"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"

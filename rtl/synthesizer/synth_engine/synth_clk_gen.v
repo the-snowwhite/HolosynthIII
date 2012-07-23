@@ -10,14 +10,17 @@ output reg  oAUD_BCK
 parameter   VOICES 			= 8;
 parameter   V_OSC 			= 4; // oscs per Voice
 parameter   V_ENVS 			= 2*V_OSC;
-parameter 	SYNTH_CHANNELS = 1;
-//parameter   OSC_CLK_RATE       =   271428571;  //  271.428571 MHz
-//parameter   OSC_CLK_RATE       =   180633600;  //  180.633600 MHz
-parameter   OSC_CLK_RATE       =   180555556;  //  180.555556 MHz
+parameter 	SYNTH_CHANNELS 	= 1;
+parameter 	OVERSAMPLING	= 384;
+//parameter   OSC_CLK_RATE       =   271428571;  //  271.428571 MHz <<-- original
+parameter   OSC_CLK_RATE       =   271052632;  //  271.052632 MHz
+//parameter   OSC_CLK_RATE       =   180555556;  //  180.555556 MHz <<-- use for slow
 //parameter   AUDIO_REF_CLK         =   16964286;   //  16.964286   MHz
-parameter   AUDIO_REF_CLK         =   16927083;   //  16.927083   MHz
+//parameter   AUDIO_REF_CLK         =   16927083;   //  16.927083   MHz <<<--- use for slow
+parameter   AUDIO_REF_CLK         =   16940789;   //  16.940789   MHz <<<--- use for 271
 //parameter   AUDIO_REF_CLK         =   11284722;   //  11.284722   MHz
-parameter   SAMPLE_RATE     =   44080;      //  44.1      KHz
+//parameter   SAMPLE_RATE     =   44080;      //  44.1      KHz
+parameter   SAMPLE_RATE     =   AUDIO_REF_CLK / OVERSAMPLING; //44116;      //  44.1      KHz
 parameter   DATA_WIDTH      =   16;         //  16      Bits
 parameter   CHANNEL_NUM     =   2;          //  Dual Channel
 //parameter   CHANNEL_NUM     =   1;          //  Mono
@@ -25,12 +28,11 @@ parameter   CHANNEL_NUM     =   2;          //  Dual Channel
 parameter XVOSC_DIV = OSC_CLK_RATE/((SAMPLE_RATE*SYNTH_CHANNELS*VOICES*V_OSC*2)-1);
 parameter XVXENVS_DIV = OSC_CLK_RATE/((SAMPLE_RATE*SYNTH_CHANNELS*VOICES*V_ENVS*2)-1);
 parameter LRCK_DIV = AUDIO_REF_CLK/((SAMPLE_RATE*2)-1);
-parameter BCK_DIV_FAC = AUDIO_REF_CLK/((SAMPLE_RATE*DATA_WIDTH*CHANNEL_NUM*2)-1);
+parameter BCK_DIV_FAC = AUDIO_REF_CLK/((SAMPLE_RATE*DATA_WIDTH*CHANNEL_NUM*4)-1);
 
 //  Internal Registers and Wires
 reg     [8:0]   BCK_DIV;
 reg     [12:0]  LRCK_1X_DIV;
-//reg       [10:0]  LRCK_8X_DIV;
 reg     [11:0]   sCLK_XVXOSC_DIV;
 reg     [10:0]   sCLK_XVXENVS_DIV;
 

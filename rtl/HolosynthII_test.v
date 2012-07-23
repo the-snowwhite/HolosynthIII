@@ -402,7 +402,7 @@ wire iRST_n;
 //    assign N_irq[1] = N_load_sig;
     
 synthesizer  synthesizer_inst(
-    .CLOCK_50(CLOCK_50) ,   // input  CLOCK_50_sig
+    .EXT_CLOCK_IN(CLOCK_50) ,   // input  CLOCK_50_sig
     .DLY0(iRST_n),
     .MIDI_Rx_DAT(UART_RXD) ,    // input  MIDI_DAT_sig
     .button( KEY[3:0] ),            //  Button[3:0]

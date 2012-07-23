@@ -11,14 +11,14 @@
 
 module synthesizer (
 // Clock
-	input		CLOCK_50,				
+	input		EXT_CLOCK_IN,				
 // reset
 	output		DLY0,
 // MIDI uart
 	input		MIDI_Rx_DAT,				//	MIDI Data
 
 	input	[4:1]	button,					//	Button[4:1]
-	input   [17:0]	SW,
+//	input   [17:0]	SW,
 //	output	[3:0]	hex_disp[7:0],
 
 	output	[8:1]	GLED,					//	LED[4:1] 
@@ -44,7 +44,7 @@ module synthesizer (
 	input		AUD_ADCDAT,			    //	Audio CODEC ADC Data
 	output		AUD_DACDAT,				//	Audio CODEC DAC Data
 	inout		AUD_BCLK,				//	Audio CODEC Bit-Stream Clock
-	output		AUD_XCK,					//	Audio CODEC Chip Clock
+	output		AUD_XCK					//	Audio CODEC Chip Clock
 /*
 	input [1:0]		N_adr_data_rdy,				// midi data num ready from Nios
 	input	[9:0]	N_adr,				// controller nr.
@@ -62,16 +62,18 @@ module synthesizer (
 	output		LTM_SCEN,
 	inout		LTM_SDA
 */
-	output		LTM_SCEN,
-	output		LTM_GREST
+//	output [15:0] 	sounddata_out,
+//	output 			latch_sig
+//	output		LTM_SCEN,
+//	output		LTM_GREST
 );
 
 
 //parameter VOICES = 64;
 //parameter VOICES = 32;
 //parameter VOICES = 16;
-//parameter VOICES = 8;	// number of simultainious voices 
-parameter VOICES = 4;	// number of simultainious voices
+parameter VOICES = 8;	// number of simultainious voices 
+//parameter VOICES = 4;	// number of simultainious voices
 //parameter VOICES = 2;	// number of simultainious voices
 //parameter VOICES = 1;	// number of simultainious voices
 
@@ -129,7 +131,8 @@ parameter VW_9 = utils::clogb2(V_9);
 
 //---	Midi	---//
 // inputs
-	wire midi_rxd = !MIDI_Rx_DAT;			
+	wire midi_rxd = !MIDI_Rx_DAT; // RS-232 port			
+//	wire midi_rxd = MIDI_Rx_DAT; // Direct to optocopler (fixed in topfile)			
 //outputs
 	wire byteready;
 	wire[7:0] cur_status,midi_bytes,databyte;
@@ -177,6 +180,9 @@ parameter VW_9 = utils::clogb2(V_9);
 
 	wire AUD_CTRL_CLK;
 	wire TONE_CTRL_CLK;
+	
+	wire [63:0] lvoice_out;
+	wire [63:0] rvoice_out;
 		
 //---	Midi	Controllers unit ---//
 
@@ -193,7 +199,7 @@ assign osc_inx[6:0] = o_index[6:0];
 // system reset  //
 
 reset_delay	reset_delay_inst  (
-	.iCLK(CLOCK_50),
+	.iCLK(EXT_CLOCK_IN),
 	.iRST(reset1),
 	.oRST_0(DLY0),
 	.oRST_1(DLY1),
@@ -210,10 +216,10 @@ reset_delay	reset_delay_inst  (
 
 vga_pll	sys_disp_pll_inst	(	
 //	.areset ( 1'b0 ),								
-	.inclk0 ( CLOCK_50 ),
-	.c0		( CLOCK_25 ), 
-	.c1		( HC_VGA_CLOCK ),// 
-	.c2		( HC_LCD_CLK )	// 39Mhx
+	.inclk0 ( EXT_CLOCK_IN ),
+	.c0		( CLOCK_25 )
+//	.c1		( HC_VGA_CLOCK ),// 
+//	.c2		( HC_LCD_CLK )	// 39Mhx
 );
 
 // Sound clk gen //
@@ -318,9 +324,10 @@ midi_controllers #(.VOICES(VOICES),.V_OSC(V_OSC)) midi_controllers_inst(
 `ifdef _Synth
 //	AUDIO SOUND
 
-audio_pll	audio_pll_inst (
-	.inclk0 ( CLOCK_50 ),
-	.c0 ( TONE_CTRL_CLK ),  // 180.555556 Mhz
+//audio_pll	audio_pll_inst ( // 180.555556 Mhz
+audio_271_pll	audio_pll_inst ( //  271.052632 MHz
+	.inclk0 ( EXT_CLOCK_IN ),
+	.c0 ( TONE_CTRL_CLK ),  // 180.555556 Mhz --> 270 Mhz
 	.c1 ( AUD_XCK ) // 16.927083 Mhz
 );
 
@@ -338,8 +345,8 @@ synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.
 	.AUD_DATA( AUD_DACDAT ),			//output
 	.AUD_LRCK( AUD_DACLRCK ),			//output																
 // KEY //		
-    	.switch	  ( SW[17:0]),			//input			
-	.button	  ( button[4:1]),		//input			
+//    	.switch	  ( SW[17:0]),			//input			
+//	.button	  ( button[4:1]),		//input			
 	// -- Sound Control -- //
 //	to pitch control //
 	.note_on(note_on) ,	// output  note_on_sig
@@ -359,11 +366,25 @@ synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.
 	.m1_sel(m1_sel) ,	// output  m1_sel_sig
 	.m2_sel(m2_sel) ,	// output  m2_sel_sig
 	.com_sel(com_sel), 	// output  com_sel_sig
-   .LTM_SCEN(LTM_SCEN),
-   .LTM_GREST(LTM_GREST),
+//   .LTM_SCEN(LTM_SCEN),
+//   .LTM_GREST(LTM_GREST),
+// from mixer
+//	.lvoice_out ( lvoice_out ),
+//	.rvoice_out ( rvoice_out ),
 // from env gen // 
 	.voice_free( voice_free )		//output from envgen
 );
+/*
+soundtransfer soundtransfer_inst
+(
+	.XCLK(AUD_XCK) ,	// input  XCLK_sig
+	.LRCK(AUD_DACLRCK) ,	// input  LRCK_sig
+	.lvoice_out(lvoice_out) ,	// input [63:0] lvoice_out_sig
+	.rvoice_out(rvoice_out) ,	// input [63:0] rvoice_out_sig
+	.sounddata_out(sounddata_out) ,	// output [15:0] sounddata_out_sig
+	.latch_sig(latch_sig) 	// output  latch_sig
+);
+*/
 
 	
 `endif

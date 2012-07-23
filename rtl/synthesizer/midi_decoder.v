@@ -61,7 +61,7 @@ reg   [7:0]key_val[VOICES-1:0];
 
 //////////////key1 & key2 Assign///////////
 reg [3:0] cur_midi_ch;
-reg byteready_r, is_data_byte_r, syx_cmd, syx_cmd_r[1:0];
+reg byteready_r, byteready_r_dly[2:0],is_data_byte_r, syx_cmd, syx_cmd_r[1:0];
 reg [7:0]cur_status_r;
 reg [7:0]midi_bytes;
 reg signed[7:0]databyte;
@@ -80,6 +80,8 @@ reg [V_WIDTH:0]cur_slot;
 
     reg               data_ready;
     reg [2:0]         bank_adr;
+	
+	reg bankdump,unireal,auto_syx_cmd;
 
     integer free_voices_found;
     integer note_found;
@@ -147,7 +149,7 @@ wire is_st_note_on=(
     always @(posedge CLOCK_25)begin
         syx_cmd_r[0] <= syx_cmd;
         syx_cmd_r[1] <= syx_cmd_r[0];
-        data_ready   <= syx_cmd_r[0] & ~syx_cmd_r[1];
+        data_ready   <= (syx_cmd_r[0] & ~syx_cmd_r[1]) | (auto_syx_cmd & (byteready_r_dly[1] & ~byteready_r_dly[2]));
     end
 
     always @(negedge iRST_N or posedge CLOCK_25)begin
@@ -157,6 +159,9 @@ wire is_st_note_on=(
             is_data_byte_r <= is_data_byte;
             cur_midi_ch <= midi_ch;
             byteready_r <= (is_cur_midi_ch | is_st_sysex) ? byteready : 1'b0 ;
+			byteready_r_dly[0] <= byteready_r;
+			byteready_r_dly[1] <= byteready_r_dly[0];
+			byteready_r_dly[2] <= byteready_r_dly[1];
             cur_status_r <= cur_status;
             midi_bytes <= (is_cur_midi_ch | is_st_sysex) ? midibyte_nr : 8'h00;
             databyte <= (is_cur_midi_ch | is_st_sysex) ? midibyte : 8'h00;
@@ -201,6 +206,7 @@ wire is_st_note_on=(
             off_note_error<=1'b0;
             off_note_error_flag<=0;
             octrl_cmd <= 1'b0;prg_ch_cmd <=1'b0;syx_cmd <= 1'b0;pitch_cmd <= 1'b0;
+			bankdump <= 1'b0; unireal <= 1'b0; auto_syx_cmd <= 1'b0; 
         end
         else begin
             octrl_cmd <= 1'b0;prg_ch_cmd <=1'b0;syx_cmd <= 1'b0;pitch_cmd <= 1'b0;note_on <= 1'b0;
@@ -260,13 +266,28 @@ wire is_st_note_on=(
                     prg_ch_cmd <= 1'b0;
                 end
             end else if(is_st_sysex)begin // Sysex
-                case (midi_bytes)
-                    8'd3:bank_adr  <=databyte[2:0];
-                    8'd4:adr  <=databyte[6:0];
-                    8'd5:data  <=databyte;
-                    8'd6:if (midi_bytes == 6 && databyte == 8'hf7)syx_cmd <= 1'b1;
-                    default:;
-                endcase
+				if (midi_bytes == 8'd1) begin
+					unireal <= (databyte == 8'h7F) ? 1'b1 : 1'b0; 
+					bankdump <= (databyte == 8'h7E) ? 1'b1 : 1'b0; 
+				end
+				if(unireal) begin
+					case (midi_bytes)
+						8'd3:bank_adr  <=databyte[2:0];
+						8'd4:adr  <=databyte[6:0];
+						8'd5:data  <=databyte;
+						8'd6:if (midi_bytes == 6 && databyte == 8'hf7)begin syx_cmd <= 1'b1; unireal <= 1'b0; end
+						default:;
+					endcase
+				end
+				if(bankdump) begin
+					if(databyte != 8'hf7)begin
+						if (midi_bytes == 8'd2)begin bank_adr <= databyte[2:0]; end
+						if (midi_bytes == 8'd3)begin adr <= 7'h0; auto_syx_cmd <= 1'b1; data <= databyte; end
+						if (midi_bytes >= 8'd4 && midi_bytes < 8'd68) begin adr <= adr + 1'b1; data <= databyte; end
+//						if (midi_bytes == 8'd132) begin bankdump <= 1'b0; auto_syx_cmd <= 1'b0; end
+					end
+					else begin bankdump <= 1'b0; auto_syx_cmd <= 1'b0; end
+				end
             end else if(is_st_pitch)begin // Control Change omni
                 if(is_data_byte)begin
                     octrl<=databyte;

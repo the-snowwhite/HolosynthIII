@@ -6,8 +6,8 @@ module synth_engine (
 	output			AUD_LRCK,
 	output	   	AUD_BCK,
 // buttons & switches	
-	input   [17:0]	switch,
-	input   [4:1]	button,
+//	input   [17:0]	switch,
+//	input   [4:1]	button,
 // -- Sound control -- //
 //	input   			clock_25,
 //	input   			sys_clk,
@@ -31,8 +31,11 @@ module synth_engine (
 // from midi_controller_unit
 	input [13:0] pitch_val,
 // debugging
-	output		LTM_SCEN,
-	output		LTM_GREST,
+//	output		LTM_SCEN,
+//	output		LTM_GREST,
+// from mixer
+//	output [63:0]	lvoice_out,
+//	output [63:0]	rvoice_out,
 // from env gen
 	output [VOICES-1:0] voice_free
 	);	
@@ -63,15 +66,20 @@ wire          pitch_cmd;           // ObjectKind=Net|PrimaryId=pitch_cmd
 wire [7:0]  midibyte;               // ObjectKind=Net|PrimaryId=midibyte
 wire [7:0]  midibyte_nr;            // ObjectKind=Net|PrimaryId=midibyte_nr
 wire [10:0] modulation;                 // ObjectKind=Net|PrimaryId=modulation
+`ifdef _24BitAudio
+wire [23:0] lsound_out;                 // ObjectKind=Net|PrimaryId=NetU1_rsound_out[23..0]
+wire [23:0] rsound_out;                 // ObjectKind=Net|PrimaryId=NetU1_rsound_out[23..0]
+`else
 wire [15:0] lsound_out;                 // ObjectKind=Net|PrimaryId=NetU1_rsound_out[23..0]
 wire [15:0] rsound_out;                 // ObjectKind=Net|PrimaryId=NetU1_rsound_out[23..0]
+`endif
 wire [16:0] sine_lut_out;                 // ObjectKind=Net|PrimaryId=sine_lut_out
 wire [23:0] osc_pitch_val;      // ObjectKind=Net|PrimaryId=osc_pitch_val
 
 wire [V_ENVS-1:0] osc_accum_zero;
-assign LTM_SCEN = sCLK_XVXENVS;
+//assign LTM_SCEN = sCLK_XVXENVS;
 
-assign LTM_GREST = n_xxxx_zero;
+//assign LTM_GREST = n_xxxx_zero;
 
 	reg               reg_note_on[2:0];
 	reg [V_WIDTH-1:0] reg_cur_key_adr;
@@ -180,6 +188,8 @@ mixer_2 #(.VOICES(VOICES),.V_OSC(V_OSC),.O_ENVS(O_ENVS),.V_WIDTH(V_WIDTH),.O_WID
 	.m1_sel( m1_sel ),           // ObjectKind=Sheet Entry|PrimaryId=mixer.v-m1_sel
 	.m2_sel( m2_sel ),           // ObjectKind=Sheet Entry|PrimaryId=mixer.v-m2_sel
 	.com_sel( com_sel ),         // ObjectKind=Sheet Entry|PrimaryId=mixer.v-com_sel
+//	.lvoice_out ( lvoice_out ),
+//	.rvoice_out ( rvoice_out ),
 	.lsound_out( lsound_out ),         // ObjectKind=Sheet Entry|PrimaryId=mixer.v-rsound_out[23..0]
 	.rsound_out( rsound_out )          // ObjectKind=Sheet Entry|PrimaryId=mixer.v-rsound_out[23..0]
 );

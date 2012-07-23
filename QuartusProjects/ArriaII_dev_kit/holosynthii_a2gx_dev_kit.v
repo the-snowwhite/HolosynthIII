@@ -297,7 +297,7 @@ audio_i2s_driver U_audio_i2s_driver                         // ObjectKind=Sheet 
 
     
 synthesizer  synthesizer_inst(
-    .CLOCK_100(clkin_bot_p) ,   // input  CLOCK_50_sig
+    .EXT_CLOCK_IN(clkin_bot_p) ,   // input  CLOCK_sig
     .DLY0(iRST_n),
     .MIDI_Rx_DAT(UART_RXD) ,    // input  MIDI_DAT_sig
     .button( {cpu_resetn,user_pb[1:0],cpu_resetn} ),            //  Button[3:0]
