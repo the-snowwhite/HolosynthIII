@@ -856,12 +856,13 @@ set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
 set_global_assignment -name ENABLE_LOGIC_ANALYZER_INTERFACE OFF
-set_global_assignment -name SEARCH_PATH rtl
-set_global_assignment -name SEARCH_PATH rtl/synthesizer
-set_global_assignment -name SEARCH_PATH rtl/synthesizer/synth_engine
+#set_global_assignment -name SEARCH_PATH ..\\..\\megawizard
+#set_global_assignment -name SEARCH_PATH .\\
 set_global_assignment -name SEARCH_PATH megawizard
-
-
+set_global_assignment -name SEARCH_PATH ../../rtl
+set_global_assignment -name SEARCH_PATH ../../rtl/synthesizer
+set_global_assignment -name SEARCH_PATH ../../rtl/synthesizer/synth_engine
+set_global_assignment -name SEARCH_PATH ../../megawizard
 #set_global_assignment -name SYSTEMVERILOG_FILE mixer.sv
 #set_global_assignment -name SYSTEMVERILOG_FILE TCON.sv
 #set_global_assignment -name SIGNALTAP_FILE stp1.stp
@@ -881,7 +882,6 @@ set_global_assignment -name SEARCH_PATH megawizard
 set_global_assignment -name SAVE_DISK_SPACE OFF
 set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
 set_global_assignment -name IGNORE_PARTITIONS ON
-
 set_global_assignment -name RESERVE_DATA1_AFTER_CONFIGURATION "USE AS REGULAR IO"
 set_global_assignment -name RESERVE_DCLK_AFTER_CONFIGURATION "USE AS REGULAR IO"
 set_global_assignment -name RESERVE_FLASH_NCE_AFTER_CONFIGURATION "USE AS REGULAR IO"
@@ -891,6 +891,19 @@ set_global_assignment -name SYNCHRONIZER_IDENTIFICATION AUTO
 set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL ON
 set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS ON
 set_global_assignment -name HDL_MESSAGE_LEVEL LEVEL2
+set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to AUD_XCK
+set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
+set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
+set_global_assignment -name ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP ON
+set_global_assignment -name SEARCH_PATH ..\\..\\rtl
+set_global_assignment -name SEARCH_PATH ..\\..\\rtl\\synthesizer
+set_global_assignment -name SEARCH_PATH ..\\..\\rtl\\synthesizer\\synth_engine
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY qout
+
+
+set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to "synthesizer:synthesizer_inst|audio_271_pll:audio_pll_inst|altpll:altpll_component|audio_271_pll_altpll:auto_generated|wire_pll1_clk[0]"
+set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to "synthesizer:synthesizer_inst|audio_271_pll:audio_pll_inst|altpll:altpll_component|audio_271_pll_altpll:auto_generated|wire_pll1_clk[1]"
+set_global_assignment -name QIP_FILE megawizard/vga_pll.qip
 set_global_assignment -name SDC_FILE HolosynthII_test.sdc
 set_global_assignment -name VERILOG_FILE HolosynthII_test.v
 set_global_assignment -name SYSTEMVERILOG_FILE synthesizer.sv
@@ -899,8 +912,6 @@ set_global_assignment -name VERILOG_FILE midi_uart.v
 set_global_assignment -name VERILOG_FILE midi_decoder.v
 set_global_assignment -name VERILOG_FILE address_decoder.v
 set_global_assignment -name VERILOG_FILE midi_controllers.v
-set_global_assignment -name QIP_FILE audio_pll.qip
-set_global_assignment -name QIP_FILE vga_pll.qip
 set_global_assignment -name VERILOG_FILE synth_engine.v
 set_global_assignment -name VERILOG_FILE synth_clk_gen.v
 set_global_assignment -name VERILOG_FILE timing_gen.v
@@ -918,27 +929,5 @@ set_global_assignment -name VERILOG_FILE audio_i2s_driver.v
 set_global_assignment -name VERILOG_FILE I2C_Controller.v
 set_global_assignment -name VERILOG_FILE I2C_AV_Config.v
 set_global_assignment -name SYSTEMVERILOG_FILE mixer_2.sv
-set_global_assignment -name SIGNALTAP_FILE prg_ch.stp
-set_global_assignment -name SIGNALTAP_FILE stp1.stp
-set_global_assignment -name SIGNALTAP_FILE stp_env.stp
-set_global_assignment -name SIGNALTAP_FILE stp1_picherror.stp
-set_global_assignment -name SIGNALTAP_FILE "stp_clk-timing.stp"
-set_global_assignment -name SIGNALTAP_FILE "stp-env_gen.stp"
-set_global_assignment -name SIGNALTAP_FILE "stp-env_gen_pitch.stp"
-set_global_assignment -name SIGNALTAP_FILE "stp-env_gen_pitch_osc-nco.stp"
-set_global_assignment -name SIGNALTAP_FILE "stp-env_gen_pitch_osc-nco_soundout.stp"
-set_global_assignment -name SIGNALTAP_FILE "stp-env_gen_pitch_osc-nco_soundout2.stp"
-set_global_assignment -name SIGNALTAP_FILE "stp-pitch_osc-nco_soundout2.stp"
-set_global_assignment -name SIGNALTAP_FILE "stp-env_gen_level4.stp"
-set_global_assignment -name SIGNALTAP_FILE sound_out_2_voices_2_oscs.stp
-set_global_assignment -name SIGNALTAP_FILE modulation_8_voices_4_oscs.stp
-set_global_assignment -name SIGNALTAP_FILE Sound_output.stp
-set_global_assignment -name SIGNALTAP_FILE Sound_2voices_output.stp
-set_global_assignment -name SIGNALTAP_FILE audio_crackles.stp
-set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to AUD_XCK
-set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to "synthesizer:synthesizer_inst|audio_pll:audio_pll_inst|altpll:altpll_component|audio_pll_altpll:auto_generated|clk[1]"
-set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
-set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
-set_global_assignment -name ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP ON
+set_global_assignment -name QIP_FILE megawizard/audio_271_pll.qip
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
-set_global_assignment -name PROJECT_OUTPUT_DIRECTORY qout

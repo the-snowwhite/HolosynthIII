@@ -915,20 +915,22 @@ set_instance_assignment -name IO_STANDARD "3.0-V LVCMOS" -to aud_dat
 set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to aud_bck
 set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to aud_dat
 set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to aud_lrck
-set_global_assignment -name SEARCH_PATH "..\..\rtl"
-set_global_assignment -name SEARCH_PATH "..\..\rtl\synthesizer"
-set_global_assignment -name SEARCH_PATH "..\..\rtl\synthesizer\synth_engine"
+#set_global_assignment -name SEARCH_PATH megawizard
+#set_global_assignment -name SEARCH_PATH ../../rtl
+#set_global_assignment -name SEARCH_PATH ../../rtl/synthesizer
+#set_global_assignment -name SEARCH_PATH ../../rtl/synthesizer/synth_engine
+#set_global_assignment -name SEARCH_PATH ../../megawizard
 set_global_assignment -name SEARCH_PATH "megawizard"
+set_global_assignment -name SEARCH_PATH "..\\..\\rtl"
+set_global_assignment -name SEARCH_PATH "..\\..\\rtl\\synthesizer"
+set_global_assignment -name SEARCH_PATH "..\\..\\rtl\\synthesizer\\synth_engine"
+set_global_assignment -name SEARCH_PATH "..\\..\\megawizard"
 set_global_assignment -name SEARCH_PATH .\
+#set_global_assignment -name SEARCH_PATH ./
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "NO HEAT SINK WITH STILL AIR"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 set_global_assignment -name MISC_FILE "C:\altera\11.1\projects\HolosynthII\QuartusProjects\ArriaII_dev_kit\a2gx_dev_kit_golden_top.dpf"
-set_global_assignment -name SYSTEMVERILOG_FILE utils.sv
-set_global_assignment -name VERILOG_FILE audio_i2s_driver.v
-set_global_assignment -name VERILOG_FILE holosynthii_a2gx_dev_kit.v
-set_global_assignment -name SDC_FILE holosynthii_a2gx_dev_kit.sdc
 #set_global_assignment -name QIP_FILE audio_pll.qip
-set_global_assignment -name QIP_FILE vga_pll.qip
 set_instance_assignment -name IO_STANDARD "3.0-V LVCMOS" -to aud_xck
 set_location_assignment PIN_V12 -to aud_xck
 set_instance_assignment -name CURRENT_STRENGTH_NEW 12MA -to aud_xck
@@ -941,11 +943,35 @@ set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
 set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON
 set_global_assignment -name SYNCHRONIZER_IDENTIFICATION AUTO
 set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL ON
-set_global_assignment -name SIGNALTAP_FILE sysex_dump.stp
 set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS ON
 set_global_assignment -name ALLOW_POWER_UP_DONT_CARE OFF
 set_global_assignment -name SAVE_DISK_SPACE OFF
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY qout
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name VERILOG_FILE timing_gen.v
+set_global_assignment -name VERILOG_FILE synth_clk_gen.v
+set_global_assignment -name VERILOG_FILE st_reg_ram.v
+set_global_assignment -name VERILOG_FILE sine_lookup.v
+set_global_assignment -name VERILOG_FILE pitch_control.v
+set_global_assignment -name VERILOG_FILE osc.v
+set_global_assignment -name VERILOG_FILE nco.v
+set_global_assignment -name SYSTEMVERILOG_FILE mixer_2.sv
+set_global_assignment -name VERILOG_FILE env_gen_indexed.v
+set_global_assignment -name VERILOG_FILE div_module.v
+set_global_assignment -name VERILOG_FILE constmap.v
+set_global_assignment -name VERILOG_FILE audio_i2s_driver.v
+set_global_assignment -name VERILOG_FILE synth_engine.v
+set_global_assignment -name VERILOG_FILE reset_delay.v
+set_global_assignment -name VERILOG_FILE midi_uart.v
+set_global_assignment -name VERILOG_FILE midi_decoder.v
+set_global_assignment -name VERILOG_FILE midi_controllers.v
+set_global_assignment -name VERILOG_FILE address_decoder.v
+set_global_assignment -name SYSTEMVERILOG_FILE synthesizer.sv
+set_global_assignment -name SYSTEMVERILOG_FILE utils.sv
+set_global_assignment -name VERILOG_FILE audio_i2s_driver.v
+set_global_assignment -name VERILOG_FILE holosynthii_a2gx_dev_kit.v
+set_global_assignment -name SDC_FILE holosynthii_a2gx_dev_kit.sdc
+set_global_assignment -name QIP_FILE vga_pll.qip
+set_global_assignment -name SIGNALTAP_FILE sysex_dump.stp
 set_global_assignment -name QIP_FILE audio_271_pll.qip
 set_global_assignment -name SIGNALTAP_FILE audio_out.stp
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
-set_global_assignment -name PROJECT_OUTPUT_DIRECTORY qout

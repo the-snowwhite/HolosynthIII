@@ -323,9 +323,11 @@ midi_controllers #(.VOICES(VOICES),.V_OSC(V_OSC)) midi_controllers_inst(
 
 `ifdef _Synth
 //	AUDIO SOUND
-
-//audio_pll	audio_pll_inst ( // 180.555556 Mhz
+`ifdef _271MhzOscs
 audio_271_pll	audio_pll_inst ( //  271.052632 MHz
+`else
+audio_pll	audio_pll_inst ( // 180.555556 Mhz
+`endif
 	.inclk0 ( EXT_CLOCK_IN ),
 	.c0 ( TONE_CTRL_CLK ),  // 180.555556 Mhz --> 270 Mhz
 	.c1 ( AUD_XCK ) // 16.927083 Mhz

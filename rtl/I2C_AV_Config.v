@@ -123,7 +123,12 @@ begin
 	A_PATH_CTRL	:	LUT_DATA	<=	16'h08F8;
 	D_PATH_CTRL	:	LUT_DATA	<=	16'h0A06;
 	POWER_ON	:	LUT_DATA	<=	16'h0C00;
-	SET_FORMAT	:	LUT_DATA	<=	16'h0E01;
+`ifdef _24BitAudio
+	SET_FORMAT	:	LUT_DATA	<=	16'h0E0A; // I2S, 24-bit
+`else
+//	SET_FORMAT	:	LUT_DATA	<=	16'h0E01; // Left justified, 16-bit
+	SET_FORMAT	:	LUT_DATA	<=	16'h0E02; // I2S, 16-bit
+`endif
 	SAMPLE_CTRL	:	LUT_DATA	<=	16'h1002;
 	SET_ACTIVE	:	LUT_DATA	<=	16'h1201;
 	//	Video Config Data

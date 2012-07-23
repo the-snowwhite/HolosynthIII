@@ -323,6 +323,8 @@ wire iRST_n;
 //=======================================================
 
 `define _Synth
+//`define _24BitAudio // if not defined defaults to 16-bit audio output
+`define _271MhzOscs // if not defined defaults to 180 Mhz oscilator clock
 
 //`define _Graphics
 
@@ -406,7 +408,7 @@ synthesizer  synthesizer_inst(
     .DLY0(iRST_n),
     .MIDI_Rx_DAT(UART_RXD) ,    // input  MIDI_DAT_sig
     .button( KEY[3:0] ),            //  Button[3:0]
-    .SW ( SW[17:0]),
+//    .SW ( SW[17:0]),
     .GLED(LEDG),                            //  Green LED [4:1]
     .RLED(LEDR),                            //  Green LED [4:1]
 //  .hex_disp(hex_disp),
@@ -446,7 +448,7 @@ synthesizer  synthesizer_inst(
     .AUD_ADCDAT (AUD_ADCDAT ),      //  Audio CODEC ADC Data
     .AUD_DACDAT (AUD_DACDAT ),      //  Audio CODEC DAC Data
     .AUD_BCLK   (AUD_BCLK   ),      //  Audio CODEC Bit-Stream Clock
-    .AUD_XCK    (AUD_XCK    ),      //  Audio CODEC Chip Clock
+    .AUD_XCK    (AUD_XCK    )      //  Audio CODEC Chip Clock
 `endif
 `ifdef _LTM_Graphics             
     .VGA_CLK  (VGA_CLK  ),          //  VGA Clock
@@ -463,11 +465,11 @@ synthesizer  synthesizer_inst(
     .LTM_ADC_DCLK(TOUCH_DCLK),
     .LTM_ADC_DIN(TOUCH_DIN),
     .LTM_ADC_DOUT(TOUCH_DOUT),
-    .LTM_ADC_PENIRQ_n(TOUCH_PENIRQ_N),
+    .LTM_ADC_PENIRQ_n(TOUCH_PENIRQ_N)
 //   .LTM_SDA(LTM_SDA)
 `endif
-   .LTM_SCEN(LTM_SCEN),
-   .LTM_GREST(LTM_GREST)
+ //  .LTM_SCEN(LTM_SCEN),
+ //  .LTM_GREST(LTM_GREST)
 );
 
 
