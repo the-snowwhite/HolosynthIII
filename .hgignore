@@ -24,3 +24,4 @@ audio_pll.qip
 vga_pll.qip
 *.orig
 qout/*
+greybox_tmp/*
