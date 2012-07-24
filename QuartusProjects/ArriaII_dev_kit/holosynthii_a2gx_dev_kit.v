@@ -196,6 +196,7 @@ module holosynthii_a2gx_dev_kit (
 
 `define _Synth
 `define _24BitAudio
+`define _271MhzOscs // if not defined defaults to 180 Mhz oscilator clock
 
 	reg [19:0] clk_div;
 
@@ -312,7 +313,7 @@ synthesizer  synthesizer_inst(
     .AUD_ADCDAT (AUD_ADCDAT ),      //  Audio CODEC ADC Data
     .AUD_DACDAT (AUD_DACDAT ),      //  Audio CODEC DAC Data
     .AUD_BCLK   (AUD_BCLK   ),      //  Audio CODEC Bit-Stream Clock
-    .AUD_XCK    (AUD_XCK    ),      //  Audio CODEC Chip Clock
+    .AUD_XCK    (AUD_XCK    )      //  Audio CODEC Chip Clock
 //	.sounddata_out ( AUDIO_OUT ),
 //	.latch_sig 		( LATCH_D )
 //	.sounddata_out (  ),
