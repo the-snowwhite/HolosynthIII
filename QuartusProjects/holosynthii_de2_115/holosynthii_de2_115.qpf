@@ -3,4 +3,4 @@ QUARTUS_VERSION = "11.1"
 
 # Revisions
 
-PROJECT_REVISION = "HolosynthII_test"
+PROJECT_REVISION = "holosynthii_de2_115"

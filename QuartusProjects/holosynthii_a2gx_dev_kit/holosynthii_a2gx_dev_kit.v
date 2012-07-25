@@ -274,25 +274,6 @@ module holosynthii_a2gx_dev_kit (
 	end
 
 
-sounddata_in sounddata_in_inst
-(
-	.latch_d(latch_d) ,	// input  latch_d_sig
-	.lrck_in(lrck_in) ,	// input  lrck_in_sig
-	.audio_data_in(audio_data_in) ,	// input [15:0] audio_data_in_sig
-//	.l_sounddata(l_sounddata) ,	// output [63:0] l_sounddata_sig
-//	.r_sounddata(r_sounddata) 	// output [63:0] r_sounddata_sig
-	.sound_out ( sound_data )
-);
-
-
-audio_i2s_driver U_audio_i2s_driver                         // ObjectKind=Sheet Symbol|PrimaryId=U_audio_i2s_driver
-(
-	.iRST_N( iRST_N ),                               // ObjectKind=Sheet Entry|PrimaryId=audio_i2s_driver.v-iRST_N
-	.iAUD_BCK( AUD_BCK ),                          // ObjectKind=Sheet Entry|PrimaryId=audio_i2s_driver.v-oAUD_BCK
-	.iAUD_LRCK( lrck_in ),                         // ObjectKind=Sheet Entry|PrimaryId=audio_i2s_driver.v-oAUD_LRCK
-	.sound_data ( scaled_sound_data ),
-	.oAUD_DATA( AUD_DATA ) // ObjectKind=Sheet Entry|PrimaryId=audio_i2s_driver.v-oAUD_DATA
-);
 */
 
 
@@ -301,7 +282,7 @@ synthesizer  synthesizer_inst(
     .EXT_CLOCK_IN(clkin_bot_p) ,   // input  CLOCK_sig
     .DLY0(iRST_n),
     .MIDI_Rx_DAT(UART_RXD) ,    // input  MIDI_DAT_sig
-    .button( {cpu_resetn,user_pb[1:0],cpu_resetn} ),            //  Button[3:0]
+    .button( {1'b1,cpu_resetn,user_pb[1:0]} ),            //  Button[3:0]
   //  .SW ( SW[17:0]),
     .GLED(LEDG),                            //  Green LED [4:1]
 //    .RLED(LEDR),                            //  Green LED [4:1]

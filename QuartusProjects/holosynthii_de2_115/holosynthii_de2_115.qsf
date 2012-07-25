@@ -5,7 +5,7 @@ set_global_assignment -name RESERVE_DATA0_AFTER_CONFIGURATION "USE AS REGULAR IO
 
 set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name DEVICE EP4CE115F29C7
-set_global_assignment -name TOP_LEVEL_ENTITY "HolosynthII_test"
+set_global_assignment -name TOP_LEVEL_ENTITY "holosynthii_de2_115"
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 11.1
 set_global_assignment -name LAST_QUARTUS_VERSION "11.1 SP2.11"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "17:33:12 JULY 1,2012"
@@ -856,29 +856,6 @@ set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
 set_global_assignment -name ENABLE_LOGIC_ANALYZER_INTERFACE OFF
-#set_global_assignment -name SEARCH_PATH ..\\..\\megawizard
-#set_global_assignment -name SEARCH_PATH .\\
-set_global_assignment -name SEARCH_PATH megawizard
-set_global_assignment -name SEARCH_PATH ../../rtl
-set_global_assignment -name SEARCH_PATH ../../rtl/synthesizer
-set_global_assignment -name SEARCH_PATH ../../rtl/synthesizer/synth_engine
-set_global_assignment -name SEARCH_PATH ../../megawizard
-#set_global_assignment -name SYSTEMVERILOG_FILE mixer.sv
-#set_global_assignment -name SYSTEMVERILOG_FILE TCON.sv
-#set_global_assignment -name SIGNALTAP_FILE stp1.stp
-#set_global_assignment -name VERILOG_FILE Reset_Delay.v
-#set_global_assignment -name VERILOG_FILE ram8x2048.v
-#set_global_assignment -name VERILOG_FILE lcd_spi_cotroller.v
-#set_global_assignment -name SYSTEMVERILOG_FILE display.sv
-#set_global_assignment -name VERILOG_FILE charrom_64.v
-#set_global_assignment -name VERILOG_FILE char_disp.v
-#set_global_assignment -name VERILOG_FILE three_wire_controller.v
-#set_global_assignment -name SYSTEMVERILOG_FILE touch.sv
-#set_global_assignment -name VERILOG_FILE VGA_PLL.v
-#set_global_assignment -name VERILOG_FILE midi_clk_gen.v
-#set_global_assignment -name VERILOG_FILE mul_mem.v
-#set_global_assignment -name VERILOG_FILE adc_spi_controller.v
-#set_global_assignment -name QSYS_FILE nios_2.qsys
 set_global_assignment -name SAVE_DISK_SPACE OFF
 set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
 set_global_assignment -name IGNORE_PARTITIONS ON
@@ -898,14 +875,29 @@ set_global_assignment -name ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP ON
 set_global_assignment -name SEARCH_PATH ..\\..\\rtl
 set_global_assignment -name SEARCH_PATH ..\\..\\rtl\\synthesizer
 set_global_assignment -name SEARCH_PATH ..\\..\\rtl\\synthesizer\\synth_engine
+set_global_assignment -name SEARCH_PATH ..\\..\\megawizard_common
+set_global_assignment -name SEARCH_PATH megawizard
+set_global_assignment -name SEARCH_PATH ./
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY qout
-
-
 set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to "synthesizer:synthesizer_inst|audio_271_pll:audio_pll_inst|altpll:altpll_component|audio_271_pll_altpll:auto_generated|wire_pll1_clk[0]"
 set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to "synthesizer:synthesizer_inst|audio_271_pll:audio_pll_inst|altpll:altpll_component|audio_271_pll_altpll:auto_generated|wire_pll1_clk[1]"
+#set_global_assignment -name SYSTEMVERILOG_FILE TCON.sv
+#set_global_assignment -name SIGNALTAP_FILE stp1.stp
+#set_global_assignment -name VERILOG_FILE Reset_Delay.v
+#set_global_assignment -name VERILOG_FILE ram8x2048.v
+#set_global_assignment -name VERILOG_FILE lcd_spi_cotroller.v
+#set_global_assignment -name SYSTEMVERILOG_FILE display.sv
+#set_global_assignment -name VERILOG_FILE charrom_64.v
+#set_global_assignment -name VERILOG_FILE char_disp.v
+#set_global_assignment -name VERILOG_FILE three_wire_controller.v
+#set_global_assignment -name SYSTEMVERILOG_FILE touch.sv
+#set_global_assignment -name VERILOG_FILE midi_clk_gen.v
+#set_global_assignment -name VERILOG_FILE mul_mem.v
+#set_global_assignment -name VERILOG_FILE adc_spi_controller.v
+#set_global_assignment -name QSYS_FILE nios_2.qsys
 set_global_assignment -name QIP_FILE megawizard/vga_pll.qip
 set_global_assignment -name SDC_FILE HolosynthII_test.sdc
-set_global_assignment -name VERILOG_FILE HolosynthII_test.v
+set_global_assignment -name VERILOG_FILE holosynthii_de2_115.v
 set_global_assignment -name SYSTEMVERILOG_FILE synthesizer.sv
 set_global_assignment -name SYSTEMVERILOG_FILE utils.sv
 set_global_assignment -name VERILOG_FILE midi_uart.v
