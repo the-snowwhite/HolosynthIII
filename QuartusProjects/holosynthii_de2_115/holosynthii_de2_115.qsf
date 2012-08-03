@@ -896,7 +896,7 @@ set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to "synthesizer:synt
 #set_global_assignment -name VERILOG_FILE adc_spi_controller.v
 #set_global_assignment -name QSYS_FILE nios_2.qsys
 set_global_assignment -name QIP_FILE megawizard/vga_pll.qip
-set_global_assignment -name SDC_FILE HolosynthII_test.sdc
+set_global_assignment -name SDC_FILE holosynthii_de2_115.sdc
 set_global_assignment -name VERILOG_FILE holosynthii_de2_115.v
 set_global_assignment -name SYSTEMVERILOG_FILE synthesizer.sv
 set_global_assignment -name SYSTEMVERILOG_FILE utils.sv
