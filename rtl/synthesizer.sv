@@ -115,8 +115,8 @@ parameter VW_9 = utils::clogb2(V_9);
 
 //-----		Registers		-----//
 
-	reg [10:0] MCNT;
-	reg    [31:0]VGA_CLK_o;
+	reg	[10:0] MCNT;
+	reg	[31:0]VGA_CLK_o;
 
 //-----		Wires		-----//
 	wire   sysclk = VGA_CLK_o[10];
@@ -126,7 +126,10 @@ parameter VW_9 = utils::clogb2(V_9);
 //	wire initial_reset=(MCNT<12)?1'b1:1'b0;
 
 	wire reset1 = button[1];
+//	wire reset1 = (button[1] & DLY2) ? 1'b1 : 1'b0;
 	wire reset2 = button[2];
+	wire reset3 = button[3];
+	
 	wire iRST_N = ((MCNT==200) || (!reset2))?1'b0:1'b1;
 
 //---	Midi	---//
@@ -200,7 +203,7 @@ assign osc_inx[6:0] = o_index[6:0];
 
 reset_delay	reset_delay_inst  (
 	.iCLK(EXT_CLOCK_IN),
-	.iRST(reset1),
+	.iRST_n(reset1),
 	.oRST_0(DLY0),
 	.oRST_1(DLY1),
 	.oRST_2(DLY2)
@@ -225,13 +228,6 @@ vga_pll	sys_disp_pll_inst	(
 // Sound clk gen //
 
 // TIME & Display CLOCK Generater //
-
-`ifdef _LTM_Graphics	         
-	assign VGA_CLK  = CLOCK_25 ;
-`endif
-`ifdef _VEEK_Graphics	         
-	assign VGA_CLK  = HC_LCD_CLK ;
-`endif
 
 	always @( posedge CLOCK_25) VGA_CLK_o = VGA_CLK_o + 1;
 
@@ -376,18 +372,6 @@ synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.
 // from env gen // 
 	.voice_free( voice_free )		//output from envgen
 );
-/*
-soundtransfer soundtransfer_inst
-(
-	.XCLK(AUD_XCK) ,	// input  XCLK_sig
-	.LRCK(AUD_DACLRCK) ,	// input  LRCK_sig
-	.lvoice_out(lvoice_out) ,	// input [63:0] lvoice_out_sig
-	.rvoice_out(rvoice_out) ,	// input [63:0] rvoice_out_sig
-	.sounddata_out(sounddata_out) ,	// output [15:0] sounddata_out_sig
-	.latch_sig(latch_sig) 	// output  latch_sig
-);
-*/
-
 	
 `endif
 
@@ -419,6 +403,12 @@ assign RLED[VOICES+1:1] = voice_free[VOICES-1:0];
 
 `ifdef _Graphics             
 
+`ifdef _LTM_Graphics	         
+	assign VGA_CLK  = CLOCK_25 ;
+`endif
+`ifdef _VEEK_Graphics	         
+	assign VGA_CLK  = HC_LCD_CLK ;
+`endif
 
 // LCD Display + Touch + +++++++++++++++++++--- Color ----------------------------------//
 	wire [7:0]disp_data[94];

@@ -205,11 +205,9 @@ wire is_st_note_on=(
             active_keys<=0;
             off_note_error<=1'b0;
             off_note_error_flag<=0;
-            octrl_cmd <= 1'b0;prg_ch_cmd <=1'b0;syx_cmd <= 1'b0;pitch_cmd <= 1'b0;
-			bankdump <= 1'b0; unireal <= 1'b0; auto_syx_cmd <= 1'b0; 
         end
         else begin
-            octrl_cmd <= 1'b0;prg_ch_cmd <=1'b0;syx_cmd <= 1'b0;pitch_cmd <= 1'b0;note_on <= 1'b0;
+            note_on <= 1'b0;
             if(is_st_note_on)begin // Note on omni
                 if(is_data_byte)begin
                     if(active_keys >= VOICES) begin
@@ -220,7 +218,8 @@ wire is_st_note_on=(
                         key_val[on_slot[0]]<=8'hff;
                         slot_off<=on_slot[0];
                         cur_slot<=on_slot[0];
-                    end else if(free_voice_found  == 1'b0)begin
+                    end 
+					else if(free_voice_found  == 1'b0)begin
                         cur_slot <= off_slot[active_keys];
                     end
                     else begin
@@ -230,7 +229,8 @@ wire is_st_note_on=(
                         on_slot[i6-1]<=on_slot[i6];
                     end
                     cur_note<=databyte;
-                end else if(is_velocity)begin
+                end 
+				else if(is_velocity)begin
                     active_keys <= active_keys+1'b1;
                     key_on[cur_slot]<=1'b1;
                     cur_key_adr <= cur_slot;
@@ -240,9 +240,9 @@ wire is_st_note_on=(
                     key_val[cur_slot]<=cur_note;
                     on_slot[VOICES-1] <= cur_slot;
                 end
-            end else if(is_st_ctrl)begin // Control Change omni
+			end 
+ 			else if(is_st_ctrl)begin // Control Change omni
                 if(is_data_byte)begin
-                    octrl<=databyte;
                     if(is_allnotesoff)begin
                         for(i4=0;i4<VOICES;i4=i4+1)begin
                             key_on[i4]<=1'b0;
@@ -255,17 +255,80 @@ wire is_st_note_on=(
                         active_keys <= 0;
                         off_note_error <= 1'b0;
                     end
-                end else if(is_velocity)begin
-                    octrl_data<=databyte;
-                    octrl_cmd<=1'b1;
+                end 
+			end	
+			else if (is_st_note_off) begin// Note off omni
+                if(is_data_byte)begin
+                    for(i2=0,note_found=0;i2<VOICES;i2=i2+1)begin
+                        off_note_error_flag <= 1'b1;
+                        if(databyte==key_val[i2])begin
+                            active_keys <= active_keys-1'b1;
+                            slot_off<=i2;
+                            key_on[i2]<=1'b0;
+                            cur_key_adr <= i2;
+                            cur_key_val <= 8'hff;
+                            key_val[i2] <= 8'hff;
+                            note_found = 1;
+                        end
+                        if(note_found == 1) off_note_error_flag <= 1'b0;
+                    end
+                end 
+				else if(is_velocity )begin
+                    if(off_note_error_flag)begin
+                        off_note_error <= 1'b1;
+                    end
+					if(key_val[slot_off] == 8'hff)begin
+						cur_vel_off<=databyte;
+						off_slot[VOICES-1]<=slot_off;
+						for(i7=VOICES-1;i7>0;i7=i7-1)begin
+							if(i7>active_keys)begin
+                                off_slot[i7-1] <= off_slot[i7];
+                            end
+						end
+                    end
+                    if(active_keys == 0)begin
+                        for(i8=0;i8<VOICES;i8=i8+1)begin
+                            key_on[i8]<=1'b0;
+                            cur_key_adr <= i8;
+                            cur_key_val <= 8'hff;
+                            cur_vel_on <= 8'd0;
+                            cur_vel_off <= 8'd0;
+                            key_val[i8] <= 8'hff;
+                        end
+                        cur_note <= 8'd0;
+                        slot_off <= 0;
+                        cur_slot <= 0;
+                    end
                 end
-            end else if(is_st_prg_change)begin // Control Change omni
+            end
+        end
+    end
+
+    
+    always @(negedge iRST_N or negedge byteready_r) begin
+        if (!iRST_N) begin // init values 
+            prg_ch_cmd <=1'b0;
+        end
+        else begin
+            prg_ch_cmd <=1'b0;
+            if(is_st_prg_change)begin // Control Change omni
                     prg_ch_cmd <= 1'b1;
                 if(is_data_byte)begin
                     prg_ch_data<=databyte;
                     prg_ch_cmd <= 1'b0;
                 end
-            end else if(is_st_sysex)begin // Sysex
+            end 
+        end
+    end
+
+    
+    always @(negedge iRST_N or negedge byteready_r) begin
+        if (!iRST_N) begin // init values 
+            syx_cmd <= 1'b0; bankdump <= 1'b0; unireal <= 1'b0; auto_syx_cmd <= 1'b0; 
+        end
+        else begin
+            syx_cmd <= 1'b0;
+            if(is_st_sysex)begin // Sysex
 				if (midi_bytes == 8'd1) begin
 					unireal <= (databyte == 8'h7F) ? 1'b1 : 1'b0; 
 					bankdump <= (databyte == 8'h7E) ? 1'b1 : 1'b0; 
@@ -288,58 +351,30 @@ wire is_st_note_on=(
 					end
 					else begin bankdump <= 1'b0; auto_syx_cmd <= 1'b0; end
 				end
-            end else if(is_st_pitch)begin // Control Change omni
-                if(is_data_byte)begin
-                    octrl<=databyte;
-                    pitch_cmd<=1'b1;
-                end else if(is_velocity)begin
-                    octrl_data<=databyte;
-                    pitch_cmd<=1'b0;
-                end
-            end else if (is_st_note_off) begin// Note off omni
-                if(is_data_byte)begin
-                    for(i2=0,note_found=0;i2<VOICES;i2=i2+1)begin
-                        off_note_error_flag <= 1'b1;
-                        if(databyte==key_val[i2])begin
-                            active_keys <= active_keys-1'b1;
-                            slot_off<=i2;
-                            key_on[i2]<=1'b0;
-                            cur_key_adr <= i2;
-                            cur_key_val <= 8'hff;
-                            key_val[i2] <= 8'hff;
-                            note_found = 1;
-                        end
-                        if(note_found == 1) off_note_error_flag <= 1'b0;
-                    end
-                end else if(is_velocity )begin
-                    if(off_note_error_flag)begin
-                        off_note_error <= 1'b1;
-                    end
-                    if(key_val[slot_off] == 8'hff)begin
-                       cur_vel_off<=databyte;
-                        off_slot[VOICES-1]<=slot_off;
-                        for(i7=VOICES-1;i7>0;i7=i7-1)begin
-                            if(i7>active_keys)begin
-                                off_slot[i7-1] <= off_slot[i7];
-                            end
-                        end
-                    end
-                    if(active_keys == 0)begin
-                        for(i8=0;i8<VOICES;i8=i8+1)begin
-                            key_on[i8]<=1'b0;
-                            cur_key_adr <= i8;
-                            cur_key_val <= 8'hff;
-                            cur_vel_on <= 8'd0;
-                            cur_vel_off <= 8'd0;
-                            key_val[i8] <= 8'hff;
-                        end
-                        cur_note <= 8'd0;
-                        slot_off <= 0;
-                        cur_slot <= 0;
-                    end
-                end
-            end
+            end 
         end
     end
 
+	    
+    always @(negedge iRST_N or negedge byteready_r) begin
+        if (!iRST_N) begin // init values 
+            pitch_cmd <= 1'b0;
+        end
+        else begin
+            pitch_cmd <= 1'b0;
+            if(is_st_pitch)begin // Control Change omni
+                if(is_data_byte)begin
+                    octrl<=databyte;
+                    pitch_cmd<=1'b1;
+                end 
+				else if(is_velocity)begin
+                    octrl_data<=databyte;
+                    pitch_cmd<=1'b0;
+                end
+            end 
+        end
+    end
+
+
+	
 endmodule
