@@ -70,9 +70,9 @@ module synthesizer (
 
 
 //parameter VOICES = 64;
-//parameter VOICES = 32;
+parameter VOICES = 32;
 //parameter VOICES = 16;
-parameter VOICES = 8;	// number of simultainious voices 
+//parameter VOICES = 8;	// number of simultainious voices 
 //parameter VOICES = 4;	// number of simultainious voices
 //parameter VOICES = 2;	// number of simultainious voices
 //parameter VOICES = 1;	// number of simultainious voices
@@ -380,10 +380,10 @@ synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.
 /////// LED Display ////////
 //assign GLED[8:1] = {key_on[7],key_on[6],key_on[5],key_on[4],key_on[3],key_on[2],key_on[1],key_on[0]};
 
-assign GLED[VOICES:1] = keys_on[VOICES-1:0];
-//assign GLED[8:1] = keys_on[7:0];
+//assign GLED[VOICES:1] = keys_on[VOICES-1:0];
+assign GLED[8:1] = keys_on[7:0];
 
-assign RLED[VOICES+1:1] = voice_free[VOICES-1:0];
+//assign RLED[VOICES+1:1] = voice_free[VOICES-1:0];
 
 //assign RLED[8:1] = {voice_free[7],voice_free[6],voice_free[5],voice_free[4],
 //	voice_free[3],voice_free[2],voice_free[1],voice_free[0]};	

@@ -154,11 +154,11 @@ module holosynthii_a2gx_dev_kit (
       //Enable below for CMOS HSMC     
 //	inout  [79:0]  hsma_d,           //2.5V
 	inout  [75:60]  hsma_d,           //3.3V
-	output aud_xck,
+	output aud_xck,  // HSMA_CLKOUT_P2	
 	input lrck_in,
-	output aud_dat,
-	output aud_bck,
-	output aud_lrck,
+	output aud_dat, // HSMA_RX_D_N8		White  	
+	output aud_bck,  // HSMA_TX_D_P8	Orange
+	output aud_lrck, // HSMA_TX_D_N8	Green
 	//Enable below for LVDS HSMC
 //    output [16:0]  hsma_tx_d_p,        //LVDS  //69 pins
 //    input  [16:0]  hsma_rx_d_p,        //LVDS
@@ -228,18 +228,25 @@ module holosynthii_a2gx_dev_kit (
 	wire [7:0] LEDG;
 	assign user_led = ~LEDG[3:0];
 	
-	wire UART_RXD = ~hsma_d[75];
 	
 	
 //	assign AUD_BCK = AUD_BCLK;
 //	assign iRST_N = cpu_resetn;
 //	assign scaled_sound_data = sound_data >>> output_volume_scaling;// - + 1 
 	
+	assign hsma_d[67] = AUD_XCK; // HSMA_RX_D_N14 		Violet
+	
 	assign aud_bck = AUD_BCLK;
+	assign hsma_d[69] = AUD_BCLK; // HSMA_RX_D_P15 		Orange
+
 	assign aud_lrck = AUD_DACLRCK;
+	assign hsma_d[71] = AUD_DACLRCK; // HSMA_RX_D_N15	Green
+	
 	assign aud_dat = AUD_DACDAT;
+	assign hsma_d[73] = AUD_DACDAT; // HSMA_RX_D_P16 	White
 //	assign aud_xck = AUD_XCK;
-	assign hsma_d[67] = AUD_XCK;
+
+	wire UART_RXD = ~hsma_d[74]; // HSMA_TX_D_N16		Yellow
 	
 	assign clkout_sma = AUD_XCK;
 	
