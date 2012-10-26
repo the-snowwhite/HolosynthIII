@@ -1,20 +1,13 @@
 syntax: glob
 db/*
 incremental_db/*
-HolosynthII_test.asm.rpt
-HolosynthII_test.done
-HolosynthII_test.fit.rpt
-HolosynthII_test.fit.smsg
-HolosynthII_test.fit.summary
-HolosynthII_test.flow.rpt
-HolosynthII_test.jdi
-HolosynthII_test.map.rpt
-HolosynthII_test.map.smsg
-HolosynthII_test.map.summary
-HolosynthII_test.pin
-HolosynthII_test.sta.rpt
-HolosynthII_test.sta.summary
-PLLJ_PLLSPE_INFO.txt
+*.rpt
+*.done
+*.smsg
+*.summary
+*.jdi
+*.pin
+*.txt
 *.bak
 *.cdf
 *.rpt
@@ -26,3 +19,8 @@ vga_pll.qip
 qout/*
 greybox_tmp/*
 doc/*
+*.rar
+*.dpf
+*.qws
+*.qdf
+QuartusProjects/holosynthii_avgx_starter/hc_output/holosynthii_avgx_starter.names_drv_tbl
