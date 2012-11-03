@@ -1,25 +1,27 @@
 module mixer_2 (
 // Inputs -- //
-    input                sCLK_XVXENVS,  // clk
-    input                sCLK_XVXOSC,  // clk
-    input                iRST_N,        // reset
+    input                		sCLK_XVXENVS,  // clk
+    input                		sCLK_XVXOSC,  // clk
+    input                		iRST_N,        // reset
     input [V_WIDTH+E_WIDTH-1:0] xxxx,
-    input                     n_xxxx_zero,
+    input                     	n_xxxx_zero,
     //  env gen
     input signed [7:0]          level_mul,    // envgen output
     input signed [16:0]         sine_lut_out, // sine
 
-    input [7:0]          data,
-    input [6:0]          adr,
-    input                write,
-    input                osc_sel,
-    input                com_sel,
-    input                m1_sel,
-    input                m2_sel,
+    inout [7:0]         		data,
+    input [6:0]        		 	adr,
+    input               		write,
+	input 						read,
+	input						sysex_data_patch_save,
+    input               		osc_sel,
+    input               		com_sel,
+    input               		m1_sel,
+    input               		m2_sel,
     // Outputs -- //
     // osc
 //    output reg [10:0]modulation,
-    output reg signed [10:0] modulation,
+    output reg signed [10:0] 	modulation,
     // sound data out
 //	output signed [63:0]	lvoice_out,
 //	output signed [63:0]	rvoice_out,
@@ -96,7 +98,24 @@ parameter output_volume_scaling = 33 + V_WIDTH + O_WIDTH; // try *3/4 (0.75) pr 
 	
 	reg[V_OSC+2:0] sh_voice_reg;
 	reg[V_ENVS:0] sh_osc_reg;
- 
+	
+	reg [7:0] data_out;
+	
+	wire [V_OSC-1:0] osc_adr_data;
+	
+	generate
+		genvar osc3;
+		for (osc3=0;osc3<V_OSC;osc3=osc3+1)begin : oscdataloop
+			assign osc_adr_data[osc3] = (adr == (7'd2 +(osc3<<4)) || (adr == 7'd3 +(osc3<<4)) || (adr == 7'd4 +(osc3<<4)) ||
+			(adr == 7'd7 +(osc3<<4)) || (adr == 7'd10 +(osc3<<4)) || (adr == 7'd11 +(osc3<<4)) || (adr == 7'd12 +(osc3<<4))
+			 || (adr == 7'd13 +(osc3<<4)) || (adr == 7'd14 +(osc3<<4)) || (adr == 7'd15 +(osc3<<4))) ? 1'b1 : 1'b0;
+		end
+	endgenerate
+	
+	
+//	assign data = (read && (((osc_adr_data != 0) && osc_sel) || (com_sel && adr >= 1) || m1_sel || m2_sel)) ? data_out : 8'bz;
+	assign data = (sysex_data_patch_save && (((osc_adr_data != 0) && osc_sel) || (com_sel && adr >= 1) || m1_sel || m2_sel)) ? data_out : 8'bz;
+	
 	wire signed [63:0] sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_l;
 	wire signed [63:0] sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_r;
 			
@@ -113,7 +132,7 @@ parameter output_volume_scaling = 33 + V_WIDTH + O_WIDTH; // try *3/4 (0.75) pr 
 	assign ox = xxxx[E_WIDTH-1:OE_WIDTH];
 	assign vx = xxxx[V_WIDTH+E_WIDTH-1:E_WIDTH];
 	 
-   integer loop,oloop,iloop,osc1,ol1,il1,ol2,il2;
+   integer loop,oloop,iloop,osc1,osc2,ol1,il1,ol2,il2,o21,i21,o22,i22;
 	integer slmloop,shloop,d1;
 /**		@brief get midi controller data from midi decoder
 */	
@@ -168,6 +187,48 @@ parameter output_volume_scaling = 33 + V_WIDTH + O_WIDTH; // try *3/4 (0.75) pr 
             end
         end
     end
+	
+/** @brief read data
+*/	
+
+	always @(posedge read) begin
+		if(osc_sel)begin
+			for (osc2=0;osc2<V_OSC;osc2=osc2+1)begin
+				case (adr)
+					7'd2 +(osc2<<4): data_out <= osc_lvl[osc2];
+                    7'd3 +(osc2<<4): data_out <= osc_mod[osc2];
+                    7'd4 +(osc2<<4): data_out <= osc_feedb[osc2];
+                    7'd7 +(osc2<<4): data_out <= osc_pan[osc2];
+                    7'd10 +(osc2<<4): data_out <= osc_mod_in[osc2];
+                    7'd11 +(osc2<<4): data_out <= osc_feedb_in[osc2];
+                    7'd12 +(osc2<<4): data_out <= 8'h00;
+                    7'd13 +(osc2<<4): data_out <= 8'h00;
+                    7'd14 +(osc2<<4): data_out <= 8'h00;
+                    7'd15 +(osc2<<4): data_out <= 8'h00;
+                    default:;
+                endcase
+            end
+        end
+        else if(com_sel) begin
+            if(adr == 1) data_out <= m_vol;
+			else if (adr >= 2) data_out <= 8'h00;
+        end
+        else if (m1_sel) begin
+           for (o21=0;o21<16;o21=o21+1)begin
+               for(i21=0;i21<V_OSC;i21=i21+1)begin
+                   if (adr == (i21 << 4)+o21) data_out <= mat_buf1[o21][i21];
+               end
+            end
+        end
+        else if (m2_sel) begin
+           for (o22=0;o22<16;o22=o22+1)begin
+               for(i22=0;i22<V_OSC;i22=i22+1)begin
+                   if (adr == (i22 << 4)+o22) data_out <= mat_buf2[o22][i22];
+               end
+            end
+        end
+    end
+ 
 
 /**	@brief sum modulation data and multiply with martix in for pr osc.
 */	 

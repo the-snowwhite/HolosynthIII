@@ -16,6 +16,7 @@ module synthesizer (
 	output		DLY0,
 // MIDI uart
 	input		MIDI_Rx_DAT,				//	MIDI Data
+	output 		midi_txd,
 
 	input	[4:1]	button,					//	Button[4:1]
 //	input   [17:0]	SW,
@@ -44,7 +45,7 @@ module synthesizer (
 	input		AUD_ADCDAT,			    //	Audio CODEC ADC Data
 	output		AUD_DACDAT,				//	Audio CODEC DAC Data
 	inout		AUD_BCLK,				//	Audio CODEC Bit-Stream Clock
-	output		AUD_XCK					//	Audio CODEC Chip Clock
+	output		AUD_XCK,					//	Audio CODEC Chip Clock
 /*
 	input [1:0]		N_adr_data_rdy,				// midi data num ready from Nios
 	input	[9:0]	N_adr,				// controller nr.
@@ -66,6 +67,7 @@ module synthesizer (
 //	output 			latch_sig
 //	output		LTM_SCEN,
 //	output		LTM_GREST
+    inout [7:0]			data
 );
 
 
@@ -134,32 +136,36 @@ parameter VW_9 = utils::clogb2(V_9);
 
 //---	Midi	---//
 // inputs
-	wire midi_rxd = !MIDI_Rx_DAT; // RS-232 port			
+	wire midi_rxd = !MIDI_Rx_DAT; // RS-232 port
+	
 //	wire midi_rxd = MIDI_Rx_DAT; // Direct to optocopler (fixed in topfile)			
 //outputs
+	wire midi_out_ready,midi_send_byte;
+	wire [7:0] midi_out_data;
 	wire byteready;
-	wire[7:0] cur_status,midi_bytes,databyte;
+	wire [7:0] cur_status,midi_bytes,databyte;
 
 //---	Midi	Decoder ---//
-    wire [VOICES-1:0]  keys_on;
+    wire [VOICES-1:0]  	keys_on;
 // note events
-    wire               note_on;
-    wire [V_WIDTH-1:0] cur_key_adr;
-    wire [7:0]         cur_key_val;
-    wire [7:0]         cur_vel_on;
-    wire [7:0]         cur_vel_off;
-    wire               write ;
-    wire [6:0]         adr;
-    wire [7:0]         data;
-    wire               env_sel;
-    wire               osc_sel;
-    wire               m1_sel;
-    wire               m2_sel;
-    wire               com_sel;
+    wire               	note_on;
+    wire [V_WIDTH-1:0] 	cur_key_adr;
+    wire [7:0]         	cur_key_val;
+    wire [7:0]         	cur_vel_on;
+    wire [7:0]         	cur_vel_off;
+    wire				write;
+	wire				read;
+	wire				sysex_data_patch_save;
+    wire [6:0]         	adr;
+    wire               	env_sel;
+    wire               	osc_sel;
+    wire               	m1_sel;
+    wire               	m2_sel;
+    wire               	com_sel;
 // from midi_controller_unit
-	wire [13:0] pitch_val;
+	wire [13:0] 		pitch_val;
 // from env gen
-	wire [VOICES-1:0] voice_free;
+	wire [VOICES-1:0] 	voice_free;
 
 // inputs
 // outputs
@@ -237,54 +243,58 @@ vga_pll	sys_disp_pll_inst	(
 MIDI_UART MIDI_UART_inst (
 	.CLOCK_25		(CLOCK_25),		// input  reset sig
 	.iRST_N			(iRST_N),		// input  reset_sig
-	.midi_rxd		(midi_rxd),		// input  midi_rxd_sig
+	.midi_rxd		(midi_rxd),		// input  midi serial data in
+	.midi_out_data	(midi_out_data),// input midi_out_data_sig
+	.midi_send_byte (midi_send_byte),
+	.midi_txd		(midi_txd),		// output midi serial data output
+	.midi_out_ready (midi_out_ready),// output midi out buffer ready
 	.byteready		(byteready),	// output  byteready_sig
 	.sys_real		(sys_real),		// realtime sysex msg arrived
-	.sys_real_dat	(sys_real_dat),		// realtime sysex msg databyte
+	.sys_real_dat	(sys_real_dat),	// realtime sysex msg databyte
 	.cur_status		(cur_status),	// output [7:0] cur_status_sig
-	.midibyte_nr		(midi_bytes),	// output [7:0] midi_bytes_sig
+	.midibyte_nr	(midi_bytes),	// output [7:0] midi_bytes_sig
 	.midibyte		(databyte) 		// output [7:0] databyte_sig
 );
 
 midi_decoder #(.VOICES(VOICES),.V_WIDTH(V_WIDTH)) midi_decoder_inst(
 
-	.CLOCK_25(CLOCK_25) ,	// input  CLOCK_25_sig
-//	.sys_clk(sysclk) ,	// input  sys_clk_sig
-	.iRST_N(iRST_N) ,	// input  iRST_N_sig
-	.byteready(byteready) ,	// input  byteready_sig
-	.cur_status(cur_status) ,	// input [7:0] cur_status_sig
-	.midibyte_nr(midi_bytes) ,	// input [7:0] midibyte_nr_sig
-	.midibyte(databyte) ,	// input [7:0] midibyte_sig
-
-	.voice_free(voice_free) ,	// input [VOICES-1:0] voice_free_sig
-	.midi_ch(midi_ch_sig) ,	// input [3:0] midi_ch_sig
-
-	.note_on(note_on) ,	// output  note_on_sig
-	.keys_on(keys_on) ,	// output [VOICES-1:0] keys_on_sig
-	.cur_key_adr(cur_key_adr) ,	// output [V_WIDTH-1:0] cur_key_adr_sig
-	.cur_key_val(cur_key_val) ,	// output [7:0] cur_key_val_sig
-	.cur_vel_on(cur_vel_on) ,	// output [7:0] cur_vel_on_sig
-	.cur_vel_off(cur_vel_off) ,	// output [7:0] cur_vel_off_sig
-
-	.octrl_cmd(octrl_cmd) ,	// output  octrl_cmd_sig
-	.pitch_cmd(pitch_cmd) ,	// output  pitch_cmd_sig
-	.octrl(octrl) ,	// output [7:0] octrl_sig
-	.octrl_data(octrl_data) ,	// output [7:0] octrl_data_sig
-
-	.prg_ch_cmd(prg_ch_cmd) ,	// output  prg_ch_cmd_sig
-	.prg_ch_data(prg_ch_data) ,	// output [7:0] prg_ch_data_sig
+	.CLOCK_25(CLOCK_25) ,			// input  CLOCK_25_sig
+//	.sys_clk(sysclk) ,				// input  sys_clk_sig
+	.iRST_N(iRST_N) ,				// input  iRST_N_sig
+	.byteready(byteready) ,			// input  byteready_sig
+	.cur_status(cur_status) ,		// input [7:0] cur_status_sig
+	.midibyte_nr(midi_bytes) ,		// input [7:0] midibyte_nr_sig
+	.midibyte(databyte) ,			// input [7:0] midibyte_sig
+	.voice_free(voice_free) ,		// input [VOICES-1:0] voice_free_sig
+	.midi_ch(midi_ch_sig) ,			// input [3:0] midi_ch_sig
+	.note_on(note_on) ,				// output  note_on_sig
+	.keys_on(keys_on) ,				// output [VOICES-1:0] keys_on_sig
+	.cur_key_adr(cur_key_adr) ,		// output [V_WIDTH-1:0] cur_key_adr_sig
+	.cur_key_val(cur_key_val) ,		// output [7:0] cur_key_val_sig
+	.cur_vel_on(cur_vel_on) ,		// output [7:0] cur_vel_on_sig
+	.cur_vel_off(cur_vel_off) ,		// output [7:0] cur_vel_off_sig
+	.octrl_cmd(octrl_cmd) ,			// output  octrl_cmd_sig
+	.pitch_cmd(pitch_cmd) ,			// output  pitch_cmd_sig
+	.octrl(octrl) ,					// output [7:0] octrl_sig
+	.octrl_data(octrl_data) ,		// output [7:0] octrl_data_sig
+	.prg_ch_cmd(prg_ch_cmd) ,		// output  prg_ch_cmd_sig
+	.prg_ch_data(prg_ch_data) ,		// output [7:0] prg_ch_data_sig
 // controller data bus
-	.write(write) ,	// output  write_sig
-	.adr(adr) ,	// output [6:0] adr_sig
-	.data(data) ,	// output [7:0] data_sig
-	.env_sel(env_sel) ,	// output  env_sel_sig
-	.osc_sel(osc_sel) ,	// output  osc_sel_sig
-	.m1_sel(m1_sel) ,	// output  m1_sel_sig
-	.m2_sel(m2_sel) ,	// output  m2_sel_sig
-	.com_sel(com_sel) ,	// output  com_sel_sig
-
-	.active_keys(active_keys) ,	// output [V_WIDTH:0] active_keys_sig
-	.off_note_error(off_note_error) 	// output  off_note_error_sig
+	.write(write) ,					// output  write_sig
+	.read (read), 					// output read data signal
+	.sysex_data_patch_save (sysex_data_patch_save),
+	.adr(adr) ,						// output [6:0] adr_sig
+	.data (data) ,					// output [7:0] data_sig
+	.midi_out_ready (midi_out_ready),// input
+	.midi_send_byte (midi_send_byte),// output
+	.midi_out_data (midi_out_data),	// output
+	.env_sel(env_sel) ,				// output  env_sel_sig
+	.osc_sel(osc_sel) ,				// output  osc_sel_sig
+	.m1_sel(m1_sel) ,				// output  m1_sel_sig
+	.m2_sel(m2_sel) ,				// output  m2_sel_sig
+	.com_sel(com_sel) ,				// output  com_sel_sig
+	.active_keys(active_keys) ,		// output [V_WIDTH:0] active_keys_sig
+	.off_note_error(off_note_error) // output  off_note_error_sig
 );
 
 	
@@ -357,8 +367,10 @@ synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.
 	.pitch_val ( pitch_val ),
 // controller data bus
 	.write(write) ,	// output  write_sig
+	.read (read), 	// output read data signal
+	.sysex_data_patch_save (sysex_data_patch_save),
 	.adr(adr) ,	// output [6:0] adr_sig
-	.data(data) ,	// output [7:0] data_sig
+	.data (data) ,	// bi-dir [7:0] data_sig
 	.env_sel(env_sel) ,	// output  env_sel_sig
 	.osc_sel(osc_sel) ,	// output  osc_sel_sig
 	.m1_sel(m1_sel) ,	// output  m1_sel_sig
