@@ -1,11 +1,15 @@
 module MIDI_UART(
-    input                   CLOCK_25,
+    input           	CLOCK_25,
 //    input                   sys_clk,
-    input                   iRST_N,
-    input                   midi_rxd,
+    input               iRST_N,
+    input               midi_rxd,
+	input				midi_send_byte,
+	input [7:0]			midi_out_data,
+	output reg			midi_txd,
+	output reg			midi_out_ready,
 //    input                   initial_reset,
-    output  reg     byteready,
-    output   reg        sys_real,
+    output  reg			byteready,
+    output   reg   		sys_real,
     output  reg[7:0]    sys_real_dat,
     output  reg[7:0]    cur_status,
     output  reg[7:0]    midibyte_nr,
@@ -22,11 +26,14 @@ module MIDI_UART(
     reg midi_dat,md_1;
     wire md_ok = md_1 & midi_rxd;
 
+	
+ // -------------- Midi receiver  ------------- //
     always @(posedge CLOCK_25)begin
         md_1 <= midi_rxd;
         midi_dat <= md_ok;
-    end
-// comment out for debug
+    end 
+	
+ // comment out for debug
     reg startbit_d;
     reg [4:0]revcnt;
     reg [7:0] counter;
@@ -37,9 +44,13 @@ module MIDI_UART(
 //wire mgen_c;
 //wire [7:0]m_cnt_bits;
 
-      reg carry;
-    reg [2:0]reset_cnt;
-    reg [7:0]samplebyte;
+    reg carry;
+	reg [2:0]reset_cnt;
+    reg [7:0]samplebyte, out_buff;
+	
+	reg [4:0] out_cnt;
+	
+	reg transmit;
     wire byte_end = (revcnt[4:0]==18)? 1'b1 : 1'b0;
 
     always @(negedge iRST_N or posedge CLOCK_25)begin //! divide clock by 200
@@ -116,7 +127,7 @@ end
         if(!iRST_N) byteready <= 0;
         else begin
 //            if (initial_reset) byteready<=0;
-            if ( byte_end && (sys_real == 1'b0)) byteready <= 1;
+            if ( (byte_end && (sys_real == 1'b0)) || out_cnt == 19) byteready <= 1;
             else byteready <= 0;
         end
     end
@@ -139,5 +150,30 @@ end
             end
         end
     end
-
+	
+// -------------- Midi transmitter ----------- //
+	always @(posedge midi_send_byte or posedge midi_out_ready) begin
+		if(midi_send_byte)begin
+//			out_buff <= midi_out_data;
+			transmit <= 1'b1;
+		end
+		else if (midi_out_ready) transmit <= 1'b0;
+	end
+	
+    always @(posedge midi_clk or negedge iRST_N)begin
+        if(!iRST_N) begin out_cnt <= 0; midi_out_ready <= 1'b1; end
+        else begin
+            if (!transmit) begin out_cnt <= 0; midi_out_ready <= 1'b1;  midi_txd <= 1'b1; end
+            else if (out_cnt == 18)begin out_cnt <= out_cnt + 1'b1; midi_out_ready <= 1'b1; midi_txd <= 1'b1; end
+            else if (out_cnt >= 19)begin out_cnt <= 0; midi_out_ready <= 1'b1; end
+            else begin
+				midi_out_ready <= 1'b0;
+				out_cnt <=out_cnt+1'b1;
+				if (out_cnt == 1)begin out_buff <= midi_out_data; end
+				if (out_cnt >= 2) midi_txd <= out_buff[((out_cnt - 2) >> 1)];
+				else midi_txd <= 1'b0;
+			end
+        end
+    end
+	
 endmodule

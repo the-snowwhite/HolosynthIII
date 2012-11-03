@@ -268,6 +268,10 @@ module holosynthii_avgx_starter (
 //	wire UART_RXD = ~hsma_d[74]; // HSMA_TX_D_N16		Yellow
 	wire UART_RXD = ~hsma_tx_d_n[16]; // HSMA_TX_D_N16		not Yellow !
 	
+	wire midi_txd;
+	
+	assign hsma_tx_d_p[16] = midi_txd;
+	
 	assign clkout_sma = AUD_XCK;
 	
 
@@ -278,6 +282,7 @@ synthesizer  synthesizer_inst(
     .EXT_CLOCK_IN(clkinbot_100_p) ,   // input  CLOCK_sig
     .DLY0(iRST_n),
     .MIDI_Rx_DAT(UART_RXD) ,    // input  MIDI_DAT_sig
+	.midi_txd	(midi_txd),		// output midi serial data output
     .button( {cpu_resetn,user_pb[2:0]} ),            //  Button[3:0]
   //  .SW ( SW[17:0]),
     .GLED(LEDG),                            //  Green LED [4:1]

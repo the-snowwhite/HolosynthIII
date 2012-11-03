@@ -1,16 +1,18 @@
 module pitch_control (
-    input                iRST_N,
+    input               		iRST_N,
     input [V_WIDTH+E_WIDTH-1:0] xxxx,
-    input [V_WIDTH-1:0]  cur_key_adr,
-    input [7:0]          cur_key_val,
-    input [13:0]         pitch_val,
-    input                note_on,
-    input [7:0]          data,
-    input [6:0]          adr,
-    input                write,
-    input                osc_sel,
-    input                com_sel,
-    output [23:0]    osc_pitch_val
+    input [V_WIDTH-1:0] 		cur_key_adr,
+    input [7:0]         		cur_key_val,
+    input [13:0]        		pitch_val,
+    input               		note_on,
+    inout [7:0]         		data,
+    input [6:0]         		adr,
+    input               		write,
+	input 						read,
+	input						sysex_data_patch_save,
+    input               		osc_sel,
+    input               		com_sel,
+    output [23:0]    			osc_pitch_val
 );
 
 parameter VOICES = 8;
@@ -30,11 +32,27 @@ parameter E_WIDTH = O_WIDTH + OE_WIDTH;
     reg  signed   [7:0]k_scale[V_OSC-1:0];
 
     reg  signed   [7:0]pb_range;
+ 	
+	reg [7:0] data_out;
+
     wire [O_WIDTH-1:0] ox;
     wire [V_WIDTH-1:0] vx;
 
+		
+	wire [V_OSC-1:0] osc_adr_data;
+	
+	generate
+		genvar osc3;
+		for (osc3=0;osc3<V_OSC;osc3=osc3+1)begin : oscdataloop
+			assign osc_adr_data[osc3] = (adr == (7'd0 +(osc3<<4)) || (adr == 7'd1 +(osc3<<4)) || (adr == 7'd5 +(osc3<<4)) ||
+			(adr == 7'd8 +(osc3<<4)) || (adr == 7'd9 +(osc3<<4))) ? 1'b1 : 1'b0;
+		end
+	endgenerate
 
-    integer v1,loop,o1,kloop;
+//	assign data = ((!write) && (((osc_adr_data != 0) && osc_sel) || (com_sel && adr == 0))) ? data_out : 8'bz;
+	assign data = (sysex_data_patch_save && (((osc_adr_data != 0) && osc_sel) || (com_sel && adr == 0))) ? data_out : 8'bz;
+
+    integer v1,loop,o1,o2,kloop;
 
 
     always @(negedge iRST_N or posedge note_on)begin
@@ -62,11 +80,11 @@ parameter E_WIDTH = O_WIDTH + OE_WIDTH;
             if(osc_sel)begin
                 for (o1=0;o1<V_OSC;o1=o1+1)begin
                     case (adr)
-                        0 +(o1<<4): osc_ct[o1] <= data;
-                        1 +(o1<<4): osc_ft[o1] <= data;
-                        5 +(o1<<4): k_scale[o1] <= data;
-                        8 +(o1<<4): b_ct[o1] <= data;
-                        9 +(o1<<4): b_ft[o1] <= data;
+                        7'd0 +(o1<<4): osc_ct[o1] <= data;
+                        7'd1 +(o1<<4): osc_ft[o1] <= data;
+                        7'd5 +(o1<<4): k_scale[o1] <= data;
+                        7'd8 +(o1<<4): b_ct[o1] <= data;
+                        7'd9 +(o1<<4): b_ft[o1] <= data;
                         default:;
                     endcase
                 end
@@ -77,7 +95,29 @@ parameter E_WIDTH = O_WIDTH + OE_WIDTH;
         end
     end
 
-    wire [8:0]key = (b_ct[ox] <= 63) ?
+ /** @brief read data
+*/	
+
+	always @(posedge read) begin
+		if(osc_sel)begin
+            for (o2=0;o2<V_OSC;o2=o2+1)begin
+                case (adr)
+                    7'd0 +(o2<<4): data_out <= osc_ct[o2];
+                    7'd1 +(o2<<4): data_out <= osc_ft[o2];
+                    7'd5 +(o2<<4): data_out <= k_scale[o2];
+                    7'd8 +(o2<<4): data_out <= b_ct[o2];
+                    7'd9 +(o2<<4): data_out <= b_ft[o2];
+                    default:;
+                endcase
+            end
+        end
+        else if(com_sel) begin
+            if(adr == 0) data_out <= pb_range;
+        end
+	end
+
+
+	wire [8:0]key = (b_ct[ox] <= 63) ?
         ((rkey_val[vx])-( 64 - b_ct[ox])+128) : ((rkey_val[vx])+(b_ct[ox][5:0])+128);
 
 ////////        Internals       ////////

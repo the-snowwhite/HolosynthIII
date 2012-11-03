@@ -5,17 +5,19 @@
  *		@author	Michael Brown (Holotronic)
  */
 module env_gen_indexed (
-    input      iRST_N,
-    input       sCLK_XVXENVS  ,
-    input       [7:0] data  ,
-    input       [6:0] adr,
-    input       write ,
-    input       env_sel,
-    input       [VOICES-1:0]keys_on,
+    input      					iRST_N,
+    input       				sCLK_XVXENVS  ,
+    inout       [7:0] 			data  ,
+    input       [6:0] 			adr,
+    input       				write ,
+	input 						read,
+	input						sysex_data_patch_save,
+    input       				env_sel,
+    input       [VOICES-1:0]	keys_on,
     input [V_WIDTH+E_WIDTH-1:0] xxxx,
-    output  [7:0] level_mul,
-    output reg  [V_ENVS-1:0] osc_accum_zero,
-    output reg  [VOICES-1:0] voice_free
+    output  [7:0] 				level_mul,
+    output reg  [V_ENVS-1:0] 	osc_accum_zero,
+    output reg  [VOICES-1:0] 	voice_free
 );
 
 /**	@brief keys_on -> high triggers for a certain voice bit.
@@ -74,6 +76,11 @@ parameter num_mul = 22;
     reg init = 1;
 
     reg [VOICES-1:0] go_rate1;
+	
+	reg [7:0] data_out;
+	
+//	assign data = (!write && env_sel) ? data_out : 8'bz;
+	assign data = (sysex_data_patch_save && env_sel) ? data_out : 8'bz;
 
     wire       [E_WIDTH-1:0]   e_env_sel;
     wire       [V_WIDTH-1:0]   e_voice_sel;
@@ -83,7 +90,7 @@ parameter num_mul = 22;
  //   assign level_mul = level_m[36:29];
     assign level_mul = level[36:29];
   
-	 integer oloop, iloop,v1,e1,d1;
+	 integer oloop, iloop,v1,e1,d1,r1;
 
     always@(negedge iRST_N or negedge write )begin
        if(!iRST_N) begin
@@ -109,6 +116,22 @@ parameter num_mul = 22;
            end
        end
     end
+	
+	always @(posedge read)begin
+		if(env_sel)begin
+			for(r1=0;r1<V_ENVS;r1=r1+1) begin
+				if(adr == 0+(r1<<3)) data_out <= r_r[r1][0];
+				else if(adr == 1+(r1<<3)) data_out <= r_r[r1][1];
+				else if(adr == 2+(r1<<3)) data_out <= r_r[r1][2];
+				else if(adr == 3+(r1<<3)) data_out <= r_r[r1][3];
+				else if(adr == 4+(r1<<3)) data_out <= l_r[r1][0];
+				else if(adr == 5+(r1<<3)) data_out <= l_r[r1][1];
+				else if(adr == 6+(r1<<3)) data_out <= l_r[r1][2];
+				else if(adr == 7+(r1<<3)) data_out <= l_r[r1][3];
+			end
+		end
+	end
+	
     st_reg_ram #(.VOICES(VOICES),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.E_WIDTH(E_WIDTH))st_reg_ram_inst
 (
     .q({cur_denom_m,cur_numer_m,level_m,oldlevel_m,distance_m,st_m}) ,  // output [16+37+37+8+21+9-1:0] q_sig

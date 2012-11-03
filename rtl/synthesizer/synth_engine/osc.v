@@ -1,18 +1,20 @@
 module osc (
-    input         iRST_N,
-    input         OSC_CLK,
-    input         sCLK_XVXENVS,
-    input         sCLK_XVXOSC,
-    input         [7:0] data,
-    input         [6:0] adr,
-    input         write,
+    input         				iRST_N,
+    input         				OSC_CLK,
+    input         				sCLK_XVXENVS,
+    input         				sCLK_XVXOSC,
+    inout         				[7:0] data,
+    input         				[6:0] adr,
+    input         				write,
+	input						read,
+	input						sysex_data_patch_save,
     input [V_WIDTH+E_WIDTH-1:0] xxxx,
-    input         osc_sel,
-    input         [23:0]osc_pitch_val,
-    input         [10:0] modulation,
-    input         [VOICES-1:0]voice_free,
-    input         [V_ENVS-1:0]osc_accum_zero,
-    output        [16:0] sine_lut_out
+    input         				osc_sel,
+    input [23:0]				osc_pitch_val,
+    input [10:0] 				modulation,
+    input [VOICES-1:0]			voice_free,
+    input [V_ENVS-1:0]			osc_accum_zero,
+    output [16:0] 				sine_lut_out
 );
 
 parameter VOICES = 8;
@@ -38,12 +40,26 @@ parameter ox_offset = (V_OSC * VOICES ) - 1;
 
 //    input         [V_WIDTH-1:0]waveform,
     reg signed [7:0] o_offs [V_OSC-1:0];
-//    reg [O_WIDTH-1:0] ox_dly[3:0]; // 2 Voices 2 osc's
-    reg [O_WIDTH-1:0] ox_dly[ox_offset:0]; // All Voices 2 osc's ?
+    reg [O_WIDTH-1:0] ox_dly[ox_offset:0]; // All Voices 2 osc's 
+	
+	reg [7:0] data_out;
+	
+	wire [V_OSC-1:0] osc_adr_data;
+	
+	generate
+		genvar osc3;
+		for (osc3=0;osc3<V_OSC;osc3=osc3+1)begin : oscdataloop
+			assign osc_adr_data[osc3] = (adr == (7'd6 +(osc3<<4))) ? 1'b1 : 1'b0;
+		end
+	endgenerate
+	
+	
+//	assign data = ((!write) && (((osc_adr_data != 0) && osc_sel))) ? data_out : 8'bz;
+	assign data = (sysex_data_patch_save && (((osc_adr_data != 0) && osc_sel))) ? data_out : 8'bz;
 
     assign mod = modulation;
 
-    integer loop,o1,d1;
+    integer loop,o1,o2,d1;
 
     always@(posedge sCLK_XVXOSC)begin
         ox_dly[0] <= ox;
@@ -60,16 +76,25 @@ parameter ox_offset = (V_OSC * VOICES ) - 1;
         end else begin
             if(osc_sel)begin
                 for (o1=0;o1<V_OSC;o1=o1+1)begin
-                    if (adr == (6+(o1<<4))) o_offs[o1] <= data;
+                    if (adr == (7'd6+(o1<<4))) o_offs[o1] <= data;
                 end
             end
         end
     end
 
+/** @brief read data
+*/	
+
+	always @(posedge read) begin
+		 if(osc_sel)begin
+            for (o2=0;o2<V_OSC;o2=o2+1)begin
+                if (adr == (7'd6+(o2<<4))) data_out <= o_offs[o2];
+            end
+        end		 
+	end
 
     sine_lookup osc_sine(.clk( sCLK_XVXENVS ), .addr( tablelookup ), .sine_value( sine_lut_out ));
 
-//    assign tablelookup = phase_acc + mod + (o_offs[ox_dly[3]] << 3); // 2 Voices 2 osc's
     assign tablelookup = phase_acc + mod + (o_offs[ox_dly[ox_offset]] << 3);
 
 
