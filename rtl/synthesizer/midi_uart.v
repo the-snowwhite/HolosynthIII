@@ -23,14 +23,19 @@ module MIDI_UART(
     output  reg reset_mod_cnt
 */
 );
-    reg midi_dat,md_1;
-    wire md_ok = md_1 & midi_rxd;
+    reg midi_dat;
+	reg [3:0]md;
+    wire md_0_ok = ((md == 4'b0000) && !midi_rxd) ? 1'b0 : 1'b1;
 
 	
  // -------------- Midi receiver  ------------- //
     always @(posedge CLOCK_25)begin
-        md_1 <= midi_rxd;
-        midi_dat <= md_ok;
+        md[0] <= midi_rxd;
+		md[1] <= md[0];
+		md[2] <= md[1];
+		md[3] <= md[2];
+        if (!md_0_ok) midi_dat <= 1'b0;
+		else midi_dat <= 1'b1;
     end 
 	
  // comment out for debug

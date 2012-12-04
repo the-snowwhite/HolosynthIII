@@ -98,6 +98,8 @@ reg [V_WIDTH:0]cur_slot;
 	
 	reg midi_send_byte_req[3];
 	
+	reg [3:0]	midi_cha_num, sysex_type;
+	
 	assign adr = (sysex_data_patch_save) ? adr_s : adr_l;
 	
 	assign midi_send_byte = (midi_send_byte_req[1] && ~midi_send_byte_req[2]) ? 1'b1 : 1'b0;
@@ -361,36 +363,40 @@ wire is_st_note_on=(
             syx_cmd <= 1'b0;
             if(is_st_sysex)begin // Sysex
 				if (midi_bytes == 8'd1) begin
-					sysex_ctrl_data <= (databyte == 8'h7F) ? 1'b1 : 1'b0; 
+//					sysex_ctrl_data <= (databyte == 8'h7F) ? 1'b1 : 1'b0; 
 					Educational_Use <= (databyte == 8'h7D) ? 1'b1 : 1'b0; 
 				end
-				if (Educational_Use) begin
-					if (midi_bytes == 8'd2) begin
-						sysex_data_patch_load <= (databyte == 8'h02) ? 1'b1 : 1'b0; 
-						sysex_data_patch_save <= (databyte == 8'h03) ? 1'b1 : 1'b0; 
+				else if (Educational_Use) begin
+					if (midi_bytes == 8'd2)begin // sysex_type <= databyte[7:4]; midi_cha_num <= databyte[3:0]; end
+						if (databyte[3:0] == midi_ch) begin
+							case (databyte[7:4])
+								4'h1 : sysex_ctrl_data <= 1'b1;
+								4'h2 : sysex_data_patch_load <= 1'b1; 
+								4'h3 : sysex_data_patch_save <= 1'b1;
+							endcase
+						end
 					end
-				end
-				if(sysex_ctrl_data) begin
-					case (midi_bytes)
-						8'd3:bank_adr_l  <= databyte[2:0];
-						8'd4:adr_l  <= databyte[6:0];
-						8'd5:data_out  <= databyte;
-						8'd6:if (midi_bytes == 6 && databyte == 8'hf7)begin syx_cmd <= 1'b1; sysex_ctrl_data <= 1'b0; end
-						default:;
-					endcase
-				end
-				if(Educational_Use) begin
-					if(databyte != 8'hf7)begin
-						if (sysex_data_patch_load) begin
+					if(sysex_data_patch_load) begin
+						if(databyte != 8'hf7)begin
 							if (midi_bytes == 8'd3)begin bank_adr_l <= databyte[2:0]; end
 							else if (midi_bytes == 8'd4)begin adr_l <= 7'h0; auto_syx_cmd <= 1'b1; data_out <= databyte; end
 							else if (midi_bytes >= 8'd5 && midi_bytes < 8'd68) begin adr_l <= adr_l + 7'b1; data_out <= databyte; end
 						end
+						else begin sysex_data_patch_load <= 1'b0; auto_syx_cmd <= 1'b0; end
+					end
+					if(sysex_ctrl_data) begin
+						case (midi_bytes)
+							8'd3:bank_adr_l  <= databyte[2:0];
+							8'd4:adr_l  <= databyte[6:0];
+							8'd5:data_out  <= databyte;
+							8'd6:if (midi_bytes == 6 && databyte == 8'hf7)begin syx_cmd <= 1'b1; sysex_ctrl_data <= 1'b0; end
+							default:;
+						endcase
 					end
 				end
 			end
 		end
-		else begin sysex_data_patch_save <= 1'b0; sysex_data_patch_load <= 1'b0; auto_syx_cmd <= 1'b0; end
+//		else begin sysex_data_patch_save <= 1'b0; sysex_data_patch_load <= 1'b0; auto_syx_cmd <= 1'b0; end
 //		else begin  sysex_data_patch_load <= 1'b0; auto_syx_cmd <= 1'b0; end
 	end
 
@@ -403,26 +409,26 @@ wire is_st_note_on=(
 				addr_cnt <= addr_cnt+1'b1; sysex_data_patch_save_end <= 1'b0;
 				if (addr_cnt == 8'b0) begin	midi_out_data <= 8'hF0;	adr_s <= 7'b0; end
 				else if(addr_cnt == 8'd1) midi_out_data <= 8'h7D;
-				else if(addr_cnt == 8'd2)begin midi_out_data <= 8'h02; end
+				else if(addr_cnt == 8'd2)begin midi_out_data <= {4'h02,midi_ch}; end
 				else if(addr_cnt == 8'd3)begin adr_s <= 7'h0; bank_adr_s <= 3'h0; midi_out_data <= 8'h00;end
 				else if(addr_cnt > 8'd3 && addr_cnt <= (16*4+3))begin midi_out_data <= data; adr_s <= adr_s + 1'b1;	 end
 				else if (addr_cnt == (16*4+4)) midi_out_data <= 8'hF7;
 				else if (addr_cnt == (16*4+5)) midi_out_data <= 8'hF0;
 				else if (addr_cnt == (16*4+6)) midi_out_data <= 8'h7D;
-				else if (addr_cnt == (16*4+7)) midi_out_data <= 8'h02;
+				else if (addr_cnt == (16*4+7)) midi_out_data <= {4'h02,midi_ch};
 				else if (addr_cnt == (16*4+8))begin adr_s <= 7'h0; bank_adr_s <= 3'h1; midi_out_data <= 8'h01; end
 				else if(addr_cnt > (16*4+8) && addr_cnt <= (16*8+8))begin adr_s <= adr_s + 1'b1;midi_out_data <= data; end
 				else if (addr_cnt == (16*8+9)) midi_out_data <= 8'hF7;
 				else if (addr_cnt == (16*8+10)) midi_out_data <= 8'hF0;
 				else if (addr_cnt == (16*8+11)) midi_out_data <= 8'h7D;
-				else if (addr_cnt == (16*8+12)) midi_out_data <= 8'h02;
+				else if (addr_cnt == (16*8+12)) midi_out_data <= {4'h02,midi_ch};
 				else if (addr_cnt == (16*8+13))begin adr_s <= 7'h0; bank_adr_s <= 3'h2; midi_out_data <= 8'h02; end
 				else if(addr_cnt > (16*8+13) && addr_cnt <= (16*12+13))begin adr_s <= adr_s + 1'b1; midi_out_data <= data; end
 				else if (addr_cnt == (16*12+14)) midi_out_data <= 8'hF7;
 				else if (addr_cnt == (16*12+15)) midi_out_data <= 8'hF0;
 				else if (addr_cnt == (16*12+16)) midi_out_data <= 8'h7D;
-				else if (addr_cnt == (16*12+17)) midi_out_data <= 8'h02;
-				else if (addr_cnt == (16*12+18))begin adr_s <= 7'h0; bank_adr_s <= 3'h4; midi_out_data <= 8'h04; end
+				else if (addr_cnt == (16*12+17)) midi_out_data <= {4'h02,midi_ch};
+				else if (addr_cnt == (16*12+18))begin adr_s <= 7'h0; bank_adr_s <= 3'h5; midi_out_data <= 8'h04; end
 				else if(addr_cnt >= (16*12+18) && addr_cnt <= (16*14+18))begin adr_s <= adr_s + 1'b1; midi_out_data <= data; end
 				else if (addr_cnt == (16*14+19)) begin midi_out_data <= 8'hF7; sysex_data_patch_save_end <= 1'b1; end
 			end

@@ -314,6 +314,9 @@ reg [7:0]   delay_1;
 //wire reset_n,iRST_n;
 wire iRST_n;
 
+wire midi_txd;
+assign UART_TXD = ~midi_txd; // output midi transmit signal (inverted due to inverter in rs232 chip)
+
 //assign  FL_RST_N = 1'b1;
 //assign  FL_WP_N = 1'b1;
 
@@ -406,7 +409,8 @@ wire iRST_n;
 synthesizer  synthesizer_inst(
     .EXT_CLOCK_IN(CLOCK_50) ,   // input  CLOCK_50_sig
     .DLY0(iRST_n),
-    .MIDI_Rx_DAT(UART_RXD) ,    // input  MIDI_DAT_sig
+    .MIDI_Rx_DAT(~UART_RXD) ,    // input  MIDI_DAT_sig (inverted due to inverter in rs232 chip)
+	.midi_txd ( midi_txd ),		// output midi transmit signal (inverted due to inverter in rs232 chip)
     .button( KEY[3:0] ),            //  Button[3:0]
 //    .SW ( SW[17:0]),
     .GLED(LEDG),                            //  Green LED [4:1]
