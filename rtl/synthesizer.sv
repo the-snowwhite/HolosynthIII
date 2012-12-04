@@ -23,7 +23,7 @@ module synthesizer (
 //	output	[3:0]	hex_disp[7:0],
 
 	output	[8:1]	GLED,					//	LED[4:1] 
-	output	[17:1]	RLED,					//	LED[4:1] 
+	output	[18:1]	RLED,					//	LED[4:1] 
 
 /*	output		VGA_CLK,   				//	VGA Clock
 	output		HS,					//	VGA H_SYNC
@@ -70,7 +70,9 @@ module synthesizer (
     inout [7:0]			data
 );
 
-
+`ifdef _NEEK
+parameter VOICES = 16;
+`else
 //parameter VOICES = 64;
 parameter VOICES = 32;
 //parameter VOICES = 16;
@@ -78,7 +80,7 @@ parameter VOICES = 32;
 //parameter VOICES = 4;	// number of simultainious voices
 //parameter VOICES = 2;	// number of simultainious voices
 //parameter VOICES = 1;	// number of simultainious voices
-
+`endif
 //parameter V_OSC = 8;  //!NEEK
 //parameter V_OSC = 6;
 parameter V_OSC = 4;	// number of oscilators pr. voice.
@@ -136,9 +138,9 @@ parameter VW_9 = utils::clogb2(V_9);
 
 //---	Midi	---//
 // inputs
-	wire midi_rxd = !MIDI_Rx_DAT; // RS-232 port
+//	wire midi_rxd = !MIDI_Rx_DAT; // 
 	
-//	wire midi_rxd = MIDI_Rx_DAT; // Direct to optocopler (fixed in topfile)			
+	wire midi_rxd = MIDI_Rx_DAT; // Direct to optocopler RS-232 port (fix it in in topfile)			
 //outputs
 	wire midi_out_ready,midi_send_byte;
 	wire [7:0] midi_out_data;
@@ -227,7 +229,7 @@ vga_pll	sys_disp_pll_inst	(
 //	.areset ( 1'b0 ),								
 	.inclk0 ( EXT_CLOCK_IN ),
 	.c0		( CLOCK_25 )
-//	.c1		( HC_VGA_CLOCK ),// 
+//	.c1		( HC_VGA_CLOCK ),// 75 Mhz
 //	.c2		( HC_LCD_CLK )	// 39Mhx
 );
 
@@ -395,7 +397,7 @@ synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.
 //assign GLED[VOICES:1] = keys_on[VOICES-1:0];
 assign GLED[8:1] = keys_on[7:0];
 
-//assign RLED[VOICES+1:1] = voice_free[VOICES-1:0];
+assign RLED[16:1] = voice_free[15:0];
 
 //assign RLED[8:1] = {voice_free[7],voice_free[6],voice_free[5],voice_free[4],
 //	voice_free[3],voice_free[2],voice_free[1],voice_free[0]};	
