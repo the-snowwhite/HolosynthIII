@@ -13,7 +13,11 @@ module audio_i2s_driver (
 );
 
 	reg [4:0]         SEL_Cont;
+`ifdef	_24BitAudio
+	reg signed [23:0] sound_out; // 24-bits
+`else
 	reg signed [15:0] sound_out; // 16-bits
+`endif 
 	reg reg_edge_detected;
 	reg reg_lrck_dly;
 
@@ -43,7 +47,7 @@ module audio_i2s_driver (
 
 //    assign  oAUD_DATA   =  (SEL_Cont < 16) ? sound_out[SEL_Cont[3:0]] : 1'b0; // 16-bits
 `ifdef _24BitAudio
-    assign  oAUD_DATA   =  (SEL_Cont <= 23) ? sound_out[SEL_Cont+5'd7] : 1'b0; // 24-bits
+    assign  oAUD_DATA   =  (SEL_Cont <= 23) ? sound_out[(~SEL_Cont)-5'd8] : 1'b0; // 24-bits
 `else
     assign  oAUD_DATA   =  (SEL_Cont <= 15 ) ? sound_out[~SEL_Cont[4:0]] : 1'b0; // 16-bits
 `endif

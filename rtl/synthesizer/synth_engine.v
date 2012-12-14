@@ -83,7 +83,7 @@ wire [V_ENVS-1:0] osc_accum_zero;
 
 //assign LTM_GREST = n_xxxx_zero;
 
-	reg               reg_note_on[2:0];
+	reg               reg_note_on[3:0];
 	reg [V_WIDTH-1:0] reg_cur_key_adr;
 	reg [7:0]         reg_cur_key_val;
 	
@@ -94,6 +94,7 @@ wire [V_ENVS-1:0] osc_accum_zero;
 		if(OSC_CLK)begin
 			reg_note_on[1] <= reg_note_on[0];
 			reg_note_on[2] <= reg_note_on[1];
+			reg_note_on[3] <= reg_note_on[2];
 		end
 	end		
 
@@ -143,7 +144,9 @@ pitch_control #(.VOICES(VOICES),.V_OSC(V_OSC),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH
 (
 	.iRST_N( iRST_N ),                               // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-iRST_N
 	.xxxx( xxxx ),                  // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-xxxx[5..0]
+	.const_clk (OSC_CLK),
 	.note_on( reg_note_on[2] ),         // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-note_on
+	.note_on_dly( reg_note_on[3] ),         // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-note_on
 	.cur_key_adr( reg_cur_key_adr ), // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-cur_key_adr[2..0]
 	.cur_key_val( reg_cur_key_val ), // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-cur_key_val[7..0]
 	.pitch_val( pitch_val ), // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-pitch_val[13..0]
