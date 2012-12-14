@@ -1,10 +1,12 @@
 module pitch_control (
     input               		iRST_N,
+	input						const_clk,
     input [V_WIDTH+E_WIDTH-1:0] xxxx,
     input [V_WIDTH-1:0] 		cur_key_adr,
     input [7:0]         		cur_key_val,
     input [13:0]        		pitch_val,
     input               		note_on,
+    input               		note_on_dly,
     inout [7:0]         		data,
     input [6:0]         		adr,
     input               		write,
@@ -127,10 +129,10 @@ parameter E_WIDTH = O_WIDTH + OE_WIDTH;
     wire [23:0]ft_pb_res;
     wire [23:0]key_scale;
 
-    constmap constmap(.sound(key), .constant(ct_res));
+    constmap2 constmap(.sound(key), .clk(const_clk), .constant(ct_res));
 
     wire [8:0] ft_ct_key = (b_ft[ox] <= 63) ? (key-1) : (key+1);
-    constmap ct_pb_pitchmap(.sound(ft_ct_key), .constant(ft_ct_res));
+    constmap2 ct_pb_pitchmap(.sound(ft_ct_key), .clk(const_clk), .constant(ft_ct_res));
 // Fine tune  //
         wire [29:0]ft_range_l = (ct_res-ft_ct_res)*(64 - b_ft[ox]);//b_ft(down)
     wire [29:0]ft_range_h = ((ft_ct_res - ct_res)*b_ft[ox][5:0]);// b_ft(up)
@@ -140,10 +142,10 @@ parameter E_WIDTH = O_WIDTH + OE_WIDTH;
 
 // Pitch bend  //
     wire [8:0] pitch_key = (pitch_val <= 14'h1fff) ? (key-pb_range) : (key+pb_range);
-    constmap pitchmap_pb(.sound(pitch_key), .constant(pb_res));
+    constmap2 pitchmap_pb(.sound(pitch_key), .clk(const_clk), .constant(pb_res));
 
     wire [8:0] pb_pitch_key = (pitch_val <= 14'h1fff) ? (key-(pb_range+1)) : (key+(pb_range+1));
-    constmap ft_pb_pitchmap(.sound(pb_pitch_key), .constant(ft_pb_res));
+    constmap2 ft_pb_pitchmap(.sound(pb_pitch_key), .clk(const_clk), .constant(ft_pb_res));
 
     wire [36:0]pb_range_l = (ft_pitch-pb_res)*(14'h2000-pitch_val);//pb(down)
     wire [36:0]pb_range_h = ((pb_res - ft_pitch)*pitch_val[12:0]);//pb(up)
