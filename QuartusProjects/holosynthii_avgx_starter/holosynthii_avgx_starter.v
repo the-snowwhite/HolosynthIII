@@ -265,15 +265,12 @@ module holosynthii_avgx_starter (
 //	assign aud_dat = AUD_DACDAT;
 	assign hsma_rx_d_p[16] = AUD_DACDAT; // HSMA_RX_D_P16 	White
 
-//	wire UART_RXD = ~hsma_d[74]; // HSMA_TX_D_N16		Yellow
-
-//	wire UART_RXD = ~hsma_tx_d_n[16]; // HSMA_TX_D_N16		not Yellow !
-	wire UART_RXD = ~hsma_tx_d_p[12]; // HSMA_TX_D_N16		Blue !
+	wire UART_RXD = hsma_tx_d_p[12]; // HSMA_TX_D_P12		Blue !
 	
 	wire midi_txd;
 	
-//	assign hsma_tx_d_p[16] = midi_txd;
-	assign hsma_rx_d_p[10] = midi_txd; // Yellow
+//	assign hsma_rx_d_p[10] = midi_txd; // Yellow
+	assign hsma_rx_d_p[10] = ~midi_txd; // Yellow !! inverted midi out
 	
 	assign clkout_sma = AUD_XCK;
 	
@@ -284,7 +281,7 @@ module holosynthii_avgx_starter (
 synthesizer  synthesizer_inst(
     .EXT_CLOCK_IN(clkinbot_100_p) ,   // input  CLOCK_sig
     .DLY0(iRST_n),
-    .MIDI_Rx_DAT(~UART_RXD) ,    // input  MIDI_DAT_sig
+    .MIDI_Rx_DAT(UART_RXD) ,    // input  MIDI_DAT_sig
 	.midi_txd	(midi_txd),		// output midi serial data output
     .button( {cpu_resetn,user_pb[2:0]} ),            //  Button[3:0]
   //  .SW ( SW[17:0]),
