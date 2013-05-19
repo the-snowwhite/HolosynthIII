@@ -86,6 +86,7 @@ wire [V_ENVS-1:0] osc_accum_zero;
 	reg               reg_note_on[3:0];
 	reg [V_WIDTH-1:0] reg_cur_key_adr;
 	reg [7:0]         reg_cur_key_val;
+	reg [7:0]         reg_cur_vel_on;
 	
 	reg [VOICES-1:0]	reg_keys_on;
 //	reg [VOICES-1:0] 	reg_voice_free;
@@ -103,6 +104,7 @@ wire [V_ENVS-1:0] osc_accum_zero;
 			reg_note_on[0] <= note_on;
 			reg_cur_key_adr <= cur_key_adr;
 			reg_cur_key_val <= cur_key_val;
+			reg_cur_vel_on <= cur_vel_on;
 			reg_keys_on <= keys_on;
 //			reg_voice_free <= voice_free;
 		end
@@ -180,6 +182,28 @@ osc #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.O_WIDTH(O
 	.sine_lut_out( sine_lut_out )        // ObjectKind=Sheet Entry|PrimaryId=osc.v-sine_lut_out[16..0]
 );
 
+	reg  [7:0]r_cur_vel_on[VOICES-1:0];
+	wire [14:0]  level_mul_vel_w;        // ObjectKind=Net|PrimaryId=level_mul
+	wire [7:0]  level_mul_vel;        // ObjectKind=Net|PrimaryId=level_mul
+	wire [V_WIDTH-1:0]  vx;
+	assign vx = xxxx[V_WIDTH+E_WIDTH-1:E_WIDTH];
+
+	integer kloop;
+
+
+    always @(negedge iRST_N or posedge reg_note_on[2])begin
+        if(!iRST_N)begin
+            for (kloop=0;kloop<VOICES;kloop=kloop+1)begin
+                r_cur_vel_on[kloop] <= 8'hff;
+            end
+        end
+        else
+            r_cur_vel_on[reg_cur_key_adr] <= reg_cur_vel_on;
+    end
+
+assign level_mul_vel_w = r_cur_vel_on[vx] * level_mul;
+assign level_mul_vel = level_mul_vel_w[14:7] ;
+
 mixer_2 #(.VOICES(VOICES),.V_OSC(V_OSC),.O_ENVS(O_ENVS),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH),.OE_WIDTH(OE_WIDTH)) mixer_2_inst  // ObjectKind=Sheet Symbol|PrimaryId=U_mixer
 (
 	.iRST_N( iRST_N ),                               // ObjectKind=Sheet Entry|PrimaryId=mixer.v-iRST_N
@@ -187,7 +211,8 @@ mixer_2 #(.VOICES(VOICES),.V_OSC(V_OSC),.O_ENVS(O_ENVS),.V_WIDTH(V_WIDTH),.O_WID
 	.sCLK_XVXOSC( sCLK_XVXOSC ), // ObjectKind=Sheet Entry|PrimaryId=synth_clk_gen.v-sCLK_XVXOSC
 	.xxxx( xxxx ),                 // ObjectKind=Sheet Entry|PrimaryId=mixer.v-xxxx[5..0]
 	.n_xxxx_zero( n_xxxx_zero ),        // ObjectKind=Sheet Entry|PrimaryId=mixer.v-n_xxxx_zero
-	.level_mul( level_mul ),  // ObjectKind=Sheet Entry|PrimaryId=mixer.v-level_mul[7..0]
+//	.level_mul( level_mul ),  // ObjectKind=Sheet Entry|PrimaryId=mixer.v-level_mul[7..0]
+	.level_mul( level_mul_vel ),  // ObjectKind=Sheet Entry|PrimaryId=mixer.v-level_mul[7..0]
 	.sine_lut_out( sine_lut_out ),        // ObjectKind=Sheet Entry|PrimaryId=mixer.v-sine_lut_out[16..0]
 	.modulation( modulation ),          // ObjectKind=Sheet Entry|PrimaryId=mixer.v-modulation[10..0]
 	.write( write ),             // ObjectKind=Sheet Entry|PrimaryId=mixer.v-write
