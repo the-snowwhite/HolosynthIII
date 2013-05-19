@@ -22,7 +22,7 @@ module synth_engine (
 // midi data events
     input               write,
 	input				read,
-	input				sysex_data_patch_save,
+	input				sysex_data_patch_send,
     input [6:0]         adr,
     inout [7:0]         data,
     input               env_sel,
@@ -152,7 +152,7 @@ pitch_control #(.VOICES(VOICES),.V_OSC(V_OSC),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH
 	.pitch_val( pitch_val ), // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-pitch_val[13..0]
 	.write( write ),             // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-write
 	.read ( read ),
-	.sysex_data_patch_save (sysex_data_patch_save),
+	.sysex_data_patch_send (sysex_data_patch_send),
 	.adr( adr ),                 // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-adr[6..0]
 	.data( data ),               // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-data[7..0]
 	.osc_sel( osc_sel ),         // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-osc_sel
@@ -173,7 +173,7 @@ osc #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.O_WIDTH(O
 	.voice_free ( voice_free ),// ObjectKind=Sheet Entry|PrimaryId=osc.v-voice_free[7..0]
 	.write( write ),             // ObjectKind=Sheet Entry|PrimaryId=osc.v-write
 	.read ( read ),
-	.sysex_data_patch_save (sysex_data_patch_save),
+	.sysex_data_patch_send (sysex_data_patch_send),
 	.adr( adr ),                 // ObjectKind=Sheet Entry|PrimaryId=osc.v-adr[6..0]
 	.data( data ),               // ObjectKind=Sheet Entry|PrimaryId=osc.v-data[7..0]
 	.osc_sel( osc_sel ),         // ObjectKind=Sheet Entry|PrimaryId=osc.v-osc_sel
@@ -192,7 +192,7 @@ mixer_2 #(.VOICES(VOICES),.V_OSC(V_OSC),.O_ENVS(O_ENVS),.V_WIDTH(V_WIDTH),.O_WID
 	.modulation( modulation ),          // ObjectKind=Sheet Entry|PrimaryId=mixer.v-modulation[10..0]
 	.write( write ),             // ObjectKind=Sheet Entry|PrimaryId=mixer.v-write
 	.read ( read ),
-	.sysex_data_patch_save (sysex_data_patch_save),
+	.sysex_data_patch_send (sysex_data_patch_send),
 	.adr( adr ),                 // ObjectKind=Sheet Entry|PrimaryId=mixer.v-adr[6..0]
 	.data( data ),               // ObjectKind=Sheet Entry|PrimaryId=mixer.v-data[7..0]
 	.osc_sel( osc_sel ),         // ObjectKind=Sheet Entry|PrimaryId=mixer.v-osc_sel
@@ -213,7 +213,7 @@ env_gen_indexed #(.VOICES(VOICES),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.E_WIDTH(E_W
 	.keys_on( reg_keys_on ),         // ObjectKind=Sheet Entry|PrimaryId=env_gen_indexed.v-keys_on[7..0]
 	.write( write ),             // ObjectKind=Sheet Entry|PrimaryId=env_gen_indexed.v-write
 	.read ( read ),
-	.sysex_data_patch_save (sysex_data_patch_save),
+	.sysex_data_patch_send (sysex_data_patch_send),
 	.adr( adr ),                 // ObjectKind=Sheet Entry|PrimaryId=env_gen_indexed.v-adr[6..0]
 	.data( data ),               // ObjectKind=Sheet Entry|PrimaryId=env_gen_indexed.v-data[7..0]
 	.env_sel( env_sel ),         // ObjectKind=Sheet Entry|PrimaryId=env_gen_indexed.v-env_sel

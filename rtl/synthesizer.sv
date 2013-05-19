@@ -157,7 +157,7 @@ parameter VW_9 = utils::clogb2(V_9);
     wire [7:0]         	cur_vel_off;
     wire				write;
 	wire				read;
-	wire				sysex_data_patch_save;
+	wire				sysex_data_patch_send;
     wire [6:0]         	adr;
     wire               	env_sel;
     wire               	osc_sel;
@@ -284,11 +284,11 @@ midi_decoder #(.VOICES(VOICES),.V_WIDTH(V_WIDTH)) midi_decoder_inst(
 // controller data bus
 	.write(write) ,					// output  write_sig
 	.read (read), 					// output read data signal
-	.sysex_data_patch_save (sysex_data_patch_save),
+	.sysex_data_patch_send (sysex_data_patch_send),
 	.adr(adr) ,						// output [6:0] adr_sig
 	.data (data) ,					// output [7:0] data_sig
 	.midi_out_ready (midi_out_ready),// input
-	.midi_send_byte (midi_send_byte),// output
+	.midi_send_byte (midi_send_byte),// inout
 	.midi_out_data (midi_out_data),	// output
 	.env_sel(env_sel) ,				// output  env_sel_sig
 	.osc_sel(osc_sel) ,				// output  osc_sel_sig
@@ -370,7 +370,7 @@ synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.
 // controller data bus
 	.write(write) ,	// output  write_sig
 	.read (read), 	// output read data signal
-	.sysex_data_patch_save (sysex_data_patch_save),
+	.sysex_data_patch_send (sysex_data_patch_send),
 	.adr(adr) ,	// output [6:0] adr_sig
 	.data (data) ,	// bi-dir [7:0] data_sig
 	.env_sel(env_sel) ,	// output  env_sel_sig
