@@ -13,7 +13,7 @@ module mixer_2 (
     input [6:0]        		 	adr,
     input               		write,
 	input 						read,
-	input						sysex_data_patch_save,
+	input						sysex_data_patch_send,
     input               		osc_sel,
     input               		com_sel,
     input               		m1_sel,
@@ -114,7 +114,7 @@ parameter output_volume_scaling = 33 + V_WIDTH + O_WIDTH; // try *3/4 (0.75) pr 
 	
 	
 //	assign data = (read && (((osc_adr_data != 0) && osc_sel) || (com_sel && adr >= 1) || m1_sel || m2_sel)) ? data_out : 8'bz;
-	assign data = (sysex_data_patch_save && (((osc_adr_data != 0) && osc_sel) || (com_sel && adr >= 1) || m1_sel || m2_sel)) ? data_out : 8'bz;
+	assign data = (sysex_data_patch_send && (((osc_adr_data != 0) && osc_sel) || (com_sel && adr >= 1) || m1_sel || m2_sel)) ? data_out : 8'bz;
 	
 	wire signed [63:0] sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_l;
 	wire signed [63:0] sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_r;

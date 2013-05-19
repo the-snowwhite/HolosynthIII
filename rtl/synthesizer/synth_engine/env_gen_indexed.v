@@ -11,7 +11,7 @@ module env_gen_indexed (
     input       [6:0] 			adr,
     input       				write ,
 	input 						read,
-	input						sysex_data_patch_save,
+	input						sysex_data_patch_send,
     input       				env_sel,
     input       [VOICES-1:0]	keys_on,
     input [V_WIDTH+E_WIDTH-1:0] xxxx,
@@ -80,7 +80,7 @@ parameter num_mul = 22;
 	reg [7:0] data_out;
 	
 //	assign data = (!write && env_sel) ? data_out : 8'bz;
-	assign data = (sysex_data_patch_save && env_sel) ? data_out : 8'bz;
+	assign data = (sysex_data_patch_send && env_sel) ? data_out : 8'bz;
 
     wire       [E_WIDTH-1:0]   e_env_sel;
     wire       [V_WIDTH-1:0]   e_voice_sel;

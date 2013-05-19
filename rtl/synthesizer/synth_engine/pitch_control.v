@@ -11,7 +11,7 @@ module pitch_control (
     input [6:0]         		adr,
     input               		write,
 	input 						read,
-	input						sysex_data_patch_save,
+	input						sysex_data_patch_send,
     input               		osc_sel,
     input               		com_sel,
     output [23:0]    			osc_pitch_val
@@ -52,7 +52,7 @@ parameter E_WIDTH = O_WIDTH + OE_WIDTH;
 	endgenerate
 
 //	assign data = ((!write) && (((osc_adr_data != 0) && osc_sel) || (com_sel && adr == 0))) ? data_out : 8'bz;
-	assign data = (sysex_data_patch_save && (((osc_adr_data != 0) && osc_sel) || (com_sel && adr == 0))) ? data_out : 8'bz;
+	assign data = (sysex_data_patch_send && (((osc_adr_data != 0) && osc_sel) || (com_sel && adr == 0))) ? data_out : 8'bz;
 
     integer v1,loop,o1,o2,kloop;
 
