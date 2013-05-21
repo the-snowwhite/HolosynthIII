@@ -71,7 +71,7 @@ module synthesizer (
 );
 
 `ifdef _NEEK
-parameter VOICES = 16;
+parameter VOICES = 32;
 `else
 //parameter VOICES = 64;
 parameter VOICES = 32;
