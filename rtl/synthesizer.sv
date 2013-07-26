@@ -73,12 +73,13 @@ module synthesizer (
 `ifdef _NEEK
 parameter VOICES = 32;
 `else
+//parameter VOICES = 128;
 //parameter VOICES = 64;
-parameter VOICES = 32;
+//parameter VOICES = 32;
 //parameter VOICES = 16;
 //parameter VOICES = 8;	// number of simultainious voices 
 //parameter VOICES = 4;	// number of simultainious voices
-//parameter VOICES = 2;	// number of simultainious voices
+parameter VOICES = 2;	// number of simultainious voices
 //parameter VOICES = 1;	// number of simultainious voices
 `endif
 //parameter V_OSC = 8;  //!NEEK
@@ -222,22 +223,6 @@ reset_delay	reset_delay_inst  (
 		else if(MCNT < 500) MCNT=MCNT+ 1'b1;
 	end
 
-//-----	Clockgens & Timing	----//
-//  PLL
-
-vga_pll	sys_disp_pll_inst	(	
-//	.areset ( 1'b0 ),								
-	.inclk0 ( EXT_CLOCK_IN ),
-	.c0		( CLOCK_25 )
-//	.c1		( HC_VGA_CLOCK ),// 75 Mhz
-//	.c2		( HC_LCD_CLK )	// 39Mhx
-);
-
-// Sound clk gen //
-
-// TIME & Display CLOCK Generater //
-
-	always @( posedge CLOCK_25) VGA_CLK_o = VGA_CLK_o + 1;
 
 
 //---				---//
@@ -327,66 +312,90 @@ midi_controllers #(.VOICES(VOICES),.V_OSC(V_OSC)) midi_controllers_inst(
 	.pitch_val		( pitch_val )
 );
 
-//////////// Sound Generation /////////////	
+//-----	Clockgens & Timing	----//
+// TIME & Display CLOCK Generater //
 
-`ifdef _Synth
-//	AUDIO SOUND
-`ifdef _271MhzOscs
-audio_271_pll	audio_pll_inst ( //  271.052632 MHz
+	always @( posedge CLOCK_25) VGA_CLK_o = VGA_CLK_o + 1;
+//  PLL
+
+vga_pll	sys_disp_pll_inst	(	
+`ifdef _CycloneV
+	.refclk		( EXT_CLOCK_IN ),
+	.outclk_0	( CLOCK_25 )
+//	.c1			( HC_VGA_CLOCK ),// 75 Mhz
+//	.c2			( HC_LCD_CLK )	// 39Mhx
 `else
-audio_pll	audio_pll_inst ( // 180.555556 Mhz
+	.inclk0		( EXT_CLOCK_IN ),
+	.c0			( CLOCK_25 )
+//	.c1			( HC_VGA_CLOCK ),// 75 Mhz
+//	.c2			( HC_LCD_CLK )	// 39Mhx
 `endif
-	.inclk0 ( EXT_CLOCK_IN ),
-	.c0 ( TONE_CTRL_CLK ),  // 180.555556 Mhz --> 270 Mhz
-	.c1 ( AUD_XCK ) // 16.927083 Mhz
 );
+	// Sound clk gen //
+`ifdef _Synth
+	//	AUDIO SOUND
+	`ifdef _271MhzOscs
+		audio_271_pll	audio_pll_inst ( //  271.052632 MHz
+	`else
+		audio_pll	audio_pll_inst ( // 180.555556 Mhz
+	`endif
+	`ifdef _CycloneV
+		.refclk		( EXT_CLOCK_IN ),
+		.outclk_0	( TONE_CTRL_CLK ),  // 180.555556 Mhz --> 270 Mhz
+		.outclk_1	( AUD_XCK ) // 16.927083 Mhz
+	`else
+		.inclk0		( EXT_CLOCK_IN ),
+		.c0	( TONE_CTRL_CLK ),  // 180.555556 Mhz --> 270 Mhz
+		.c1	( AUD_XCK ) // 16.927083 Mhz
+	`endif
+	);	
+	//////////// Sound Generation /////////////	
 
-assign	AUD_ADCLRCK	=	AUD_DACLRCK;
+	assign	AUD_ADCLRCK	=	AUD_DACLRCK;
 
-//assign	AUD_XCK		=	AUD_CTRL_CLK;			
+	//assign	AUD_XCK		=	AUD_CTRL_CLK;			
 					
-// 2CH Audio Sound output -- Audio Generater //
-synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH),.OE_WIDTH(OE_WIDTH)) synth_engine_inst	(		        
-// AUDIO CODEC //		
-	.OSC_CLK( TONE_CTRL_CLK ),	//input
-	.AUDIO_CLK( AUD_XCK ),		//input
-	.iRST_N(iRST_N) ,	// input  reset_sig
-	.AUD_BCK ( AUD_BCLK ),				//output
-	.AUD_DATA( AUD_DACDAT ),			//output
-	.AUD_LRCK( AUD_DACLRCK ),			//output																
-// KEY //		
-//    	.switch	  ( SW[17:0]),			//input			
-//	.button	  ( button[4:1]),		//input			
+	// 2CH Audio Sound output -- Audio Generater //
+	synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH),.OE_WIDTH(OE_WIDTH)) synth_engine_inst	(		        
+	// AUDIO CODEC //		
+		.OSC_CLK( TONE_CTRL_CLK ),	//input
+		.AUDIO_CLK( AUD_XCK ),		//input
+		.iRST_N(iRST_N) ,	// input  reset_sig
+		.AUD_BCK ( AUD_BCLK ),				//output
+		.AUD_DATA( AUD_DACDAT ),			//output
+		.AUD_LRCK( AUD_DACLRCK ),			//output																
+	// KEY //		
+	//    	.switch	  ( SW[17:0]),			//input			
+	//	.button	  ( button[4:1]),		//input			
 	// -- Sound Control -- //
-//	to pitch control //
-	.note_on(note_on) ,	// output  note_on_sig
-	.keys_on(keys_on) ,	// output [VOICES-1:0] keys_on_sig
-	.cur_key_adr(cur_key_adr) ,	// output [V_WIDTH-1:0] cur_key_adr_sig
-	.cur_key_val(cur_key_val) ,	// output [7:0] cur_key_val_sig
-	.cur_vel_on(cur_vel_on) ,	// output [7:0] cur_vel_on_sig
-	.cur_vel_off(cur_vel_off) ,	// output [7:0] cur_vel_off_sig
-// from midi_controller_unit
-	.pitch_val ( pitch_val ),
-// controller data bus
-	.write(write) ,	// output  write_sig
-	.read (read), 	// output read data signal
-	.sysex_data_patch_send (sysex_data_patch_send),
-	.adr(adr) ,	// output [6:0] adr_sig
-	.data (data) ,	// bi-dir [7:0] data_sig
-	.env_sel(env_sel) ,	// output  env_sel_sig
-	.osc_sel(osc_sel) ,	// output  osc_sel_sig
-	.m1_sel(m1_sel) ,	// output  m1_sel_sig
-	.m2_sel(m2_sel) ,	// output  m2_sel_sig
-	.com_sel(com_sel), 	// output  com_sel_sig
-//   .LTM_SCEN(LTM_SCEN),
-//   .LTM_GREST(LTM_GREST),
-// from mixer
-//	.lvoice_out ( lvoice_out ),
-//	.rvoice_out ( rvoice_out ),
-// from env gen // 
-	.voice_free( voice_free )		//output from envgen
-);
-	
+	//	to pitch control //
+		.note_on(note_on) ,	// output  note_on_sig
+		.keys_on(keys_on) ,	// output [VOICES-1:0] keys_on_sig
+		.cur_key_adr(cur_key_adr) ,	// output [V_WIDTH-1:0] cur_key_adr_sig
+		.cur_key_val(cur_key_val) ,	// output [7:0] cur_key_val_sig
+		.cur_vel_on(cur_vel_on) ,	// output [7:0] cur_vel_on_sig
+		.cur_vel_off(cur_vel_off) ,	// output [7:0] cur_vel_off_sig
+	// from midi_controller_unit
+		.pitch_val ( pitch_val ),
+	// controller data bus
+		.write(write) ,	// output  write_sig
+		.read (read), 	// output read data signal
+		.sysex_data_patch_send (sysex_data_patch_send),
+		.adr(adr) ,	// output [6:0] adr_sig
+		.data (data) ,	// bi-dir [7:0] data_sig
+		.env_sel(env_sel) ,	// output  env_sel_sig
+		.osc_sel(osc_sel) ,	// output  osc_sel_sig
+		.m1_sel(m1_sel) ,	// output  m1_sel_sig
+		.m2_sel(m2_sel) ,	// output  m2_sel_sig
+		.com_sel(com_sel), 	// output  com_sel_sig
+	//   .LTM_SCEN(LTM_SCEN),
+	//   .LTM_GREST(LTM_GREST),
+	// from mixer
+	//	.lvoice_out ( lvoice_out ),
+	//	.rvoice_out ( rvoice_out ),
+	// from env gen // 
+		.voice_free( voice_free )		//output from envgen
+	);
 `endif
 
 //wire key_on [VOICES-1:0] = keys_on;
@@ -395,9 +404,9 @@ synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.
 //assign GLED[8:1] = {key_on[7],key_on[6],key_on[5],key_on[4],key_on[3],key_on[2],key_on[1],key_on[0]};
 
 //assign GLED[VOICES:1] = keys_on[VOICES-1:0];
-assign GLED[8:1] = keys_on[7:0];
+assign GLED[8:1] = keys_on[((VOICES -1) & 7):0];
 
-assign RLED[16:1] = voice_free[15:0];
+assign RLED[16:1] = voice_free[((VOICES - 1) & 15):0];
 
 //assign RLED[8:1] = {voice_free[7],voice_free[6],voice_free[5],voice_free[4],
 //	voice_free[3],voice_free[2],voice_free[1],voice_free[0]};	
