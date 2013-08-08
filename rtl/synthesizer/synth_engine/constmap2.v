@@ -6,21 +6,17 @@ module constmap2
     // Output Ports
     output [23:0]constant
 );
-`define _271MhzOscs // if not defined defaults to 180 Mhz oscilator clock
+//`define _271MhzOscs // if not defined defaults to 180 Mhz oscilator clock
 
-`ifdef _271MhzOscs
-constmaprom271	constmaprom_inst (
+//`ifdef _271MhzOscs
+//constmaprom271	constmaprom_inst (
+//`else
+constmaprom2	constmaprom_inst (
+//`endif	
 	.address ( sound[7:0] ),
 	.clock ( clk ),
 	.q ( constant )
 	);
-`else
-constmaprom	constmaprom_inst (
-	.address ( sound[7:0] ),
-	.clock ( clk ),
-	.q ( constant )
-	);
-`endif
 
 /*
 assign constant = pmconstant[23:0];

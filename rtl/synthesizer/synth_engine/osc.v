@@ -98,7 +98,7 @@ parameter ox_offset = (V_OSC * VOICES ) - 1;
     assign tablelookup = phase_acc + mod + (o_offs[ox_dly[ox_offset]] << 3);
 
 
-	nco #(.VOICES(VOICES),.V_OSC(V_OSC),.V_WIDTH(V_WIDTH),.V_ENVS(V_ENVS),.O_WIDTH(O_WIDTH))  nco_inst (
+	nco2 #(.VOICES(VOICES),.V_OSC(V_OSC),.V_WIDTH(V_WIDTH),.V_ENVS(V_ENVS),.O_WIDTH(O_WIDTH))  nco_inst (
 		.iRST_N(iRST_N) ,   // input  iRST_N_sig
 		.OSC_CLK ( OSC_CLK ),
 		.sCLK_XVXOSC (sCLK_XVXOSC ),

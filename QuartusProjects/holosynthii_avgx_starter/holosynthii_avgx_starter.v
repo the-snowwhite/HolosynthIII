@@ -231,9 +231,63 @@ module holosynthii_avgx_starter (
 );
 
 
+//=======================================================
+//  Parameter Declarations
+//=======================================================
+
+
 `define _Synth
 `define _24BitAudio
-`define _271MhzOscs // if not defined defaults to 180 Mhz oscilator clock
+`define _CycloneV // if not defined defaults to 180 Mhz oscilator clock
+
+`ifdef _NEEK
+parameter VOICES = 32;
+`else
+parameter VOICES = 128;
+//parameter VOICES = 64;
+//parameter VOICES = 32;
+//parameter VOICES = 16;
+//parameter VOICES = 8;	// number of simultainious voices 
+//parameter VOICES = 4;	// number of simultainious voices
+//parameter VOICES = 2;	// number of simultainious voices
+//parameter VOICES = 1;	// number of simultainious voices
+`endif
+//parameter V_OSC = 8;  //!NEEK
+//parameter V_OSC = 6;
+parameter V_OSC = 4;	// number of oscilators pr. voice.
+//parameter V_OSC = 3;
+//parameter V_OSC = 2;	// number of oscilators pr. voice.
+//parameter V_OSC = 1;
+
+parameter O_ENVS = 2;	// number of envelope generators pr. oscilator.
+
+parameter V_ENVS = V_OSC * O_ENVS;	// number of envelope generators  pr. voice.
+
+/*
+parameter V_1 = 1;
+parameter V_2 = 2;
+parameter V_3 = 3;
+parameter V_4 = 4;
+parameter V_5 = 5;
+parameter V_6 = 6;
+parameter V_7 = 7;
+parameter V_8 = 8;
+parameter V_9 = 9;
+	
+parameter VW_1 = utils::clogb2(V_1); 	
+parameter VW_2 = utils::clogb2(V_2); 	
+parameter VW_3 = utils::clogb2(V_3); 	
+parameter VW_4 = utils::clogb2(V_4); 	
+parameter VW_5 = utils::clogb2(V_5); 	
+parameter VW_6 = utils::clogb2(V_6); 	
+parameter VW_7 = utils::clogb2(V_7); 	
+parameter VW_8 = utils::clogb2(V_8); 	
+parameter VW_9 = utils::clogb2(V_9); 	
+*/
+
+//=======================================================
+//  REG/WIRE declarations
+//=======================================================
 
 //	reg [19:0] clk_div;
 
@@ -251,34 +305,38 @@ module holosynthii_avgx_starter (
 	assign user_led = ~LEDG[3:0];
 	
 	assign iRST_n = cpu_resetn;
-
 	
-	
-	assign hsma_rx_d_n[14] = AUD_XCK; // HSMA_RX_D_N14 		Violet
+//	assign hsma_rx_d_n[14] = AUD_XCK; // HSMA_RX_D_N14 		Violet
+	assign hsma_rx_d_p[12] = AUD_XCK; // HSMA_RX_D_P10 		Violet
 	
 //	assign aud_bck = AUD_BCLK;
-	assign hsma_rx_d_p[15] = AUD_BCLK; // HSMA_RX_D_P15 		Orange
+//	assign hsma_rx_d_p[15] = AUD_BCLK; // HSMA_RX_D_P15 		Orange
+	assign hsma_rx_d_n[11] = AUD_BCLK; // HSMA_RX_D_N9 		Orange
 
 //	assign aud_lrck = AUD_DACLRCK;
-	assign hsma_rx_d_n[15] = AUD_DACLRCK; // HSMA_RX_D_N15	Green
+//	assign hsma_rx_d_n[15] = AUD_DACLRCK; // HSMA_RX_D_N15	Green
+	assign hsma_rx_d_p[11] = AUD_DACLRCK; // HSMA_RX_D_P9	Green
 	
 //	assign aud_dat = AUD_DACDAT;
-	assign hsma_rx_d_p[16] = AUD_DACDAT; // HSMA_RX_D_P16 	White
+//	assign hsma_rx_d_p[16] = AUD_DACDAT; // HSMA_RX_D_P16 	White
+	assign hsma_tx_d_n[10] = AUD_DACDAT; // HSMA_TX_D_N9 	White
 
-	wire UART_RXD = hsma_tx_d_p[12]; // HSMA_TX_D_P12		Blue !
+	assign clkout_sma = AUD_XCK;
+	
+//	wire UART_RXD = hsma_rx_d_p[10]; // HSMA_RX_D_P10		Blue !
+	wire UART_RXD = hsma_tx_d_p[9]; // HSMA_RX_D_P10		Blue !
 	
 	wire midi_txd;
 	
 //	assign hsma_rx_d_p[10] = midi_txd; // Yellow
-	assign hsma_rx_d_p[10] = ~midi_txd; // Yellow !! inverted midi out
-	
-	assign clkout_sma = AUD_XCK;
+//	assign hsma_rx_d_p[10] = ~midi_txd; // Yellow !! inverted midi out
+	assign hsma_rx_d_n[9] = ~midi_txd; // Yellow !! inverted midi out
 	
 
 
 
     
-synthesizer  synthesizer_inst(
+synthesizer #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS)) synthesizer_inst(
     .EXT_CLOCK_IN(clkinbot_100_p) ,   // input  CLOCK_sig
     .DLY0(iRST_n),
     .MIDI_Rx_DAT(UART_RXD) ,    // input  MIDI_DAT_sig

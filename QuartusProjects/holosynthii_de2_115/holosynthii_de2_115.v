@@ -10,6 +10,10 @@ module holosynthii_de2_115(
     CLOCK2_50,
     CLOCK3_50,
 
+	//////////// Sma //////////
+	SMA_CLKIN,
+	SMA_CLKOUT,
+
     //////////// LED //////////
     LEDG,
     LEDR,
@@ -117,36 +121,25 @@ module holosynthii_de2_115(
     LTM_SCEN,
     LTM_SDA,
     LTM_VD,
+	
+	//////////// HSMC, HSMC connect to HSMC Default //////////
+	HSMC_CLKIN_N1,
+	HSMC_CLKIN_N2,
+	HSMC_CLKIN_P1,
+	HSMC_CLKIN_P2,
+	HSMC_CLKIN0,
+	HSMC_CLKOUT_N1,
+	HSMC_CLKOUT_N2,
+	HSMC_CLKOUT_P1,
+	HSMC_CLKOUT_P2,
+	HSMC_CLKOUT0,
+	HSMC_D,
+	HSMC_RX_D_N,
+	HSMC_RX_D_P,
+	HSMC_TX_D_N,
+	HSMC_TX_D_P 
 
-    //////////// HSMC, HSMC connect to LTC - 8" LCD/Touch/Camera //////////
-    CAMERA_D,
-    CAMERA_FVAL,
-    CAMERA_LVAL,
-    CAMERA_PIXCLK,
-    CAMERA_RESET_N,
-    CAMERA_SCLK,
-    CAMERA_SDATA,
-    CAMERA_STROBE,
-    CAMERA_TRIGGER,
-    CAMERA_XCLKIN,
-    LCD_B,
-    LCD_DEN,
-    LCD_DIM,
-    LCD_G,
-    LCD_NCLK,
-    LCD_R,
-    TOUCH_BUSY,
-    TOUCH_CS_N,
-    TOUCH_DCLK,
-    TOUCH_DIN,
-    TOUCH_DOUT,
-    TOUCH_PENIRQ_N 
 );
-
-//=======================================================
-//  PARAMETER declarations
-//=======================================================
-
 
 //=======================================================
 //  PORT declarations
@@ -156,6 +149,10 @@ module holosynthii_de2_115(
 input                       CLOCK_50;
 input                       CLOCK2_50;
 input                       CLOCK3_50;
+
+//////////// Sma //////////
+input		          		SMA_CLKIN;
+output		          		SMA_CLKOUT;
 
 //////////// LED //////////
 output           [8:0]      LEDG;
@@ -265,30 +262,54 @@ output                      LTM_SCEN;
 inout                       LTM_SDA;
 output                      LTM_VD;
 
-//////////// HSMC, HSMC connect to LTC - 8" LCD/Touch/Camera //////////
-input           [11:0]      CAMERA_D;
-input                       CAMERA_FVAL;
-input                       CAMERA_LVAL;
-input                       CAMERA_PIXCLK;
-output                      CAMERA_RESET_N;
-output                      CAMERA_SCLK;
-inout                       CAMERA_SDATA;
-input                       CAMERA_STROBE;
-output                      CAMERA_TRIGGER;
-output                      CAMERA_XCLKIN;
-output           [5:0]      LCD_B;
-output                      LCD_DEN;
-output                      LCD_DIM;
-output           [5:0]      LCD_G;
-output                      LCD_NCLK;
-output           [5:0]      LCD_R;
-input                       TOUCH_BUSY;
-output                      TOUCH_CS_N;
-output                      TOUCH_DCLK;
-output                      TOUCH_DIN;
-input                       TOUCH_DOUT;
-input                       TOUCH_PENIRQ_N;
+//////////// HSMC, HSMC connect to HSMC Default //////////
+input		          		HSMC_CLKIN_N1;
+input		          		HSMC_CLKIN_N2;
+input		          		HSMC_CLKIN_P1;
+input		          		HSMC_CLKIN_P2;
+input		          		HSMC_CLKIN0;
+output		          		HSMC_CLKOUT_N1;
+output		          		HSMC_CLKOUT_N2;
+output		          		HSMC_CLKOUT_P1;
+output		          		HSMC_CLKOUT_P2;
+output		          		HSMC_CLKOUT0;
+inout		     [3:0]		HSMC_D;
+inout		    [16:0]		HSMC_RX_D_N;
+inout		    [16:0]		HSMC_RX_D_P;
+inout		    [16:0]		HSMC_TX_D_N;
+inout		    [16:0]		HSMC_TX_D_P;
 
+//=======================================================
+//  PARAMETER declarations
+//=======================================================
+`define _Synth
+//`define _24BitAudio // if not defined defaults to 16-bit audio output
+
+//`define _Graphics
+
+//`define _VEEK_Graphics
+//`define _LTM_Graphics
+
+//parameter VOICES = 256;
+//parameter VOICES = 128;
+parameter VOICES = 64;
+//parameter VOICES = 32;
+//parameter VOICES = 16;
+//parameter VOICES = 8;	// number of simultainious voices 
+//parameter VOICES = 4;	// number of simultainious voices
+//parameter VOICES = 2;	// number of simultainious voices
+//parameter VOICES = 1;	// number of simultainious voices
+
+//parameter V_OSC = 8;  //!NEEK
+//parameter V_OSC = 6;
+parameter V_OSC = 4;	// number of oscilators pr. voice.
+//parameter V_OSC = 3;
+//parameter V_OSC = 2;	// number of oscilators pr. voice.
+//parameter V_OSC = 1;
+
+parameter O_ENVS = 2;	// number of envelope generators pr. oscilator.
+
+parameter V_ENVS = V_OSC * O_ENVS;	// number of envelope generators  pr. voice.
 
 //=======================================================
 //  REG/WIRE declarations
@@ -308,6 +329,24 @@ input                       TOUCH_PENIRQ_N;
 //wire [5:0]LCD_B = VGA_B[7:2]; 
 
 //wire [9:0]VGA_R_w,VGA_G_w,VGA_B_w;
+assign HSMC_TX_D_P[12] = AUD_XCK; // HSMC_TX_D_P12 		Violet
+	
+//	assign aud_bck = AUD_BCLK;
+	assign HSMC_TX_D_N[11] = AUD_BCLK; // HSMC_TX_D_N11		Orange
+
+//	assign aud_lrck = AUD_DACLRCK;
+	assign HSMC_TX_D_P[11] = AUD_DACLRCK; // HSMC_TX_D_P11	Green
+	
+	wire aud_dat;
+	
+	assign AUD_DACDAT = aud_dat;
+	assign HSMC_TX_D_N[10] = aud_dat; // HSMC_TX_D_N10 	White
+
+	
+	
+	assign clkout_sma = AUD_XCK;
+	
+
 
 reg [7:0]   delay_1;
 
@@ -315,7 +354,14 @@ reg [7:0]   delay_1;
 wire iRST_n;
 
 wire midi_txd;
+wire midi_rxd;
+
+assign midi_rxd = SW[0] ? ~UART_RXD : HSMC_RX_D_P[10]; // Blue
+
 assign UART_TXD = ~midi_txd; // output midi transmit signal (inverted due to inverter in rs232 chip)
+assign HSMC_RX_D_N[9] = ~midi_txd;  // Yellow 
+
+assign SMA_CLKOUT = AUD_XCK;
 
 //assign  FL_RST_N = 1'b1;
 //assign  FL_WP_N = 1'b1;
@@ -324,16 +370,6 @@ assign UART_TXD = ~midi_txd; // output midi transmit signal (inverted due to inv
 //=======================================================
 //  Structural coding
 //=======================================================
-
-`define _Synth
-//`define _24BitAudio // if not defined defaults to 16-bit audio output
-`define _271MhzOscs // if not defined defaults to 180 Mhz oscilator clock
-
-//`define _Graphics
-
-//`define _VEEK_Graphics
-//`define _LTM_Graphics
-//`define _Nios
 
 //assign VGA_R = VGA_R_w[9:2];
 //assign VGA_G = VGA_G_w[9:2];
@@ -406,10 +442,10 @@ assign UART_TXD = ~midi_txd; // output midi transmit signal (inverted due to inv
 //    assign N_irq[0] = N_save_sig;
 //    assign N_irq[1] = N_load_sig;
     
-synthesizer  synthesizer_inst(
+synthesizer #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS)) synthesizer_inst(
     .EXT_CLOCK_IN(CLOCK_50) ,   // input  CLOCK_50_sig
     .DLY0(iRST_n),
-    .MIDI_Rx_DAT(~UART_RXD) ,    // input  MIDI_DAT_sig (inverted due to inverter in rs232 chip)
+    .MIDI_Rx_DAT(midi_rxd) ,    // input  MIDI_DAT_sig (inverted due to inverter in rs232 chip)
 	.midi_txd ( midi_txd ),		// output midi transmit signal (inverted due to inverter in rs232 chip)
     .button( KEY[3:0] ),            //  Button[3:0]
 //    .SW ( SW[17:0]),
@@ -450,7 +486,7 @@ synthesizer  synthesizer_inst(
     .AUD_ADCLRCK(AUD_ADCLRCK),      //  Audio CODEC ADC LR Clock
     .AUD_DACLRCK(AUD_DACLRCK),      //  Audio CODEC DAC LR Clock
     .AUD_ADCDAT (AUD_ADCDAT ),      //  Audio CODEC ADC Data
-    .AUD_DACDAT (AUD_DACDAT ),      //  Audio CODEC DAC Data
+    .AUD_DACDAT (aud_dat ),      //  Audio CODEC DAC Data
     .AUD_BCLK   (AUD_BCLK   ),      //  Audio CODEC Bit-Stream Clock
     .AUD_XCK    (AUD_XCK    )      //  Audio CODEC Chip Clock
 `endif

@@ -40,6 +40,7 @@ parameter x_offset = (V_OSC * VOICES ) - 2;
 			vx_dly[d1+1] <= vx_dly[d1]; ox_dly[d1+1] <= ox_dly[d1];
 		end
 		reg_reset[vx_dly[0]][ox_dly[0]] <= osc_accum_zero[{ox_dly[0],1'b0}];
+//		reg_reset[vx][ox] <= osc_accum_zero[{ox,1'b0}];
 		reg_osc_pitch_val[vx][ox] <= osc_pitch_val;
 		reg_phase_acc <= phase_accum[vx_dly[x_offset]][ox_dly[x_offset]][35:25];
 	end

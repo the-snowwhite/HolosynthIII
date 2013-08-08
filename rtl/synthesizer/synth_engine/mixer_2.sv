@@ -46,12 +46,13 @@ parameter E_WIDTH	= O_WIDTH + OE_WIDTH;
 parameter x_offset = (V_OSC * VOICES ) - 2;
 parameter vo_x_offset = x_offset;
 
-//parameter output_volume_scaling = 34 + V_WIDTH + O_WIDTH;
+parameter output_volume_scaling = 35 + (V_WIDTH / 2) + O_WIDTH;
 //parameter output_volume_scaling = 32 + V_WIDTH + O_WIDTH; // try *3/4 (0.75) pr 2 voices,osc's
 //`ifdef	_24BitAudio
 //parameter output_volume_scaling = 33 + V_WIDTH + O_WIDTH; // try *3/4 (0.75) pr 2 voices,osc's
 //`else
-parameter output_volume_scaling = 33 + V_WIDTH + O_WIDTH; // try *3/4 (0.75) pr 2 voices,osc's
+//parameter output_volume_scaling = 33 + V_WIDTH + O_WIDTH; // try *3/4 (0.75) pr 2 voices,osc's
+//parameter output_volume_scaling = 33 + (VOICES * V_OSC / 2) * 3 / 4; // try *3/4 (0.75) pr 2 voices,osc's
 //`endif 
 
    reg  signed [7:0]osc_lvl[V_OSC-1:0];      // osc_lvl  osc_buf[2]
@@ -266,12 +267,8 @@ parameter output_volume_scaling = 33 + V_WIDTH + O_WIDTH; // try *3/4 (0.75) pr 
 			reg_voice_sound_sum_r <= reg_voice_sound_sum_r + reg_osc_data_sum_r; 
 		end
 		if ( xxxx == ((VOICES - 1) * V_ENVS) )begin
-//			lsound_out <= (reg_voice_sound_sum_l * m_vol) >>> (36 + V_WIDTH + O_WIDTH );// - + 1 
-//			rsound_out <= (reg_voice_sound_sum_r * m_vol) >>> (36 + V_WIDTH + O_WIDTH );// - + 1 
 			lsound_out <= (reg_voice_sound_sum_l * m_vol) >>> output_volume_scaling;// - + 1 
 			rsound_out <= (reg_voice_sound_sum_r * m_vol) >>> output_volume_scaling;// - + 1 
-//			lvoice_out <= (reg_voice_sound_sum_l * m_vol);// - + 1 
-//			rvoice_out <= (reg_voice_sound_sum_r * m_vol);// - + 1 
 		end	
 		if (xxxx == ((VOICES - 1) * V_ENVS) + 1)begin reg_voice_sound_sum_l <= 0; reg_voice_sound_sum_r <= 0; end
 	end

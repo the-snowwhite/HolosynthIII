@@ -28,7 +28,7 @@ set_global_assignment -name FAMILY "Cyclone III"
 set_global_assignment -name TOP_LEVEL_ENTITY holosynthii_neek
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "7.1 SP1"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "21:12:12  SEPTEMBER 07, 2007"
-set_global_assignment -name LAST_QUARTUS_VERSION 12.1
+set_global_assignment -name LAST_QUARTUS_VERSION "13.0 SP1"
 
 set_location_assignment PIN_B9 -to CLK50
 set_location_assignment PIN_V9 -to CLK50_2
