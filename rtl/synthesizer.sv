@@ -69,26 +69,8 @@ module synthesizer (
 //	output		LTM_GREST
     inout [7:0]			data
 );
-
-`ifdef _NEEK
-parameter VOICES = 32;
-`else
-//parameter VOICES = 128;
-//parameter VOICES = 64;
-//parameter VOICES = 32;
-//parameter VOICES = 16;
-//parameter VOICES = 8;	// number of simultainious voices 
-//parameter VOICES = 4;	// number of simultainious voices
-parameter VOICES = 2;	// number of simultainious voices
-//parameter VOICES = 1;	// number of simultainious voices
-`endif
-//parameter V_OSC = 8;  //!NEEK
-//parameter V_OSC = 6;
+parameter VOICES = 128;
 parameter V_OSC = 4;	// number of oscilators pr. voice.
-//parameter V_OSC = 3;
-//parameter V_OSC = 2;	// number of oscilators pr. voice.
-//parameter V_OSC = 1;
-
 parameter O_ENVS = 2;	// number of envelope generators pr. oscilator.
 
 parameter V_ENVS = V_OSC * O_ENVS;	// number of envelope generators  pr. voice.
@@ -98,25 +80,6 @@ parameter O_WIDTH = utils::clogb2(V_OSC);
 parameter OE_WIDTH = utils::clogb2(O_ENVS);
 parameter E_WIDTH = O_WIDTH + OE_WIDTH;
 
-parameter V_1 = 1;
-parameter V_2 = 2;
-parameter V_3 = 3;
-parameter V_4 = 4;
-parameter V_5 = 5;
-parameter V_6 = 6;
-parameter V_7 = 7;
-parameter V_8 = 8;
-parameter V_9 = 9;
-	
-parameter VW_1 = utils::clogb2(V_1); 	
-parameter VW_2 = utils::clogb2(V_2); 	
-parameter VW_3 = utils::clogb2(V_3); 	
-parameter VW_4 = utils::clogb2(V_4); 	
-parameter VW_5 = utils::clogb2(V_5); 	
-parameter VW_6 = utils::clogb2(V_6); 	
-parameter VW_7 = utils::clogb2(V_7); 	
-parameter VW_8 = utils::clogb2(V_8); 	
-parameter VW_9 = utils::clogb2(V_9); 	
 
 //-----		Registers		-----//
 
@@ -341,7 +304,7 @@ vga_pll	sys_disp_pll_inst	(
 	`endif
 	`ifdef _CycloneV
 		.refclk		( EXT_CLOCK_IN ),
-		.outclk_0	( TONE_CTRL_CLK ),  // 180.555556 Mhz --> 270 Mhz
+		.outclk_0	( TONE_CTRL_CLK ),  // 180.555556 Mhz  Mhz
 		.outclk_1	( AUD_XCK ) // 16.927083 Mhz
 	`else
 		.inclk0		( EXT_CLOCK_IN ),

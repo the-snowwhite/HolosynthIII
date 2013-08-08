@@ -309,9 +309,9 @@ wire			HC_ADC_DIN;
 wire			HC_ADC_DCLK;	
 wire			HC_ADC_CS_N;
 
-//=============================================================================
-// Structural coding
-//=============================================================================
+//=======================================================
+//  PARAMETER declarations
+//=======================================================
 `define _NEEK
 
 `define _Synth
@@ -319,6 +319,34 @@ wire			HC_ADC_CS_N;
 //`define _LTM_Graphics	         
 
 //`define _Nios
+
+//`define _24BitAudio // if not defined defaults to 16-bit audio output
+
+
+//parameter VOICES = 256;
+//parameter VOICES = 128;
+parameter VOICES = 64;
+//parameter VOICES = 32;
+//parameter VOICES = 16;
+//parameter VOICES = 8;	// number of simultainious voices 
+//parameter VOICES = 4;	// number of simultainious voices
+//parameter VOICES = 2;	// number of simultainious voices
+//parameter VOICES = 1;	// number of simultainious voices
+
+//parameter V_OSC = 8;  //!NEEK
+//parameter V_OSC = 6;
+parameter V_OSC = 4;	// number of oscilators pr. voice.
+//parameter V_OSC = 3;
+//parameter V_OSC = 2;	// number of oscilators pr. voice.
+//parameter V_OSC = 1;
+
+parameter O_ENVS = 2;	// number of envelope generators pr. oscilator.
+
+parameter V_ENVS = V_OSC * O_ENVS;	// number of envelope generators  pr. voice.
+
+//=============================================================================
+// Structural coding
+//=============================================================================
 
 assign  	HC_GREST       = 1'b1;
 assign	HC_ADC_CS_N		= 1'b0;
@@ -378,7 +406,7 @@ wire [7:0]N_synth_in_data;
     );
 `endif
 
-synthesizer  synthesizer_inst(
+synthesizer  #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS)) synthesizer_inst(
 	.EXT_CLOCK_IN(CLK50),					
 	.DLY0 (iRST_n),
 	.MIDI_Rx_DAT(~HC_UART_RXD),				//	MIDI Data
