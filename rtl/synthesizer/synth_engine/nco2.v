@@ -50,6 +50,7 @@ parameter x_offset = (V_OSC * VOICES ) - 2;
 //		.wclk(~sCLK_XVXOSC  ),     // input  clk_sig
 		.wclk(~sCLK_XVXENVS  ),     // input  clk_sig
 		.raclk(~sCLK_XVXOSC  ),     // input  clk_sig
+//		.raclk(sCLK_XVXENVS  ),     // input  clk_sig
 		.rbclk(sCLK_XVXOSC )     // input  clk_sig
 //		.rbclk(~sCLK_XVXENVS )     // input  clk_sig
 	);
