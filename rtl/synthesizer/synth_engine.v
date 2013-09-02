@@ -1,6 +1,7 @@
 module synth_engine (
 	input			OSC_CLK,
-	input			AUDIO_CLK,
+//	input			AUDIO_CLK,
+	output			AUDIO_CLK,
 	input 		iRST_N,
 	output			AUD_DATA,
 	output			AUD_LRCK,
@@ -54,9 +55,9 @@ parameter OE_WIDTH	= 1;
 parameter E_WIDTH	= O_WIDTH + OE_WIDTH;
 
 //-----		Wires		-----//
-wire          sCLK_XVXENVS;       // ObjectKind=Net|PrimaryId=sCLK_XVXENVS
-wire          sCLK_XVXOSC;        // ObjectKind=Net|PrimaryId=sCLK_XVXOSC
-wire          n_xxxx_zero;            // ObjectKind=Net|PrimaryId=NetU1_xxxx_max
+wire		sCLK_XVXENVS;       // ObjectKind=Net|PrimaryId=sCLK_XVXENVS
+wire		sCLK_XVXOSC;        // ObjectKind=Net|PrimaryId=sCLK_XVXOSC
+wire		n_xxxx_zero;            // ObjectKind=Net|PrimaryId=NetU1_xxxx_max
 wire [V_WIDTH+E_WIDTH-1:0]  xxxx;                  // ObjectKind=Net|PrimaryId=NetU1_xxxx[5..0]
 wire [7:0]  level_mul;        // ObjectKind=Net|PrimaryId=level_mul
 
@@ -147,6 +148,7 @@ pitch_control #(.VOICES(VOICES),.V_OSC(V_OSC),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH
 	.iRST_N( iRST_N ),                               // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-iRST_N
 	.xxxx( xxxx ),                  // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-xxxx[5..0]
 	.const_clk (OSC_CLK),
+//	.const_clk (~sCLK_XVXENVS),
 	.note_on( reg_note_on[2] ),         // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-note_on
 	.note_on_dly( reg_note_on[3] ),         // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-note_on
 	.cur_key_adr( reg_cur_key_adr ), // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-cur_key_adr[2..0]

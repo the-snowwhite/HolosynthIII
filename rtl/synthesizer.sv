@@ -305,11 +305,13 @@ vga_pll	sys_disp_pll_inst	(
 	`ifdef _CycloneV
 		.refclk		( EXT_CLOCK_IN ),
 		.outclk_0	( TONE_CTRL_CLK ),  // 180.555556 Mhz  Mhz
-		.outclk_1	( AUD_XCK ) // 16.927083 Mhz
+//		.outclk_1	( AUD_XCK ) // 16.927083 Mhz
+		.outclk_1	( ) // 16.927083 Mhz
 	`else
 		.inclk0		( EXT_CLOCK_IN ),
 		.c0	( TONE_CTRL_CLK ),  // 180.555556 Mhz --> 270 Mhz
-		.c1	( AUD_XCK ) // 16.927083 Mhz
+//		.c1	( AUD_XCK ) // 16.927083 Mhz
+		.c1	( ) // 16.927083 Mhz
 	`endif
 	);	
 	//////////// Sound Generation /////////////	
@@ -321,15 +323,16 @@ vga_pll	sys_disp_pll_inst	(
 	// 2CH Audio Sound output -- Audio Generater //
 	synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH),.OE_WIDTH(OE_WIDTH)) synth_engine_inst	(		        
 	// AUDIO CODEC //		
-		.OSC_CLK( TONE_CTRL_CLK ),	//input
-		.AUDIO_CLK( AUD_XCK ),		//input
+		.OSC_CLK( TONE_CTRL_CLK ),	// input
+//		.AUDIO_CLK( AUD_XCK ),		// input
+		.AUDIO_CLK( AUD_XCK ),		// output
 		.iRST_N(iRST_N) ,	// input  reset_sig
-		.AUD_BCK ( AUD_BCLK ),				//output
-		.AUD_DATA( AUD_DACDAT ),			//output
-		.AUD_LRCK( AUD_DACLRCK ),			//output																
+		.AUD_BCK ( AUD_BCLK ),				// output
+		.AUD_DATA( AUD_DACDAT ),			// output
+		.AUD_LRCK( AUD_DACLRCK ),			// output																
 	// KEY //		
-	//    	.switch	  ( SW[17:0]),			//input			
-	//	.button	  ( button[4:1]),		//input			
+	//    	.switch	  ( SW[17:0]),			// input			
+	//	.button	  ( button[4:1]),		// input			
 	// -- Sound Control -- //
 	//	to pitch control //
 		.note_on(note_on) ,	// output  note_on_sig

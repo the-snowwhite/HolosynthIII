@@ -284,7 +284,7 @@ inout		    [16:0]		HSMC_TX_D_P;
 //=======================================================
 `define _Synth
 //`define _24BitAudio // if not defined defaults to 16-bit audio output
-
+`define _271MhzOscs // if not defined defaults to 180 Mhz oscilator clock
 //`define _Graphics
 
 //`define _VEEK_Graphics
@@ -292,8 +292,8 @@ inout		    [16:0]		HSMC_TX_D_P;
 
 //parameter VOICES = 256;
 //parameter VOICES = 128;
-parameter VOICES = 64;
-//parameter VOICES = 32;
+//parameter VOICES = 64;
+parameter VOICES = 32;
 //parameter VOICES = 16;
 //parameter VOICES = 8;	// number of simultainious voices 
 //parameter VOICES = 4;	// number of simultainious voices
