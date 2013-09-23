@@ -978,7 +978,7 @@ set_global_assignment -name SEARCH_PATH megawizard
 set_global_assignment -name SEARCH_PATH ./
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC_FOR_AREA ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_MAP_LOGIC_TO_MEMORY_FOR_AREA ON
-set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE SPEED
+set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE BALANCED
 set_global_assignment -name SLD_FILE "C:/altera/projects/HolosynthII/QuartusProjects/holosynthii_de2_115/qout/stpnco_auto_stripped.stp"
 set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
 set_global_assignment -name QIP_FILE ../../megawizard_common/constmaprom271.qip
