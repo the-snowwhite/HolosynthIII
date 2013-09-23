@@ -134,7 +134,6 @@ parameter E_WIDTH = O_WIDTH + OE_WIDTH;
 		key_r <= key;
 	end
 
-//    constmap2 constmap(.sound(key), .clk(const_clk), .constant(ct_res));
 	constmap2 constmap(.sound(key_r), .clk(const_clk), .constant(ct_res));
 
     wire [8:0] ft_ct_key = (b_ft[ox] <= 63) ? (key_r-1) : (key_r+1);
