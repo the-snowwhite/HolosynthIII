@@ -1,6 +1,8 @@
 module st_reg_ram(
-    output reg [127:0] q, //level, oldlevel, distance, st --//
-    input [127:0] d,
+//    output reg [127:0] q, //level, oldlevel, distance, st --//
+//    input [127:0] d,
+    output reg [116:0] q, //level, oldlevel, distance, st --//
+    input [116:0] d,
     input [V_WIDTH+E_WIDTH-1:0] write_address, read_address,
     input we, wclk, rclk
     );
@@ -12,7 +14,8 @@ parameter E_WIDTH = 3;
 
 
     reg [V_WIDTH+E_WIDTH-1:0] read_address_reg,write_address_reg;
-    reg [127:0] mem [(VOICES*V_ENVS)-1:0];
+//    reg [127:0] mem [(VOICES*V_ENVS)-1:0];
+    reg [116:0] mem [(VOICES*V_ENVS)-1:0];
     always @ (posedge wclk) begin
         if (we)
         mem[write_address_reg] <= d;
