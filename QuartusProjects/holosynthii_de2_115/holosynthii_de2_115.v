@@ -356,7 +356,13 @@ wire iRST_n;
 wire midi_txd;
 wire midi_rxd;
 
-assign midi_rxd = SW[0] ? ~UART_RXD : HSMC_RX_D_P[10]; // Blue
+//assign midi_rxd = SW[0] ? ~UART_RXD : HSMC_RX_D_P[10]; // Blue
+
+assign midi_rxd = SW[0] ? ~UART_RXD : SW[1] ? HSMC_RX_D_P[10] : ~HSMC_RX_D_P[10]; // Blue
+
+//wire hsmc_midi_in;
+//assign hsmc_midi_in = SW[1] ? HSMC_RX_D_P[10] : ~HSMC_RX_D_P[10];  
+//assign midi_rxd 	= SW[0] ? ~UART_RXD : hsmc_midi_in; // Blue inverted due to hc04 hex inverter
 
 assign UART_TXD = ~midi_txd; // output midi transmit signal (inverted due to inverter in rs232 chip)
 assign HSMC_RX_D_N[9] = ~midi_txd;  // Yellow 
