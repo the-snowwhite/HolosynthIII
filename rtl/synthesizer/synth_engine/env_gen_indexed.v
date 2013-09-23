@@ -63,8 +63,8 @@ parameter num_mul = 22;
     reg signed[36:0]level;
     wire signed[7:0]oldlevel_m;
     reg signed[7:0]oldlevel;
-    wire [20:0]distance_m;
-    reg [20:0]distance;
+    wire signed[20:0]distance_m;
+    reg signed[20:0]distance;
     wire [15:0]cur_denom_m;
     wire signed [36:0]cur_numer_m;
     reg [15:0]next_denom;
@@ -174,7 +174,7 @@ parameter num_mul = 22;
             IDLE:
                 begin
                     if (keys_on[cur_voice] == 1'b1)begin
-                        distance <= r[0]*r[0]<<rate_mul;
+                        distance <= r[0]*r[0]<<<rate_mul;
                         level <= 36'h0000000;
                         oldlevel <= level[36:29];
                         next_numer <= (l[0]-oldlevel_m)<<<num_mul;
@@ -203,7 +203,7 @@ parameter num_mul = 22;
                 begin
                      if(cur_env == mainvol_env_nr) go_rate1[cur_voice] <= 1'b0;
                      if (keys_on[cur_voice]==1'b0)begin // Rate 1
-                        distance <= r[3]*r[3]<<rate_mul;
+                        distance <= r[3]*r[3]<<<rate_mul;
                         level <= level_m;
                         oldlevel <= level_m[36:29];
                         if(cur_env == mainvol_env_nr) voice_free[cur_voice] <= 1'b0;
@@ -236,7 +236,7 @@ parameter num_mul = 22;
                 begin
                     if(cur_env == mainvol_env_nr) go_rate1[cur_voice] <= 1'b0;
                     if (keys_on[cur_voice] == 1'b0)begin // level 1
-                        distance <= r[3]*r[3]<<rate_mul;
+                        distance <= r[3]*r[3]<<<rate_mul;
                         level <= level_m;
                         oldlevel <= level_m[36:29];
                         next_numer <= (l[3]-oldlevel_m)<<<num_mul;
@@ -246,7 +246,7 @@ parameter num_mul = 22;
                         st <= RATE4;
                     end
                     else begin
-                        distance <= r[1]*r[1]<<rate_mul;
+                        distance <= r[1]*r[1]<<<rate_mul;
                         level <= level_m;
                         oldlevel <= level_m[36:29];
                         next_numer <= (l[1]-oldlevel_m)<<<num_mul;
@@ -260,7 +260,7 @@ parameter num_mul = 22;
                 begin
                     if(cur_env == mainvol_env_nr) go_rate1[cur_voice] <= 1'b0;
                     if (keys_on[cur_voice] == 1'b0)begin // rate 2
-                        distance <= r[3]*r[3]<<rate_mul;
+                        distance <= r[3]*r[3]<<<rate_mul;
                         level <= level_m;
                         oldlevel <= level_m[36:29];
                         next_numer <= (l[3]-oldlevel_m)<<<num_mul;
@@ -295,7 +295,7 @@ parameter num_mul = 22;
                 begin
                     if(cur_env == mainvol_env_nr) go_rate1[cur_voice] <= 1'b0;
                     if (keys_on[cur_voice] == 1'b0)begin // level 2
-                        distance <= r[3]*r[3]<<rate_mul;
+                        distance <= r[3]*r[3]<<<rate_mul;
                         level <= level_m;
                         oldlevel <= level_m[36:29];
                         next_numer <= (l[3]-oldlevel_m)<<<num_mul;
@@ -305,7 +305,7 @@ parameter num_mul = 22;
                         st <= RATE4;
                     end
                     else begin
-                        distance <= r[2]*r[2]<<rate_mul;
+                        distance <= r[2]*r[2]<<<rate_mul;
                         level <= level_m;
                         oldlevel <= level_m[36:29];
                         next_numer <= (l[2]-oldlevel_m)<<<num_mul;
@@ -319,7 +319,7 @@ parameter num_mul = 22;
                 begin
                     if(cur_env == mainvol_env_nr) go_rate1[cur_voice] <= 1'b0;
                     if (keys_on[cur_voice] == 1'b0)begin // rate 3
-                        distance <= r[3]*r[3]<<rate_mul;
+                        distance <= r[3]*r[3]<<<rate_mul;
                         level <= level_m;
                         oldlevel <= level_m[36:29];
                         next_numer <= (l[3]-oldlevel_m)<<<num_mul;
@@ -354,7 +354,7 @@ parameter num_mul = 22;
                 begin
                     if(cur_env == mainvol_env_nr) go_rate1[cur_voice] <= 1'b0;
                     if (keys_on[cur_voice] == 1'b0)begin // level 3
-                        distance <= r[3]*r[3]<<rate_mul;
+                        distance <= r[3]*r[3]<<<rate_mul;
                         level <= level_m;
                         oldlevel <= level_m[36:29];
                         next_numer <= (l[3]-oldlevel_m)<<<num_mul;
@@ -376,7 +376,7 @@ parameter num_mul = 22;
                 begin
                     // if(cur_env == mainvol_env_nr) go_rate1[cur_voice] <= 1'b0;
                     if (keys_on[cur_voice] ==  1'b1)begin
-                        distance <= r[0]*r[0]<<rate_mul;
+                        distance <= r[0]*r[0]<<<rate_mul;
                         level <= level_m;
                         oldlevel <= level_m[36:29];
                         next_numer <= (l[0]-oldlevel_m)<<<num_mul;
@@ -433,7 +433,7 @@ parameter num_mul = 22;
                         if (keys_on[cur_voice] ==  1'b1 && cur_env == mainvol_env_nr)begin
                             voice_free[cur_voice] <= 1'b0;
                             go_rate1[cur_voice] <= 1'b1;
-							distance <= r[0]*r[0]<<rate_mul;
+							distance <= r[0]*r[0]<<<rate_mul;
                             level <= level_m;
                             oldlevel <= level_m[36:29];
                             next_numer <= (l[0]-oldlevel_m)<<<num_mul;
@@ -442,7 +442,7 @@ parameter num_mul = 22;
                             st <= RATE1;
                         end
                         else if (go_rate1[cur_voice])begin
-                            distance <= r[0]*r[0]<<rate_mul;
+                            distance <= r[0]*r[0]<<<rate_mul;
                             level <= level_m;
                             oldlevel <= level_m[36:29];
                             next_numer <= (l[0]-oldlevel_m)<<<num_mul;
