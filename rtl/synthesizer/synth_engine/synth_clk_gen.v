@@ -14,20 +14,24 @@ parameter   V_ENVS 			= 2*V_OSC;
 parameter 	SYNTH_CHANNELS 	= 1;
 parameter 	OVERSAMPLING	= 384;
 `ifdef _271MhzOscs
-parameter   OSC_CLK_RATE       =   271052632;  //  271.052632 MHz
-parameter   AUDIO_REF_CLK         =   16940789;   //  16.940789   MHz <<<--- use for 271
+parameter   OSC_CLK_RATE       =   271250000;  //  271.250000 MHz
+parameter   AUDIO_REF_CLK         =   16953125;   //  16.953125   MHz <<<--- use for 271 
 `else
 
-parameter   OSC_CLK_RATE       =   180555555;  //  180.555556 MHz <<-- use for slow
-parameter   AUDIO_REF_CLK         =   16927083;   //  16.927083   MHz <<<--- use for slow
-//parameter   OSC_CLK_RATE       =   180633600;  //  180.6336 MHz <<-- use for slow
-//parameter   AUDIO_REF_CLK         =   16758000;   //  16.758000   MHz <<<--- use for slow
+//parameter   OSC_CLK_RATE       =   180555556;  //  180.555556 MHz <<-- use for slow
+//parameter   AUDIO_REF_CLK         =   16927083;   //  16.927083   MHz <<<--- use for slow
+parameter   OSC_CLK_RATE       =   135625000;  //  135.625000 MHz <<-- use for slow
+parameter   AUDIO_REF_CLK         =   16953125;   //  16.953125   MHz <<<--- use for slow
 `endif
 //parameter   OSC_CLK_RATE       =   271428571;  //  271.428571 MHz <<-- original
 //parameter   AUDIO_REF_CLK         =   11284722;   //  11.284722   MHz
 //parameter   SAMPLE_RATE     =   44080;      //  44.1      KHz
 parameter   SAMPLE_RATE     =   AUDIO_REF_CLK / OVERSAMPLING; //44100;      //  44.1      KHz
-parameter   DATA_WIDTH      =   16;         //  16      Bits
+`ifdef _24BitAudio
+	parameter DATA_WIDTH 	= 24;
+`else
+	parameter   DATA_WIDTH	= 16;         //  16      Bits
+`endif
 parameter   CHANNEL_NUM     =   2;          //  Dual Channel
 //parameter   CHANNEL_NUM     =   1;          //  Mono
 
@@ -83,7 +87,7 @@ begin
         end
         else
 			ARCK_DIV     <=  ARCK_DIV+1'b1;
-    end 
+	end 
 end
 //////////////////////////////////////////////////
 always@(posedge AUDIO_CLK or negedge iRST_N)

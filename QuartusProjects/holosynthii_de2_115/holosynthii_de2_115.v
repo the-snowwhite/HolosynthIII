@@ -284,7 +284,7 @@ inout		    [16:0]		HSMC_TX_D_P;
 //=======================================================
 `define _Synth
 //`define _24BitAudio // if not defined defaults to 16-bit audio output
-`define _271MhzOscs // if not defined defaults to 180 Mhz oscilator clock
+//`define _271MhzOscs // if not defined defaults to 180 Mhz oscilator clock
 //`define _Graphics
 
 //`define _VEEK_Graphics

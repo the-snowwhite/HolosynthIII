@@ -69,6 +69,7 @@ module synthesizer (
 //	output		LTM_GREST
     inout [7:0]			data
 );
+
 parameter VOICES = 128;
 parameter V_OSC = 4;	// number of oscilators pr. voice.
 parameter O_ENVS = 2;	// number of envelope generators pr. oscilator.

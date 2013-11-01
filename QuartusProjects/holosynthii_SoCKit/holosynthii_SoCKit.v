@@ -224,8 +224,8 @@ module holosynthii_SoCKit(
 
 //parameter VOICES = 256;
 //parameter VOICES = 128;
-parameter VOICES = 64;
-//parameter VOICES = 32;
+//parameter VOICES = 64;
+parameter VOICES = 32;
 //parameter VOICES = 16;
 //parameter VOICES = 8;	// number of simultainious voices 
 //parameter VOICES = 4;	// number of simultainious voices
@@ -247,7 +247,7 @@ parameter V_ENVS = V_OSC * O_ENVS;	// number of envelope generators  pr. voice.
 //=======================================================
 //  REG/WIRE declarations
 //=======================================================
-assign AUD_MUTE = SW[0];
+assign AUD_MUTE = SW[2];
 
 reg [7:0]   delay_1;
 
@@ -272,12 +272,13 @@ wire iRST_n;
 //	assign aud_dat = AUD_DACDAT;
 	assign HSMC_TX_n[10] = AUD_DACDAT; // HSMA_RX_D_P16 	White
 
-	wire UART_RXD = HSMC_RX_p[10]; // HSMA_TX_D_P12		Blue !
+//	wire UART_RXD = HSMC_RX_p[10]; // HSMA_TX_D_P12		Blue !
+	wire UART_RXD = SW[0] ? HSMC_RX_p[10] : ~HSMC_RX_p[10]; // HSMA_TX_D_P12		Blue !
 	
 	wire midi_txd;
 	
 //	assign HSMC_TX_p[10] = midi_txd; // Yellow
-	assign HSMC_RX_n[9] = ~midi_txd; // Yellow !! inverted midi out
+	assign HSMC_RX_n[9] = SW[1] ? midi_txd : ~midi_txd; // Yellow !! inverted midi out
 	
 //	assign clkout_sma = AUD_XCK;
 	
