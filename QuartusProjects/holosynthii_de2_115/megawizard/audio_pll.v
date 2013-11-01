@@ -101,10 +101,10 @@ module audio_pll (
 		altpll_component.loop_filter_r_bits = 8,
 		altpll_component.lpm_hint = "CBX_MODULE_PREFIX=audio_pll",
 		altpll_component.lpm_type = "altpll",
-		altpll_component.m = 195,
+		altpll_component.m = 217,
 		altpll_component.m_initial = 1,
 		altpll_component.m_ph = 0,
-		altpll_component.n = 9,
+		altpll_component.n = 10,
 		altpll_component.operation_mode = "NORMAL",
 		altpll_component.pll_type = "AUTO",
 		altpll_component.port_activeclock = "PORT_UNUSED",
@@ -150,11 +150,11 @@ module audio_pll (
 		altpll_component.port_extclk3 = "PORT_UNUSED",
 		altpll_component.vco_post_scale = 1,
 		altpll_component.width_clock = 5,
-		altpll_component.c0_high = 3,
-		altpll_component.c0_initial = 1,
-		altpll_component.c0_low = 3,
+		altpll_component.c0_high = 4,
+		altpll_component.c0_initial = 4,
+		altpll_component.c0_low = 4,
 		altpll_component.c0_mode = "even",
-		altpll_component.c0_ph = 0,
+		altpll_component.c0_ph = 2,
 		altpll_component.c1_high = 32,
 		altpll_component.c1_initial = 1,
 		altpll_component.c1_low = 32,
@@ -184,13 +184,13 @@ endmodule
 // Retrieval info: PRIVATE: CREATE_INCLK1_CHECK STRING "0"
 // Retrieval info: PRIVATE: CUR_DEDICATED_CLK STRING "c0"
 // Retrieval info: PRIVATE: CUR_FBIN_CLK STRING "c0"
-// Retrieval info: PRIVATE: DEVICE_SPEED_GRADE STRING "7"
-// Retrieval info: PRIVATE: DIV_FACTOR0 NUMERIC "18"
+// Retrieval info: PRIVATE: DEVICE_SPEED_GRADE STRING "8"
+// Retrieval info: PRIVATE: DIV_FACTOR0 NUMERIC "80"
 // Retrieval info: PRIVATE: DIV_FACTOR1 NUMERIC "192"
 // Retrieval info: PRIVATE: DUTY_CYCLE0 STRING "50.00000000"
 // Retrieval info: PRIVATE: DUTY_CYCLE1 STRING "50.00000000"
-// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE0 STRING "180.555557"
-// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE1 STRING "16.927084"
+// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE0 STRING "135.625000"
+// Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE1 STRING "16.953125"
 // Retrieval info: PRIVATE: EXPLICIT_SWITCHOVER_COUNTER STRING "0"
 // Retrieval info: PRIVATE: EXT_FEEDBACK_RADIO STRING "0"
 // Retrieval info: PRIVATE: GLOCKED_COUNTER_EDIT_CHANGED STRING "1"
@@ -215,18 +215,18 @@ endmodule
 // Retrieval info: PRIVATE: MIG_DEVICE_SPEED_GRADE STRING "Any"
 // Retrieval info: PRIVATE: MIRROR_CLK0 STRING "0"
 // Retrieval info: PRIVATE: MIRROR_CLK1 STRING "0"
-// Retrieval info: PRIVATE: MULT_FACTOR0 NUMERIC "65"
+// Retrieval info: PRIVATE: MULT_FACTOR0 NUMERIC "217"
 // Retrieval info: PRIVATE: MULT_FACTOR1 NUMERIC "65"
 // Retrieval info: PRIVATE: NORMAL_MODE_RADIO STRING "1"
-// Retrieval info: PRIVATE: OUTPUT_FREQ0 STRING "180.55555600"
-// Retrieval info: PRIVATE: OUTPUT_FREQ1 STRING "16.93440000"
+// Retrieval info: PRIVATE: OUTPUT_FREQ0 STRING "135.62500000"
+// Retrieval info: PRIVATE: OUTPUT_FREQ1 STRING "16.95312500"
 // Retrieval info: PRIVATE: OUTPUT_FREQ_MODE0 STRING "0"
-// Retrieval info: PRIVATE: OUTPUT_FREQ_MODE1 STRING "0"
+// Retrieval info: PRIVATE: OUTPUT_FREQ_MODE1 STRING "1"
 // Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT0 STRING "MHz"
 // Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT1 STRING "MHz"
 // Retrieval info: PRIVATE: PHASE_RECONFIG_FEATURE_ENABLED STRING "1"
 // Retrieval info: PRIVATE: PHASE_RECONFIG_INPUTS_CHECK STRING "0"
-// Retrieval info: PRIVATE: PHASE_SHIFT0 STRING "0.00000000"
+// Retrieval info: PRIVATE: PHASE_SHIFT0 STRING "148.67194500"
 // Retrieval info: PRIVATE: PHASE_SHIFT1 STRING "0.00000000"
 // Retrieval info: PRIVATE: PHASE_SHIFT_STEP_ENABLED_CHECK STRING "0"
 // Retrieval info: PRIVATE: PHASE_SHIFT_UNIT0 STRING "deg"
@@ -271,10 +271,10 @@ endmodule
 // Retrieval info: CONSTANT: LOOP_FILTER_C_BITS NUMERIC "0"
 // Retrieval info: CONSTANT: LOOP_FILTER_R_BITS NUMERIC "8"
 // Retrieval info: CONSTANT: LPM_TYPE STRING "altpll"
-// Retrieval info: CONSTANT: M NUMERIC "195"
+// Retrieval info: CONSTANT: M NUMERIC "217"
 // Retrieval info: CONSTANT: M_INITIAL NUMERIC "1"
 // Retrieval info: CONSTANT: M_PH NUMERIC "0"
-// Retrieval info: CONSTANT: N NUMERIC "9"
+// Retrieval info: CONSTANT: N NUMERIC "10"
 // Retrieval info: CONSTANT: OPERATION_MODE STRING "NORMAL"
 // Retrieval info: CONSTANT: PLL_TYPE STRING "AUTO"
 // Retrieval info: CONSTANT: PORT_ACTIVECLOCK STRING "PORT_UNUSED"
@@ -320,11 +320,11 @@ endmodule
 // Retrieval info: CONSTANT: PORT_extclk3 STRING "PORT_UNUSED"
 // Retrieval info: CONSTANT: VCO_POST_SCALE NUMERIC "1"
 // Retrieval info: CONSTANT: WIDTH_CLOCK NUMERIC "5"
-// Retrieval info: CONSTANT: c0_high NUMERIC "3"
-// Retrieval info: CONSTANT: c0_initial NUMERIC "1"
-// Retrieval info: CONSTANT: c0_low NUMERIC "3"
+// Retrieval info: CONSTANT: c0_high NUMERIC "4"
+// Retrieval info: CONSTANT: c0_initial NUMERIC "4"
+// Retrieval info: CONSTANT: c0_low NUMERIC "4"
 // Retrieval info: CONSTANT: c0_mode STRING "even"
-// Retrieval info: CONSTANT: c0_ph NUMERIC "0"
+// Retrieval info: CONSTANT: c0_ph NUMERIC "2"
 // Retrieval info: CONSTANT: c1_high NUMERIC "32"
 // Retrieval info: CONSTANT: c1_initial NUMERIC "1"
 // Retrieval info: CONSTANT: c1_low NUMERIC "32"

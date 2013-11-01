@@ -213,7 +213,6 @@ mixer_2 #(.VOICES(VOICES),.V_OSC(V_OSC),.O_ENVS(O_ENVS),.V_WIDTH(V_WIDTH),.O_WID
 	.sCLK_XVXOSC( sCLK_XVXOSC ), // ObjectKind=Sheet Entry|PrimaryId=synth_clk_gen.v-sCLK_XVXOSC
 	.xxxx( xxxx ),                 // ObjectKind=Sheet Entry|PrimaryId=mixer.v-xxxx[5..0]
 	.n_xxxx_zero( n_xxxx_zero ),        // ObjectKind=Sheet Entry|PrimaryId=mixer.v-n_xxxx_zero
-//	.level_mul( level_mul ),  // ObjectKind=Sheet Entry|PrimaryId=mixer.v-level_mul[7..0]
 	.level_mul( level_mul_vel ),  // ObjectKind=Sheet Entry|PrimaryId=mixer.v-level_mul[7..0]
 	.sine_lut_out( sine_lut_out ),        // ObjectKind=Sheet Entry|PrimaryId=mixer.v-sine_lut_out[16..0]
 	.modulation( modulation ),          // ObjectKind=Sheet Entry|PrimaryId=mixer.v-modulation[10..0]
@@ -226,8 +225,6 @@ mixer_2 #(.VOICES(VOICES),.V_OSC(V_OSC),.O_ENVS(O_ENVS),.V_WIDTH(V_WIDTH),.O_WID
 	.m1_sel( m1_sel ),           // ObjectKind=Sheet Entry|PrimaryId=mixer.v-m1_sel
 	.m2_sel( m2_sel ),           // ObjectKind=Sheet Entry|PrimaryId=mixer.v-m2_sel
 	.com_sel( com_sel ),         // ObjectKind=Sheet Entry|PrimaryId=mixer.v-com_sel
-//	.lvoice_out ( lvoice_out ),
-//	.rvoice_out ( rvoice_out ),
 	.lsound_out( lsound_out ),         // ObjectKind=Sheet Entry|PrimaryId=mixer.v-rsound_out[23..0]
 	.rsound_out( rsound_out )          // ObjectKind=Sheet Entry|PrimaryId=mixer.v-rsound_out[23..0]
 );
