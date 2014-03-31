@@ -23,7 +23,6 @@ reg addr10_delay1; always @(posedge clk) addr10_delay1 <= addr[10];
 reg addr10_delay2; always @(posedge clk) addr10_delay2 <= addr10_delay1;
 
 // now we can apply the second symmetry (and add a third latency to the module output for best performance)
-//reg [16:0] value; always @(posedge clk) value <= addr10_delay2 ? {1'b1,-LUT_output} : {1'b0,LUT_output};
 
     always @(posedge clk)begin
         sine_value <= (!LUT_output ? {1'b0,LUT_output} : addr10_delay2 ? {1'b1,-LUT_output} : {1'b0,LUT_output});

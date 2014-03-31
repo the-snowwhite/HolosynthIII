@@ -2,7 +2,7 @@ module mixer_2 (
 // Inputs -- //
     input                		sCLK_XVXENVS,  // clk
     input                		sCLK_XVXOSC,  // clk
-    input                		iRST_N,        // reset
+    input                		reset_reg_N,        // reset
     input [V_WIDTH+E_WIDTH-1:0] xxxx,
     input                     	n_xxxx_zero,
     //  env gen
@@ -20,11 +20,8 @@ module mixer_2 (
     input               		m2_sel,
     // Outputs -- //
     // osc
-//    output reg [10:0]modulation,
     output reg signed [10:0] 	modulation,
     // sound data out
-//	output signed [63:0]	lvoice_out,
-//	output signed [63:0]	rvoice_out,
 `ifdef	_24BitAudio
 	output signed [23:0]        lsound_out, // 24-bits
 	output signed [23:0]        rsound_out  // 24-bits
@@ -46,15 +43,7 @@ parameter E_WIDTH	= O_WIDTH + OE_WIDTH;
 parameter x_offset = (V_OSC * VOICES ) - 2;
 parameter vo_x_offset = x_offset;
 
-//parameter signed output_volume_scaling = 40;
 parameter output_volume_scaling = 35 + (V_WIDTH / 2) + O_WIDTH;
-//parameter output_volume_scaling = 32 + V_WIDTH + O_WIDTH; // try *3/4 (0.75) pr 2 voices,osc's
-//`ifdef	_24BitAudio
-//parameter output_volume_scaling = 33 + V_WIDTH + O_WIDTH; // try *3/4 (0.75) pr 2 voices,osc's
-//`else
-//parameter output_volume_scaling = 33 + V_WIDTH + O_WIDTH; // try *3/4 (0.75) pr 2 voices,osc's
-//parameter output_volume_scaling = 33 + (VOICES * V_OSC / 2) * 3 / 4; // try *3/4 (0.75) pr 2 voices,osc's
-//`endif 
 
    reg  signed [7:0]osc_lvl[V_OSC-1:0];      // osc_lvl  osc_buf[2]
    reg  signed [7:0]osc_mod[V_OSC-1:0];      // osc_mod    osc_buf[3]
@@ -115,7 +104,6 @@ parameter output_volume_scaling = 35 + (V_WIDTH / 2) + O_WIDTH;
 	endgenerate
 	
 	
-//	assign data = (read && (((osc_adr_data != 0) && osc_sel) || (com_sel && adr >= 1) || m1_sel || m2_sel)) ? data_out : 8'bz;
 	assign data = (sysex_data_patch_send && (((osc_adr_data != 0) && osc_sel) || (com_sel && adr >= 1) || m1_sel || m2_sel)) ? data_out : 8'bz;
 	
 	wire signed [63:0] sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_l;
@@ -126,7 +114,6 @@ parameter output_volume_scaling = 35 + (V_WIDTH / 2) + O_WIDTH;
 	assign sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_l = reg_sine_level_mul_osc_lvl_m_vol_data * reg_voice_vol_env_lvl * (127 - osc_pan[ox_dly[1]]);
 	assign sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_r = reg_sine_level_mul_osc_lvl_m_vol_data * reg_voice_vol_env_lvl * osc_pan[ox_dly[1]];
 
-//	assign modulation_sum = (( mod_matrix_out_sum + fb_matrix_out_sum ) >>> (26 + O_WIDTH ));  
 	assign modulation_sum = (( mod_matrix_out_sum + fb_matrix_out_sum ) >>> (24 + O_WIDTH ));  
 	
 	wire signed [63:0] lsound_out_full = reg_voice_sound_sum_l * m_vol;
@@ -141,8 +128,8 @@ parameter output_volume_scaling = 35 + (V_WIDTH / 2) + O_WIDTH;
 	integer slmloop,shloop,d1;
 /**		@brief get midi controller data from midi decoder
 */	
-    always@(negedge iRST_N or negedge write)begin : receive_midi_controller_data
-        if(!iRST_N) begin
+    always@(negedge reset_reg_N or negedge write)begin : receive_midi_controller_data
+        if(!reset_reg_N) begin
             for (loop=0;loop<V_OSC;loop=loop+1)begin
                 if(loop <= 1)osc_lvl[loop] <= 8'h40;
                 else osc_lvl[loop] <= 8'h00;
@@ -271,8 +258,6 @@ parameter output_volume_scaling = 35 + (V_WIDTH / 2) + O_WIDTH;
 			reg_voice_sound_sum_r <= reg_voice_sound_sum_r + reg_osc_data_sum_r; 
 		end
 		if ( xxxx == ((VOICES - 1) * V_ENVS) )begin
-//			lsound_out <= (reg_voice_sound_sum_l * m_vol) >>> output_volume_scaling;// - + 1 
-//			rsound_out <= (reg_voice_sound_sum_r * m_vol) >>> output_volume_scaling;// - + 1 
 			lsound_out <= lsound_out_full >>> output_volume_scaling;// - + 1 
 			rsound_out <= rsound_out_full >>> output_volume_scaling;// - + 1 
 		end	

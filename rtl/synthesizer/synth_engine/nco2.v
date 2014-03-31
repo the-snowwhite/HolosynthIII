@@ -1,5 +1,5 @@
 module nco2 (
-    input	iRST_N,
+    input	reset_reg_N,
     input	OSC_CLK,
     input	sCLK_XVXOSC,
     input	sCLK_XVXENVS,
@@ -48,8 +48,8 @@ parameter x_offset = (V_OSC * VOICES ) - 2;
 		.rbclk(sCLK_XVXOSC )     // input  clk_sig
 	);
 
-				always @(posedge sCLK_XVXENVS or negedge iRST_N)begin
-					if ( !iRST_N)  reg_phase_accum <= 25'b0;
+				always @(posedge sCLK_XVXENVS or negedge reset_reg_N)begin
+					if ( !reset_reg_N)  reg_phase_accum <= 25'b0;
 					else  begin reg_phase_accum <= reg_reset[vx][ox] ? 25'b0 : (phase_accum_a + osc_pitch_val_a); end
 				end
 	always @(posedge sCLK_XVXOSC)begin

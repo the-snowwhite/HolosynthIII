@@ -1,15 +1,15 @@
-module	reset_delay(iCLK,iRST_n,oRST_0,oRST_1,oRST_2);
+module	reset_delay(iCLK,reset_reg_N,oRST_0,oRST_1,oRST_2);
 input		iCLK;
-input		iRST_n;
+input		reset_reg_N;
 output reg	oRST_0;
 output reg	oRST_1;
 output reg	oRST_2;
 
 reg	[21:0]	Cont;
 
-always@(posedge iCLK or negedge iRST_n)
+always@(posedge iCLK or negedge reset_reg_N)
 begin
-	if(!iRST_n)
+	if(!reset_reg_N)
 	begin
 		Cont	<=	22'h0;
 		oRST_0	<=	1'b0;

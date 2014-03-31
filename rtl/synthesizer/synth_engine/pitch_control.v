@@ -1,5 +1,5 @@
 module pitch_control (
-    input               		iRST_N,
+    input               		reset_reg_N,
 	input						const_clk,
     input [V_WIDTH+E_WIDTH-1:0] xxxx,
     input [V_WIDTH-1:0] 		cur_key_adr,
@@ -51,14 +51,13 @@ parameter E_WIDTH = O_WIDTH + OE_WIDTH;
 		end
 	endgenerate
 
-//	assign data = ((!write) && (((osc_adr_data != 0) && osc_sel) || (com_sel && adr == 0))) ? data_out : 8'bz;
 	assign data = (sysex_data_patch_send && (((osc_adr_data != 0) && osc_sel) || (com_sel && adr == 0))) ? data_out : 8'bz;
 
     integer v1,loop,o1,o2,kloop;
 
 
-    always @(negedge iRST_N or posedge note_on)begin
-        if(!iRST_N)begin
+    always @(negedge reset_reg_N or posedge note_on)begin
+        if(!reset_reg_N)begin
             for (kloop=0;kloop<VOICES;kloop=kloop+1)begin
                 rkey_val[kloop] <= 8'hff;
             end
@@ -67,8 +66,8 @@ parameter E_WIDTH = O_WIDTH + OE_WIDTH;
             rkey_val[cur_key_adr] <= cur_key_val;
     end
 
-    always@(negedge iRST_N or negedge write)begin
-        if(!iRST_N) begin
+    always@(negedge reset_reg_N or negedge write)begin
+        if(!reset_reg_N) begin
             for (loop=0;loop<V_OSC;loop=loop+1)begin
                 osc_ct[loop] <= 8'h40;
                 osc_ft[loop] <= 8'h40;
@@ -147,10 +146,7 @@ parameter E_WIDTH = O_WIDTH + OE_WIDTH;
 	end
 
 	constmap2 constmap(.sound(key_r), .clk(const_clk), .constant(ct_res));
-
-//    wire [8:0] ft_ct_key = (b_ft[ox] <= 63) ? (key_r-1) : (key_r+1);
-//    constmap2 ct_pb_pitchmap(.sound(ft_ct_key), .clk(const_clk), .constant(ft_ct_res));
-    constmap2 ct_pb_pitchmap(.sound(ft_ct_key_r), .clk(const_clk), .constant(ft_ct_res));
+   constmap2 ct_pb_pitchmap(.sound(ft_ct_key_r), .clk(const_clk), .constant(ft_ct_res));
 // Fine tune  //
 	wire [29:0]ft_range_l = (ct_res-ft_ct_res)*(64 - b_ft[ox]);//b_ft(down)
 	wire [29:0]ft_range_h = ((ft_ct_res - ct_res)*b_ft[ox][5:0]);// b_ft(up)
@@ -159,17 +155,9 @@ parameter E_WIDTH = O_WIDTH + OE_WIDTH;
 	: ((ct_res + (ft_range_h>>6)));//b_ft(up)
 
 // Pitch bend  //
-//    wire [8:0] pitch_key = (pitch_val <= 14'h1fff) ? (key_r-pb_range) : (key_r+pb_range);
-//    constmap2 pitchmap_pb(.sound(pitch_key), .clk(const_clk), .constant(pb_res));
     constmap2 pitchmap_pb(.sound(pitch_key_r), .clk(const_clk), .constant(pb_res));
-
 	
-	
-//    wire [8:0] pb_pitch_key = (pitch_val <= 14'h1fff) ? (key_r-(pb_range+1)) : (key_r+(pb_range+1));
-//    constmap2 ft_pb_pitchmap(.sound(pb_pitch_key), .clk(const_clk), .constant(ft_pb_res));
     constmap2 ft_pb_pitchmap(.sound(pb_pitch_key_r), .clk(const_clk), .constant(ft_pb_res));
-
-	
 	
     wire [36:0]pb_range_l = (ft_pitch-pb_res)*(14'h2000-pitch_val);//pb(down)
     wire [36:0]pb_range_h = ((pb_res - ft_pitch)*pitch_val[12:0]);//pb(up)
@@ -185,8 +173,6 @@ parameter E_WIDTH = O_WIDTH + OE_WIDTH;
     : (b_ft[ox] <= 63) ? (ft_pitch+(pb_range_h>>13)-(pb_ft_range_h>>19))//pb(up) b_ft(down)
     : (ft_pitch+(pb_range_h>>13)+(pb_ft_range_h>>19));// pb(up)
 
-
-
 // keyboard rate scaling //
     wire [23:0]base_pitch_val;
     assign base_pitch_val = pitch_ + (k_scale[ox] << 4);
@@ -199,10 +185,8 @@ parameter E_WIDTH = O_WIDTH + OE_WIDTH;
     wire [30:0]osc_transp_val_l;
     wire [30:0]osc_transp_val_h;
     wire [7:0]osc_ct_64;
-//    reg [O_WIDTH+V_WIDTH-1:0]x;// not double size !
     assign ox = xxxx[E_WIDTH-1:OE_WIDTH];
     assign vx = xxxx[V_WIDTH+E_WIDTH-1:E_WIDTH];
-//    reg signed [23:0]osc_index_val;
 
     assign osc_pitch_val =  (osc_ft[ox] <= 8'h40) ?
                     (osc_res - (osc_transp_val_l>>6)) :

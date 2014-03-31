@@ -24,3 +24,4 @@ doc/*
 *.qws
 *.qdf
 QuartusProjects/holosynthii_avgx_starter/hc_output/holosynthii_avgx_starter.names_drv_tbl
+QuartusProjects/holosynth_CVSoc/hc_output/holosynthiiCVSoc.names_drv_tbl

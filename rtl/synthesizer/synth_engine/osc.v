@@ -1,5 +1,5 @@
 module osc (
-    input         				iRST_N,
+    input         				reset_reg_N,
     input         				OSC_CLK,
     input         				sCLK_XVXENVS,
     input         				sCLK_XVXOSC,
@@ -24,9 +24,6 @@ parameter V_WIDTH = 3;
 parameter O_WIDTH = 2;
 parameter OE_WIDTH = 1;
 parameter E_WIDTH = O_WIDTH + OE_WIDTH;
-
-//parameter ox_offset = (V_OSC * (VOICES -1)) + 1;
-//parameter ox_offset = 15; //(V_OSC * (VOICES -1)) + 1; 4x 4
 parameter ox_offset = (V_OSC * VOICES ) - 1;
 
     wire [10:0]tablelookup;
@@ -38,7 +35,6 @@ parameter ox_offset = (V_OSC * VOICES ) - 1;
     assign ox = xxxx[E_WIDTH-1:OE_WIDTH];
     assign vx = xxxx[V_WIDTH+E_WIDTH-1:E_WIDTH];
 
-//    input         [V_WIDTH-1:0]waveform,
     reg signed [7:0] o_offs [V_OSC-1:0];
     reg [O_WIDTH-1:0] ox_dly[ox_offset:0]; // All Voices 2 osc's 
 	
@@ -53,8 +49,6 @@ parameter ox_offset = (V_OSC * VOICES ) - 1;
 		end
 	endgenerate
 	
-	
-//	assign data = ((!write) && (((osc_adr_data != 0) && osc_sel))) ? data_out : 8'bz;
 	assign data = (sysex_data_patch_send && (((osc_adr_data != 0) && osc_sel))) ? data_out : 8'bz;
 
     assign mod = modulation;
@@ -63,13 +57,12 @@ parameter ox_offset = (V_OSC * VOICES ) - 1;
 
     always@(posedge sCLK_XVXOSC)begin
         ox_dly[0] <= ox;
-//		  for(d1=0;d1<=2;d1=d1+1) // 2 Voices 2 osc's
 		  for(d1=0;d1<ox_offset;d1=d1+1)
         ox_dly[d1+1] <= ox_dly[d1];
     end
 
-    always@(negedge iRST_N or negedge write)begin
-        if(!iRST_N) begin
+    always@(negedge reset_reg_N or negedge write)begin
+        if(!reset_reg_N) begin
             for (loop=0;loop<V_OSC;loop=loop+1)begin
                 o_offs[loop] <= 8'h00;
             end
@@ -99,12 +92,11 @@ parameter ox_offset = (V_OSC * VOICES ) - 1;
 
 
 	nco2 #(.VOICES(VOICES),.V_OSC(V_OSC),.V_WIDTH(V_WIDTH),.V_ENVS(V_ENVS),.O_WIDTH(O_WIDTH))  nco_inst (
-		.iRST_N(iRST_N) ,   // input  iRST_N_sig
+		.reset_reg_N(reset_reg_N) ,   // input  reset_reg_N_sig
 		.OSC_CLK ( OSC_CLK ),
 		.sCLK_XVXOSC (sCLK_XVXOSC ),
 		.sCLK_XVXENVS (sCLK_XVXENVS ),
 		.osc_pitch_val ( osc_pitch_val ),
-//		.voice_free ( voice_free ),
 		.osc_accum_zero ( osc_accum_zero ),
 		.ox    ( ox ),
 		.vx    ( vx ),

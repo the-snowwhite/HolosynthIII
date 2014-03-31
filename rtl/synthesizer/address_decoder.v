@@ -1,6 +1,6 @@
 module address_decoder (
     input           CLOCK_25,
-    input           iRST_N,
+    input           reset_reg_N,
     input           data_ready,
     input   [2:0]   bank_adr,
 
@@ -10,12 +10,6 @@ module address_decoder (
     output   reg    m1_sel,
     output   reg    m2_sel,
     output   reg    com_sel
-//@name cpu signals //
-//    input [2:0] N_adr_data_rdy, // 2'b01 = read from synth/save to disk; 2'b11 = write to synth/load from disk
-//    input [8:0] N_adr,              // data addr.
-//@name touch signals    //
-//    output N_save_sig,
-//    output N_load_sig
 );
 
     reg syx_data_rdy_r[3:0];
@@ -30,8 +24,8 @@ module address_decoder (
         syx_data_rdy_r[3] <= syx_data_rdy_r[2];
         write  <= syx_data_rdy_r[3];
     end
-    always @(negedge iRST_N or posedge syx_data_rdy_r[1]) begin
-        if (!iRST_N)begin
+    always @(negedge reset_reg_N or posedge syx_data_rdy_r[1]) begin
+        if (!reset_reg_N)begin
             env_sel <= 0;
             osc_sel <= 0;
             m1_sel <= 0;
@@ -49,28 +43,5 @@ module address_decoder (
             endcase
         end
     end
-
-
- /*
-    always @(negedge iRST_n or posedge CLOCK_25) begin
-        if (!iRST_n)begin
-            N_load_sig <= 1'b0;
-        end
-        else if(!prg_ch_cmd && prg_ch_cmd_r)begin N_load_sig <= 1'b1;end
-        else N_load_sig <= 1'b0;
-    end
-
-    always @(posedge ictrl_cmd) ctrl_r <= ictrl;
-
-
-    always @(posedge N_load_sig or posedge N_adr_data_rdy_r)begin
-        if(N_load_sig )N_synth_out_data <= prg_ch_data;
-        else if(N_adr_data_rdy_w == 1'b0)begin
-            N_synth_out_data <= synth_data[N_adr[3:0]][N_adr[8:4]];
-        end
-    end
-
-
-*/
 
 endmodule

@@ -2,16 +2,10 @@ module synth_engine (
 	input			OSC_CLK,
 //	input			AUDIO_CLK,
 	output			AUDIO_CLK,
-	input 		iRST_N,
+	input 		reset_reg_N,
 	output			AUD_DATA,
 	output			AUD_LRCK,
 	output	   	AUD_BCK,
-// buttons & switches	
-//	input   [17:0]	switch,
-//	input   [4:1]	button,
-// -- Sound control -- //
-//	input   			clock_25,
-//	input   			sys_clk,
 // from midi_decoder
 // note events
     input [VOICES-1:0]  keys_on,
@@ -33,12 +27,6 @@ module synth_engine (
     input               com_sel,
 // from midi_controller_unit
 	input [13:0] pitch_val,
-// debugging
-//	output		LTM_SCEN,
-//	output		LTM_GREST,
-// from mixer
-//	output [63:0]	lvoice_out,
-//	output [63:0]	rvoice_out,
 // from env gen
 	output [VOICES-1:0] voice_free
 	);	
@@ -80,9 +68,6 @@ wire [16:0] sine_lut_out;                 // ObjectKind=Net|PrimaryId=sine_lut_o
 wire [23:0] osc_pitch_val;      // ObjectKind=Net|PrimaryId=osc_pitch_val
 
 wire [V_ENVS-1:0] osc_accum_zero;
-//assign LTM_SCEN = sCLK_XVXENVS;
-
-//assign LTM_GREST = n_xxxx_zero;
 
 	reg               reg_note_on[3:0];
 	reg [V_WIDTH-1:0] reg_cur_key_adr;
@@ -90,7 +75,6 @@ wire [V_ENVS-1:0] osc_accum_zero;
 	reg [7:0]         reg_cur_vel_on;
 	
 	reg [VOICES-1:0]	reg_keys_on;
-//	reg [VOICES-1:0] 	reg_voice_free;
 
 	always @(posedge OSC_CLK )begin
 		if(OSC_CLK)begin
@@ -107,14 +91,13 @@ wire [V_ENVS-1:0] osc_accum_zero;
 			reg_cur_key_val <= cur_key_val;
 			reg_cur_vel_on <= cur_vel_on;
 			reg_keys_on <= keys_on;
-//			reg_voice_free <= voice_free;
 		end
 	 end
 
 
 synth_clk_gen #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS))synth_clk_gen_inst  // ObjectKind=Sheet Symbol|PrimaryId=U_synth_clk_gen
  (
-	.iRST_N( iRST_N ),                               // ObjectKind=Sheet Entry|PrimaryId=synth_clk_gen.v-iRST_N
+	.reset_reg_N( reset_reg_N ),                               // ObjectKind=Sheet Entry|PrimaryId=synth_clk_gen.v-reset_reg_N
 	.AUDIO_CLK( AUDIO_CLK ),                        // ObjectKind=Sheet Entry|PrimaryId=synth_clk_gen.v-AUDIO_CLK
 	.OSC_CLK( OSC_CLK ),                 // ObjectKind=Sheet Entry|PrimaryId=synth_clk_gen.v-OSC_CLK
 	.sCLK_XVXENVS( sCLK_XVXENVS ),// ObjectKind=Sheet Entry|PrimaryId=synth_clk_gen.v-sCLK_XVXENVS
@@ -125,7 +108,7 @@ synth_clk_gen #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS))synth_clk_gen_inst
 
 audio_i2s_driver U_audio_i2s_driver                         // ObjectKind=Sheet Symbol|PrimaryId=U_audio_i2s_driver
 (
-	.iRST_N( iRST_N ),                               // ObjectKind=Sheet Entry|PrimaryId=audio_i2s_driver.v-iRST_N
+	.reset_reg_N( reset_reg_N ),                               // ObjectKind=Sheet Entry|PrimaryId=audio_i2s_driver.v-reset_reg_N
 	.iAUD_BCK( AUD_BCK ),                          // ObjectKind=Sheet Entry|PrimaryId=audio_i2s_driver.v-oAUD_BCK
 	.iAUD_LRCK( AUD_LRCK ),                         // ObjectKind=Sheet Entry|PrimaryId=audio_i2s_driver.v-oAUD_LRCK
 	.i_lsound_out( lsound_out ),           // ObjectKind=Sheet Entry|PrimaryId=audio_i2s_driver.v-rsound_out[23..0]
@@ -135,7 +118,7 @@ audio_i2s_driver U_audio_i2s_driver                         // ObjectKind=Sheet 
 
 timing_gen #(.VOICES(VOICES),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.E_WIDTH(E_WIDTH))timing_gen_inst  // ObjectKind=Sheet Symbol|PrimaryId=U_timing_gen
 (
-	.iRST_N(iRST_N),                               // ObjectKind=Sheet Entry|PrimaryId=timing_gen.v-iRST_N
+	.reset_reg_N(reset_reg_N),                               // ObjectKind=Sheet Entry|PrimaryId=timing_gen.v-reset_reg_N
 	.n_xxxx_zero( n_xxxx_zero ),     // ObjectKind=Sheet Entry|PrimaryId=timing_gen.v-n_xxxx_zero
 	.sCLK_XVXENVS( sCLK_XVXENVS ),// ObjectKind=Sheet Entry|PrimaryId=timing_gen.v-sCLK_XVXOSC
 	.xxxx( xxxx )                  // ObjectKind=Sheet Entry|PrimaryId=timing_gen.v-xxxx[5..0]
@@ -145,10 +128,9 @@ timing_gen #(.VOICES(VOICES),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.E_WIDTH(E_WIDTH)
 
 pitch_control #(.VOICES(VOICES),.V_OSC(V_OSC),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH),.OE_WIDTH(OE_WIDTH)) pitch_control_inst  // ObjectKind=Sheet Symbol|PrimaryId=U_pitch_control
 (
-	.iRST_N( iRST_N ),                               // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-iRST_N
+	.reset_reg_N( reset_reg_N ),                               // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-reset_reg_N
 	.xxxx( xxxx ),                  // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-xxxx[5..0]
 	.const_clk (OSC_CLK),
-//	.const_clk (~sCLK_XVXENVS),
 	.note_on( reg_note_on[2] ),         // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-note_on
 	.note_on_dly( reg_note_on[3] ),         // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-note_on
 	.cur_key_adr( reg_cur_key_adr ), // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-cur_key_adr[2..0]
@@ -166,7 +148,7 @@ pitch_control #(.VOICES(VOICES),.V_OSC(V_OSC),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH
 		
 osc #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH),.OE_WIDTH(OE_WIDTH)) osc_inst // ObjectKind=Sheet Symbol|PrimaryId=U_osc
 (
-	.iRST_N( iRST_N ),                               // ObjectKind=Sheet Entry|PrimaryId=osc.v-iRST_N
+	.reset_reg_N( reset_reg_N ),                               // ObjectKind=Sheet Entry|PrimaryId=osc.v-reset_reg_N
 	.OSC_CLK( OSC_CLK ),                 // ObjectKind=Sheet Entry|PrimaryId=osc.v-OSC_CLK
 	.sCLK_XVXENVS( sCLK_XVXENVS ),// ObjectKind=Sheet Entry|PrimaryId=osc.v-sCLK_XVXENVS
 	.sCLK_XVXOSC( sCLK_XVXOSC ),// ObjectKind=Sheet Entry|PrimaryId=osc.v-sCLK_XVXOSC
@@ -193,8 +175,8 @@ osc #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.O_WIDTH(O
 	integer kloop;
 
 
-    always @(negedge iRST_N or posedge reg_note_on[2])begin
-        if(!iRST_N)begin
+    always @(negedge reset_reg_N or posedge reg_note_on[2])begin
+        if(!reset_reg_N)begin
             for (kloop=0;kloop<VOICES;kloop=kloop+1)begin
                 r_cur_vel_on[kloop] <= 8'hff;
             end
@@ -208,7 +190,7 @@ assign level_mul_vel = level_mul_vel_w[14:7] ;
 
 mixer_2 #(.VOICES(VOICES),.V_OSC(V_OSC),.O_ENVS(O_ENVS),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH),.OE_WIDTH(OE_WIDTH)) mixer_2_inst  // ObjectKind=Sheet Symbol|PrimaryId=U_mixer
 (
-	.iRST_N( iRST_N ),                               // ObjectKind=Sheet Entry|PrimaryId=mixer.v-iRST_N
+	.reset_reg_N( reset_reg_N ),                               // ObjectKind=Sheet Entry|PrimaryId=mixer.v-reset_reg_N
 	.sCLK_XVXENVS( sCLK_XVXENVS ),// ObjectKind=Sheet Entry|PrimaryId=mixer.v-sCLK_XVXENVS
 	.sCLK_XVXOSC( sCLK_XVXOSC ), // ObjectKind=Sheet Entry|PrimaryId=synth_clk_gen.v-sCLK_XVXOSC
 	.xxxx( xxxx ),                 // ObjectKind=Sheet Entry|PrimaryId=mixer.v-xxxx[5..0]
@@ -231,7 +213,7 @@ mixer_2 #(.VOICES(VOICES),.V_OSC(V_OSC),.O_ENVS(O_ENVS),.V_WIDTH(V_WIDTH),.O_WID
 		
 env_gen_indexed #(.VOICES(VOICES),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.E_WIDTH(E_WIDTH)) env_gen_indexed_inst  // ObjectKind=Sheet Symbol|PrimaryId=U_env_gen_indexed
 (
-	.iRST_N( iRST_N ),                               // ObjectKind=Sheet Entry|PrimaryId=env_gen_indexed.v-iRST_N
+	.reset_reg_N( reset_reg_N ),                               // ObjectKind=Sheet Entry|PrimaryId=env_gen_indexed.v-reset_reg_N
 	.sCLK_XVXENVS( sCLK_XVXENVS ),// ObjectKind=Sheet Entry|PrimaryId=env_gen_indexed.v-sCLK_XVXENVS
 	.xxxx( xxxx ),                  // ObjectKind=Sheet Entry|PrimaryId=env_gen_indexed.v-xxxx[5..0]
 	.keys_on( reg_keys_on ),         // ObjectKind=Sheet Entry|PrimaryId=env_gen_indexed.v-keys_on[7..0]

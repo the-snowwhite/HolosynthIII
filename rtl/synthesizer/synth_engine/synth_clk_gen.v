@@ -1,5 +1,5 @@
 module synth_clk_gen (
-input 		iRST_N,
+input 		reset_reg_N,
 input 		OSC_CLK,  		//  180.555556 MHz
 //input 		AUDIO_CLK,		//  16.964286  MHz
 output reg 		AUDIO_CLK,		//  16.964286  MHz
@@ -18,14 +18,9 @@ parameter   OSC_CLK_RATE       =   271250000;  //  271.250000 MHz
 parameter   AUDIO_REF_CLK         =   16953125;   //  16.953125   MHz <<<--- use for 271 
 `else
 
-//parameter   OSC_CLK_RATE       =   180555556;  //  180.555556 MHz <<-- use for slow
-//parameter   AUDIO_REF_CLK         =   16927083;   //  16.927083   MHz <<<--- use for slow
 parameter   OSC_CLK_RATE       =   135625000;  //  135.625000 MHz <<-- use for slow
 parameter   AUDIO_REF_CLK         =   16953125;   //  16.953125   MHz <<<--- use for slow
 `endif
-//parameter   OSC_CLK_RATE       =   271428571;  //  271.428571 MHz <<-- original
-//parameter   AUDIO_REF_CLK         =   11284722;   //  11.284722   MHz
-//parameter   SAMPLE_RATE     =   44080;      //  44.1      KHz
 parameter   SAMPLE_RATE     =   AUDIO_REF_CLK / OVERSAMPLING; //44100;      //  44.1      KHz
 `ifdef _24BitAudio
 	parameter DATA_WIDTH 	= 24;
@@ -33,7 +28,6 @@ parameter   SAMPLE_RATE     =   AUDIO_REF_CLK / OVERSAMPLING; //44100;      //  
 	parameter   DATA_WIDTH	= 16;         //  16      Bits
 `endif
 parameter   CHANNEL_NUM     =   2;          //  Dual Channel
-//parameter   CHANNEL_NUM     =   1;          //  Mono
 
 parameter XVOSC_DIV = OSC_CLK_RATE/((SAMPLE_RATE*SYNTH_CHANNELS*VOICES*V_OSC*2)-1);
 parameter XVXENVS_DIV = OSC_CLK_RATE/((SAMPLE_RATE*SYNTH_CHANNELS*VOICES*V_ENVS*2)-1);
@@ -50,9 +44,9 @@ reg     [8:0]	ARCK_DIV;
 
 
 ////////////////////////////////////
-always@(negedge OSC_CLK or negedge iRST_N)
+always@(negedge OSC_CLK or negedge reset_reg_N)
 begin
-    if(!iRST_N)
+    if(!reset_reg_N)
     begin
         sCLK_XVXOSC_DIV     <=  0;
         sCLK_XVXENVS_DIV    <=  0;
@@ -90,9 +84,9 @@ begin
 	end 
 end
 //////////////////////////////////////////////////
-always@(posedge AUDIO_CLK or negedge iRST_N)
+always@(posedge AUDIO_CLK or negedge reset_reg_N)
 begin
-    if(!iRST_N)
+    if(!reset_reg_N)
     begin
         LRCK_1X_DIV	<=  0;
         LRCK_1X     <=  0;
