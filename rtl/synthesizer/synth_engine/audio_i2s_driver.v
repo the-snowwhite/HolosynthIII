@@ -1,5 +1,5 @@
 module audio_i2s_driver (
-	input               iRST_N,
+	input               reset_reg_N,
 	input               iAUD_LRCK,
 	input               iAUD_BCK,
 `ifdef	_24BitAudio
@@ -28,8 +28,8 @@ module audio_i2s_driver (
 		reg_edge_detected <= edge_detected;
 	end
 
-    always@(negedge iAUD_BCK or negedge iRST_N)begin
-        if(!iRST_N)begin
+    always@(negedge iAUD_BCK or negedge reset_reg_N)begin
+        if(!reset_reg_N)begin
             SEL_Cont    <=  5'h0;
         end
         else begin
@@ -45,7 +45,6 @@ module audio_i2s_driver (
         end
     end
 
-//    assign  oAUD_DATA   =  (SEL_Cont < 16) ? sound_out[SEL_Cont[3:0]] : 1'b0; // 16-bits
 `ifdef _24BitAudio
     assign  oAUD_DATA   =  (SEL_Cont <= 23) ? sound_out[(~SEL_Cont)-5'd8] : 1'b0; // 24-bits
 `else

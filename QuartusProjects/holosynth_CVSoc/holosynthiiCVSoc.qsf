@@ -831,9 +831,9 @@ set_location_assignment PIN_AC12 -to hsma_clk_out_n1
 set_location_assignment PIN_AG2 -to hsma_clk_in_p1
 set_location_assignment PIN_AH3 -to hsma_clk_in_n1
 
-set_global_assignment -name SEARCH_PATH "c:\\altera\\projects\\holosynthii\\rtl"
-set_global_assignment -name SEARCH_PATH "c:\\altera\\projects\\holosynthii\\rtl\\synthesizer"
-set_global_assignment -name SEARCH_PATH "c:\\altera\\projects\\holosynthii\\rtl\\synthesizer\\synth_engine"
+set_global_assignment -name SEARCH_PATH "c:\\altera\\projects\\holosynthII\\rtl"
+set_global_assignment -name SEARCH_PATH "c:\\altera\\projects\\holosynthII\\rtl\\synthesizer"
+set_global_assignment -name SEARCH_PATH "c:\\altera\\projects\\holosynthII\\rtl\\synthesizer\\synth_engine"
 set_global_assignment -name SEARCH_PATH ..\\..\\rtl
 set_global_assignment -name SEARCH_PATH ..\\..\\rtl\\synthesizer
 set_global_assignment -name SEARCH_PATH ..\\..\\rtl\\synthesizer\\synth_engine
@@ -914,8 +914,8 @@ set_global_assignment -name QIP_FILE megawizard/audio_pll.qip
 set_global_assignment -name QIP_FILE megawizard/vga_pll.qip
 set_global_assignment -name SDC_FILE holosynthiiCVSoc.sdc
 set_global_assignment -name VERILOG_FILE holosynthiiCVSoc.v
-set_global_assignment -name SYSTEMVERILOG_FILE synthesizer.sv
 set_global_assignment -name SYSTEMVERILOG_FILE utils.sv
+set_global_assignment -name SYSTEMVERILOG_FILE synthesizer.sv
 set_global_assignment -name VERILOG_FILE midi_uart.v
 set_global_assignment -name VERILOG_FILE midi_decoder.v
 set_global_assignment -name VERILOG_FILE address_decoder.v

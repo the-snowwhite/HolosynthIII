@@ -1,7 +1,6 @@
 module midi_decoder(
     input                    	CLOCK_25,
-//    input                    sys_clk,
-    input                    	iRST_N,
+    input                    	reset_reg_N,
 // from uart
     input                    	byteready,
     input [7:0]              	cur_status,
@@ -48,10 +47,7 @@ module midi_decoder(
 parameter VOICES = 8;
 parameter V_WIDTH = 3; 
 
-//parameter V_WIDTH = utils::clogb2(VOICES);
-
 // ----- Pack / Unpack macros   ---- //
-
 
 `define PACK_BIT_ARRAY(PK_LEN,PK_SRC,PK_DEST) generate genvar pk_idx; for(pk_idx=0;pk_idx<(PK_LEN);pk_idx = pk_idx+1)begin : pack_bit_array assign keys_on[pk_idx] = key_on[pk_idx]; end endgenerate
  // -----        End Macros Def     ---- //
@@ -155,7 +151,7 @@ wire is_st_note_on=(
 
      address_decoder adr_dec_inst (
          .CLOCK_25 ( CLOCK_25 ),
-         .iRST_N ( iRST_N ),
+         .reset_reg_N ( reset_reg_N ),
          .data_ready ( data_ready ),
          .bank_adr ( bank_adr ),
 
@@ -180,8 +176,8 @@ wire is_st_note_on=(
         data_ready   <= (syx_cmd_r[0] & ~syx_cmd_r[1]) | ((sysex_data_patch_send | auto_syx_cmd) & (byteready_r_dly[1] & ~byteready_r_dly[2]));
     end
 
-    always @(negedge iRST_N or posedge CLOCK_25)begin
-        if (!iRST_N) begin
+    always @(negedge reset_reg_N or posedge CLOCK_25)begin
+        if (!reset_reg_N) begin
         end
         else begin
             is_data_byte_r <= is_data_byte;
@@ -193,15 +189,14 @@ wire is_st_note_on=(
             cur_status_r <= cur_status;
             midi_bytes <= (is_cur_midi_ch | is_st_sysex) ? midibyte_nr : 8'h00;
             databyte <= (is_cur_midi_ch | is_st_sysex) ? midibyte : 8'h00;
-//			midi_send_byte_req[0] <= (sysex_data_patch_send && (~byteready_r_dly[2] && byteready_r_dly[1])) ? 1'b1 : 1'b0;
 			midi_send_byte_req[0] <= ( sysex_data_patch_send && byteready_r ) ? 1'b1 : 1'b0;
 			midi_send_byte_req[1] <= midi_send_byte_req[0];
 			midi_send_byte_req[2] <= midi_send_byte_req[1];
        end
     end
 
-    always @(negedge iRST_N or posedge is_data_byte_r)begin
-        if (!iRST_N) begin
+    always @(negedge reset_reg_N or posedge is_data_byte_r)begin
+        if (!reset_reg_N) begin
             free_voice_found <= 1'b1;
             first_free_voice<=0;
         end
@@ -217,8 +212,8 @@ wire is_st_note_on=(
         end
     end
     
-    always @(negedge iRST_N or negedge byteready_r) begin
-        if (!iRST_N) begin // init values 
+    always @(negedge reset_reg_N or negedge byteready_r) begin
+        if (!reset_reg_N) begin // init values 
             active_keys <= 0;
             off_note_error <= 1'b0;
             cur_key_val <= 8'hff;
@@ -337,8 +332,8 @@ wire is_st_note_on=(
     end
 
     
-    always @(negedge iRST_N or negedge byteready_r) begin
-        if (!iRST_N) begin // init values 
+    always @(negedge reset_reg_N or negedge byteready_r) begin
+        if (!reset_reg_N) begin // init values 
             prg_ch_cmd <=1'b0;
         end
         else begin
@@ -354,8 +349,8 @@ wire is_st_note_on=(
     end
 
     
-    always @(negedge iRST_N or negedge byteready_r) begin
-        if (!iRST_N) begin // init values 
+    always @(negedge reset_reg_N or negedge byteready_r) begin
+        if (!reset_reg_N) begin // init values 
             syx_cmd <= 1'b0; sysex_data_patch_send <= 1'b0; sysex_data_bank_load <= 1'b0;
 			sysex_data_patch_load <= 1'b0; sysex_ctrl_data <= 1'b0; auto_syx_cmd <= 1'b0; 
         end
@@ -364,7 +359,6 @@ wire is_st_note_on=(
             syx_cmd <= 1'b0;
             if(is_st_sysex)begin // Sysex
 				if (midi_bytes == 8'd1) begin
-//					sysex_ctrl_data <= (databyte == 8'h7F) ? 1'b1 : 1'b0; 
 					Educational_Use <= (databyte == 8'h7D) ? 1'b1 : 1'b0; 
 				end
 				else if (Educational_Use) begin
@@ -391,24 +385,7 @@ wire is_st_note_on=(
 						end
 						else begin sysex_data_patch_load <= 1'b0; auto_syx_cmd <= 1'b0; end
 					end
-/*					if(sysex_data_bank_load) begin
-						if(databyte != 8'hf7)begin
-							if (midi_bytes == 8'd2)begin bank_adr_l <= 0; end
-							else if (midi_bytes == 8'd3)begin adr_l <= 7'h0; auto_syx_cmd <= 1'b1; end // data_out <= databyte; end
-							else if (midi_bytes >= 8'd4 && midi_bytes < 8'd68) begin adr_l <= adr_l + 7'b1; end // data_out <= databyte; end
-							if (midi_bytes == (16*4 + 8'd2))begin bank_adr_l <= 1; end
-							else if (midi_bytes == (16*4 + 8'd3))begin adr_l <= 7'h0; end // data_out <= databyte; end
-							else if (midi_bytes >= (16*4 + 8'd4) && midi_bytes < (16*4 + 8'd68)) begin adr_l <= adr_l + 7'b1; end // data_out <= databyte; end
-							if (midi_bytes == (16*8 + 8'd2))begin bank_adr_l <= 2; end
-							else if (midi_bytes == (16*8 + 8'd3))begin adr_l <= 7'h0; end // data_out <= databyte; end
-							else if (midi_bytes >= (16*8 + 8'd4) && midi_bytes < (16*8 + 8'd68)) begin adr_l <= adr_l + 7'b1; end // data_out <= databyte; end
-							if (midi_bytes == (16*12 + 8'd2))begin bank_adr_l <= 5; end
-							else if (midi_bytes == (16*12 + 8'd3))begin adr_l <= 7'h0; end // data_out <= databyte; end
-							else if (midi_bytes >= (16*12 + 8'd4) && midi_bytes < (16*14 + 8'd4)) begin adr_l <= adr_l + 7'b1; end // data_out <= databyte; end
-						end
-						else begin sysex_data_bank_load <= 1'b0; auto_syx_cmd <= 1'b0; end
-					end
-*/					if(sysex_data_bank_load) begin
+					if(sysex_data_bank_load) begin
 						if(databyte != 8'hf7)begin
 							data_out <= databyte;
 							if (midi_bytes == 8'd3)begin adr_l <= 7'b0; bank_adr_l  <= databyte[2:0]; auto_syx_cmd <= 1'b1; end
@@ -428,43 +405,13 @@ wire is_st_note_on=(
 				end
 			end
 		end
-//		else begin sysex_data_patch_send <= 1'b0; sysex_data_bank_load <= 1'b0; auto_syx_cmd <= 1'b0; end
-//		else begin  sysex_data_bank_load <= 1'b0; auto_syx_cmd <= 1'b0; end
 	end
 
-	always @(negedge iRST_N or negedge midi_out_ready ) begin
-		if (!iRST_N) begin
+	always @(negedge reset_reg_N or negedge midi_out_ready ) begin
+		if (!reset_reg_N) begin
 			addr_cnt <= 8'b0; sysex_data_patch_send_end <= 1'b0;
 		end
 		else if (!midi_out_ready) begin
-/*			if (sysex_data_patch_send) begin
-				addr_cnt <= addr_cnt+1'b1; sysex_data_patch_send_end <= 1'b0;
-				if (addr_cnt == 8'b0) begin	midi_out_data <= 8'hF0;	adr_s <= 7'b0; end
-				else if(addr_cnt == 8'd1) midi_out_data <= 8'h7D;
-				else if(addr_cnt == 8'd2)begin midi_out_data <= {4'h02,midi_ch}; end
-				else if(addr_cnt == 8'd3)begin adr_s <= 7'h0; bank_adr_s <= 3'h0; midi_out_data <= 8'h00;end
-				else if(addr_cnt > 8'd3 && addr_cnt <= (16*4+3))begin midi_out_data <= data; adr_s <= adr_s + 1'b1;	 end
-				else if (addr_cnt == (16*4+4)) midi_out_data <= 8'hF7;
-				else if (addr_cnt == (16*4+5)) midi_out_data <= 8'hF0;
-				else if (addr_cnt == (16*4+6)) midi_out_data <= 8'h7D;
-				else if (addr_cnt == (16*4+7)) midi_out_data <= {4'h02,midi_ch};
-				else if (addr_cnt == (16*4+8))begin adr_s <= 7'h0; bank_adr_s <= 3'h1; midi_out_data <= 8'h01; end
-				else if(addr_cnt > (16*4+8) && addr_cnt <= (16*8+8))begin adr_s <= adr_s + 1'b1;midi_out_data <= data; end
-				else if (addr_cnt == (16*8+9)) midi_out_data <= 8'hF7;
-				else if (addr_cnt == (16*8+10)) midi_out_data <= 8'hF0;
-				else if (addr_cnt == (16*8+11)) midi_out_data <= 8'h7D;
-				else if (addr_cnt == (16*8+12)) midi_out_data <= {4'h02,midi_ch};
-				else if (addr_cnt == (16*8+13))begin adr_s <= 7'h0; bank_adr_s <= 3'h2; midi_out_data <= 8'h02; end
-				else if(addr_cnt > (16*8+13) && addr_cnt <= (16*12+13))begin adr_s <= adr_s + 1'b1; midi_out_data <= data; end
-				else if (addr_cnt == (16*12+14)) midi_out_data <= 8'hF7;
-				else if (addr_cnt == (16*12+15)) midi_out_data <= 8'hF0;
-				else if (addr_cnt == (16*12+16)) midi_out_data <= 8'h7D;
-				else if (addr_cnt == (16*12+17)) midi_out_data <= {4'h02,midi_ch};
-				else if (addr_cnt == (16*12+18))begin adr_s <= 7'h0; bank_adr_s <= 3'h5; midi_out_data <= 8'h04; end
-				else if(addr_cnt >= (16*12+18) && addr_cnt <= (16*14+18))begin adr_s <= adr_s + 1'b1; midi_out_data <= data; end
-				else if (addr_cnt == (16*14+19)) begin midi_out_data <= 8'hF7; sysex_data_patch_send_end <= 1'b1; end
-			end
-*/
 			if (sysex_data_patch_send) begin
 				addr_cnt <= addr_cnt+8'h01; sysex_data_patch_send_end <= 1'b0;
 				if (addr_cnt == 8'b0) begin	midi_out_data <= 8'hF0;	adr_s <= 8'b0; end
@@ -483,8 +430,8 @@ wire is_st_note_on=(
 	end
 
 	    
-    always @(negedge iRST_N or negedge byteready_r) begin
-        if (!iRST_N) begin // init values 
+    always @(negedge reset_reg_N or negedge byteready_r) begin
+        if (!reset_reg_N) begin // init values 
             pitch_cmd <= 1'b0;
         end
         else begin
