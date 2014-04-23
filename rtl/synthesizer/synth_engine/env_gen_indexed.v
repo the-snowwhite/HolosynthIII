@@ -5,19 +5,20 @@
  *		@author	Michael Brown (Holotronic)
  */
 module env_gen_indexed (
-    input      					reset_reg_N,
-    input       				sCLK_XVXENVS  ,
-    inout       [7:0] 			data  ,
-    input       [6:0] 			adr,
-    input       				write ,
-	input 						read,
-	input						sysex_data_patch_send,
-    input       				env_sel,
-    input       [VOICES-1:0]	keys_on,
-    input [V_WIDTH+E_WIDTH-1:0] xxxx,
-    output  [7:0] 				level_mul,
-    output reg  [V_ENVS-1:0] 	osc_accum_zero,
-    output reg  [VOICES-1:0] 	voice_free
+	input	      						reset_reg_N,
+	input 	     						reset_data_N,
+	input       						sCLK_XVXENVS,
+	inout       [7:0] 				data,
+	input       [6:0] 				adr,
+	input       						write,
+	input 								read,
+	input									sysex_data_patch_send,
+	input       						env_sel,
+	input       [VOICES-1:0]		keys_on,
+	input [V_WIDTH+E_WIDTH-1:0] 	xxxx,
+	output  [7:0]	 					level_mul,
+	output reg  [V_ENVS-1:0] 		osc_accum_zero,
+	output reg  [VOICES-1:0] 		voice_free
 );
 
 /**	@brief keys_on -> high triggers for a certain voice bit.
@@ -87,8 +88,8 @@ parameter num_mul = 22;
   
 	 integer oloop, iloop,v1,e1,d1,r1;
 
-    always@(negedge reset_reg_N or negedge write )begin
-       if(!reset_reg_N) begin
+    always@(negedge reset_data_N or negedge write )begin
+       if(!reset_data_N) begin
            for (oloop=0;oloop<V_ENVS;oloop=oloop+1)begin
                for(iloop=0;iloop<=3;iloop=iloop+1)begin
                    r_r[oloop][iloop] <= 0;

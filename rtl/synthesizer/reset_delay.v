@@ -1,10 +1,10 @@
-module	reset_delay(iCLK,reset_reg_N,oRST_0,oRST_1,oRST_2);
-input		iCLK;
-input		reset_reg_N;
-output reg	oRST_0;
-output reg	oRST_1;
-output reg	oRST_2;
-
+module	reset_delay(
+	input		iCLK,
+	input		reset_reg_N,
+	output reg	oRST_0,
+	output reg	oRST_1,
+	output reg	oRST_2
+);
 reg	[21:0]	Cont;
 
 always@(posedge iCLK or negedge reset_reg_N)

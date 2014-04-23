@@ -1,18 +1,19 @@
 module MIDI_UART(
-    input           	CLOCK_25,
-    input               reset_reg_N,
-    input               midi_rxd,
-	input				midi_send_byte,
-	input [7:0]			midi_out_data,
-	output reg			midi_txd,
-	output reg			midi_out_ready,
-//    input                   initial_reset,
-    output  reg			byteready,
-    output   reg   		sys_real,
-    output  reg[7:0]    sys_real_dat,
-    output  reg[7:0]    cur_status,
-    output  reg[7:0]    midibyte_nr,
-    output  reg[7:0]    midibyte
+	input					reset_reg_N,
+	input					CLOCK_25,
+// receiver
+	input					midi_rxd,
+	output	reg		midi_out_ready,
+	output	reg		byteready,
+	output	reg		sys_real,
+	output	reg[7:0]	sys_real_dat,
+	output	reg[7:0]	cur_status,
+	output	reg[7:0]	midibyte_nr,
+	output	reg[7:0]	midibyte,
+// Transmitter
+	input					midi_send_byte,
+	input		[7:0]		midi_out_data,
+	output	reg		midi_txd
 );
     reg midi_dat;
 	reg [3:0]md;
@@ -120,7 +121,6 @@ end
     always @(negedge midi_clk or negedge reset_reg_N) begin
         if(!reset_reg_N) byteready <= 0;
         else begin
-//            if (initial_reset) byteready<=0;
             if ( (byte_end && (sys_real == 1'b0)) || out_cnt == 19) byteready <= 1;
             else byteready <= 0;
         end

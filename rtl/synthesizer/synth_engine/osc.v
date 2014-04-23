@@ -1,5 +1,6 @@
 module osc (
     input         				reset_reg_N,
+    input         				reset_data_N,
     input         				OSC_CLK,
     input         				sCLK_XVXENVS,
     input         				sCLK_XVXOSC,
@@ -61,8 +62,8 @@ parameter ox_offset = (V_OSC * VOICES ) - 1;
         ox_dly[d1+1] <= ox_dly[d1];
     end
 
-    always@(negedge reset_reg_N or negedge write)begin
-        if(!reset_reg_N) begin
+    always@(negedge reset_data_N or negedge write)begin
+        if(!reset_data_N) begin
             for (loop=0;loop<V_OSC;loop=loop+1)begin
                 o_offs[loop] <= 8'h00;
             end
