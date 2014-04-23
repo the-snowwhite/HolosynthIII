@@ -401,7 +401,7 @@ SFL	SFL_inst (
 	
 synthesizer #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS))  synthesizer_inst(
     .EXT_CLOCK_IN(clk_50m_fpga) ,   // input  CLOCK_50_sig
-    .DLY0(iRST_n),
+    .reg_DLY0(iRST_n),
 //    .MIDI_Rx_DAT(~midi_rxd) ,    // input  MIDI_DAT_sig (inverted due to inverter in rs232 chip)
     .MIDI_Rx_DAT(midi_rxd) ,    // input  MIDI_DAT_sig (inverted due to inverter in rs232 chip)
 	.midi_txd ( midi_txd ),		// output midi transmit signal (inverted due to inverter in rs232 chip)

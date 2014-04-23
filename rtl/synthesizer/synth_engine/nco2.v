@@ -18,7 +18,8 @@ parameter O_WIDTH = 2;
 parameter x_offset = (V_OSC * VOICES ) - 2;
 
 	assign phase_acc = phase_accum_b[24:14];
-	assign reset = osc_accum_zero[{ox,1'b0}];
+//	assign reset = osc_accum_zero[{ox,1'b0}];
+//	assign reset = osc_accum_zero[{ox_dly[0],1'b0}];
 	
 	reg [V_WIDTH-1:0] vx_dly[x_offset:0];
 	reg [O_WIDTH-1:0] ox_dly[x_offset:0];
@@ -48,10 +49,12 @@ parameter x_offset = (V_OSC * VOICES ) - 2;
 		.rbclk(sCLK_XVXOSC )     // input  clk_sig
 	);
 
-				always @(posedge sCLK_XVXENVS or negedge reset_reg_N)begin
-					if ( !reset_reg_N)  reg_phase_accum <= 25'b0;
-					else  begin reg_phase_accum <= reg_reset[vx][ox] ? 25'b0 : (phase_accum_a + osc_pitch_val_a); end
-				end
+	always @(posedge sCLK_XVXENVS or negedge reset_reg_N)begin
+		if ( !reset_reg_N)  reg_phase_accum <= 25'b0;
+		else  begin reg_phase_accum <= reg_reset[vx][ox] ? 25'b0 : (phase_accum_a + osc_pitch_val_a); end
+//		else  begin reg_phase_accum <= reset_a ? 25'b0 : (phase_accum_a + osc_pitch_val_a); end
+	end
+	
 	always @(posedge sCLK_XVXOSC)begin
 		vx_dly[0] <= vx; ox_dly[0] <= ox;
 		for(d1=0;d1<x_offset;d1=d1+1) begin // all Voices 2 osc's

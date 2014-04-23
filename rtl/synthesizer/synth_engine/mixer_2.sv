@@ -1,27 +1,28 @@
 module mixer_2 (
 // Inputs -- //
-    input                		sCLK_XVXENVS,  // clk
-    input                		sCLK_XVXOSC,  // clk
-    input                		reset_reg_N,        // reset
-    input [V_WIDTH+E_WIDTH-1:0] xxxx,
-    input                     	n_xxxx_zero,
-    //  env gen
-    input signed [7:0]          level_mul,    // envgen output
-    input signed [16:0]         sine_lut_out, // sine
+	input                		sCLK_XVXENVS,  // clk
+	input                		sCLK_XVXOSC,  // clk
+	input                		reset_reg_N,        // reset
+	input                		reset_data_N,        // reset
+	input [V_WIDTH+E_WIDTH-1:0] xxxx,
+	input                     	n_xxxx_zero,
+//  env gen
+	input signed [7:0]          level_mul,    // envgen output
+	input signed [16:0]         sine_lut_out, // sine
 
-    inout [7:0]         		data,
-    input [6:0]        		 	adr,
-    input               		write,
+	inout [7:0]         		data,
+	input [6:0]        		 	adr,
+	input               		write,
 	input 						read,
 	input						sysex_data_patch_send,
-    input               		osc_sel,
-    input               		com_sel,
-    input               		m1_sel,
-    input               		m2_sel,
-    // Outputs -- //
-    // osc
-    output reg signed [10:0] 	modulation,
-    // sound data out
+	input               		osc_sel,
+	input               		com_sel,
+	input               		m1_sel,
+	input               		m2_sel,
+// Outputs -- //
+// osc
+	output reg signed [10:0] 	modulation,
+// sound data out
 `ifdef	_24BitAudio
 	output signed [23:0]        lsound_out, // 24-bits
 	output signed [23:0]        rsound_out  // 24-bits
@@ -128,8 +129,8 @@ parameter output_volume_scaling = 35 + (V_WIDTH / 2) + O_WIDTH;
 	integer slmloop,shloop,d1;
 /**		@brief get midi controller data from midi decoder
 */	
-    always@(negedge reset_reg_N or negedge write)begin : receive_midi_controller_data
-        if(!reset_reg_N) begin
+    always@(negedge reset_data_N or negedge write)begin : receive_midi_controller_data
+        if(!reset_data_N) begin
             for (loop=0;loop<V_OSC;loop=loop+1)begin
                 if(loop <= 1)osc_lvl[loop] <= 8'h40;
                 else osc_lvl[loop] <= 8'h00;

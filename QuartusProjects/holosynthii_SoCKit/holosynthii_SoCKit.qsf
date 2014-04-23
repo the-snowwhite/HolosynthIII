@@ -7,7 +7,7 @@ set_global_assignment -name FAMILY "Cyclone V"
 set_global_assignment -name DEVICE 5CSXFC6D6F31C8ES
 set_global_assignment -name TOP_LEVEL_ENTITY "holosynthii_SoCKit"
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 13.0
-set_global_assignment -name LAST_QUARTUS_VERSION "13.0 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION 13.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "MON JUL  1 14:21:10 2013"
 set_global_assignment -name DEVICE_FILTER_PACKAGE FBGA
 
@@ -774,7 +774,6 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HSMC_CLKIN_p
 set_global_assignment -name ENABLE_SIGNALTAP OFF
 set_global_assignment -name USE_SIGNALTAP_FILE stp1.stp
 set_global_assignment -name IGNORE_PARTITIONS ON
-set_global_assignment -name SLD_FILE "C:/altera/projects/HolosynthII/QuartusProjects/holosynthii_SoCKit/stp1_auto_stripped.stp"
 set_global_assignment -name STRATIXV_CONFIGURATION_SCHEME "ACTIVE SERIAL X4"
 set_global_assignment -name USE_CONFIGURATION_DEVICE ON
 set_global_assignment -name STRATIXII_CONFIGURATION_DEVICE EPCQ256

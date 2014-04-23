@@ -1,46 +1,46 @@
 module midi_decoder(
-    input                    	CLOCK_25,
-    input                    	reset_reg_N,
+	input								reset_reg_N,
+	input								CLOCK_25,
 // from uart
-    input                    	byteready,
-    input [7:0]              	cur_status,
-    input [7:0]              	midibyte_nr,
-    input [7:0]              	midibyte,
-	input 						midi_out_ready,
-	output						midi_send_byte,
-	output reg [7:0]			midi_out_data,
+	input								byteready,
+	input [7:0]						cur_status,
+	input [7:0]						midibyte_nr,
+	input [7:0]						midibyte,
+	input								midi_out_ready,
+	output							midi_send_byte,
+	output reg [7:0]				midi_out_data,
 // inputs from synth engine	
-    input [VOICES-1:0]       	voice_free,
-    input [3:0]              	midi_ch,
+	input [VOICES-1:0]			voice_free,
+	input [3:0]						midi_ch,
 // outputs to synth_engine	
-    output [VOICES-1:0]      	keys_on,
+	output [VOICES-1:0]			keys_on,
 // note events
-    output reg               	note_on,
-    output reg [V_WIDTH-1:0] 	cur_key_adr,
-    output reg [7:0]         	cur_key_val,
-    output reg [7:0]         	cur_vel_on,
-    output reg [7:0]         	cur_vel_off,
+	output reg						note_on,
+	output reg [V_WIDTH-1:0]	cur_key_adr,
+	output reg [7:0]				cur_key_val,
+	output reg [7:0]				cur_vel_on,
+	output reg [7:0]				cur_vel_off,
 // controller data
-    output reg               	octrl_cmd,
-    output reg               	prg_ch_cmd,
-    output reg               	pitch_cmd,
-    output reg [7:0]         	octrl,
-    output reg [7:0]         	octrl_data,
-    output reg [7:0]         	prg_ch_data,
+//    output reg               	octrl_cmd,
+	output reg						prg_ch_cmd,
+	output reg						pitch_cmd,
+	output reg [7:0]				octrl,
+	output reg [7:0]				octrl_data,
+	output reg [7:0]				prg_ch_data,
 // memory controller
-    output                   	write,
-	output						read,
-	output reg					sysex_data_patch_send,
-    output [6:0] 	        	adr,
-    inout	 [7:0]				data,
-    output                   	env_sel,
-    output                   	osc_sel,
-    output                   	m1_sel,
-    output                   	m2_sel,
-    output                   	com_sel,
+	output							write,
+	output							read,
+	output reg						sysex_data_patch_send,
+	output [6:0]					adr,
+	inout	 [7:0]					data,
+	output							env_sel,
+	output							osc_sel,
+	output							m1_sel,
+	output							m2_sel,
+	output							com_sel,
 // status data
-    output reg [V_WIDTH:0]   	active_keys,
-    output reg               	off_note_error
+	output reg [V_WIDTH:0]		active_keys
+//	output reg						off_note_error
 
 );
 
@@ -77,7 +77,7 @@ reg [V_WIDTH:0]cur_slot;
     reg [7:0]vel_off;
     reg [7:0]cur_note;
     reg [V_WIDTH-1:0]slot_off;
-    reg off_note_error_flag;
+//    reg off_note_error_flag;
 
     reg 		data_ready;
     reg [2:0]	bank_adr_s, bank_adr_l;
@@ -108,7 +108,7 @@ reg [V_WIDTH:0]cur_slot;
 	assign read = (read_write && sysex_data_patch_send) ? 1'b1 : 1'b0;
 
     integer free_voices_found;
-    integer note_found;
+ //   integer note_found;
     integer i0;
     integer i1;
     integer i2;
@@ -197,17 +197,22 @@ wire is_st_note_on=(
 
     always @(negedge reset_reg_N or posedge is_data_byte_r)begin
         if (!reset_reg_N) begin
-            free_voice_found <= 1'b1;
-            first_free_voice<=0;
+//            free_voice_found <= 1'b1;
+//            first_free_voice<=0;
+            free_voice_found = 1'b1;
+            first_free_voice = 0;
         end
         else begin
             for(i3=VOICES-1,free_voices_found=0; i3 >= 0 ; i3=i3-1) begin
-                free_voice_found <= 1'b0;
+//                free_voice_found <= 1'b0;
+                free_voice_found = 1'b0;
                 if(voice_free_r[i3])begin
                     free_voices_found = free_voices_found +1;
-                    first_free_voice <= i3;
+//                    first_free_voice <= i3;
+                    first_free_voice = i3;
                 end
-                if (free_voices_found > 0) free_voice_found <= 1'b1;
+//                if (free_voices_found > 0) free_voice_found <= 1'b1;
+                if (free_voices_found > 0) free_voice_found = 1'b1;
             end
         end
     end
@@ -215,7 +220,7 @@ wire is_st_note_on=(
     always @(negedge reset_reg_N or negedge byteready_r) begin
         if (!reset_reg_N) begin // init values 
             active_keys <= 0;
-            off_note_error <= 1'b0;
+//            off_note_error <= 1'b0;
             cur_key_val <= 8'hff;
             cur_vel_on <= 0;
             cur_vel_off <= 0;
@@ -230,8 +235,8 @@ wire is_st_note_on=(
             cur_note<=0;
             cur_slot<=0;
             active_keys<=0;
-            off_note_error<=1'b0;
-            off_note_error_flag<=0;
+//            off_note_error<=1'b0;
+//            off_note_error_flag<=0;
         end
         else begin
             note_on <= 1'b0;
@@ -280,14 +285,15 @@ wire is_st_note_on=(
                         slot_off <= 0;
                         cur_note <= 0;
                         active_keys <= 0;
-                        off_note_error <= 1'b0;
+//                        off_note_error <= 1'b0;
                     end
                 end 
 			end	
 			else if (is_st_note_off) begin// Note off omni
                 if(is_data_byte)begin
-                    for(i2=0,note_found=0;i2<VOICES;i2=i2+1)begin
-                        off_note_error_flag <= 1'b1;
+//                    for(i2=0,note_found=0;i2<VOICES;i2=i2+1)begin
+                    for(i2=0;i2<VOICES;i2=i2+1)begin
+//                        off_note_error_flag <= 1'b1;
                         if(databyte==key_val[i2])begin
                             active_keys <= active_keys-1'b1;
                             slot_off<=i2;
@@ -295,15 +301,15 @@ wire is_st_note_on=(
                             cur_key_adr <= i2;
                             cur_key_val <= 8'hff;
                             key_val[i2] <= 8'hff;
-                            note_found = 1;
+//                            note_found = 1;
                         end
-                        if(note_found == 1) off_note_error_flag <= 1'b0;
+//                        if(note_found == 1) off_note_error_flag <= 1'b0;
                     end
                 end 
 				else if(is_velocity )begin
-                    if(off_note_error_flag)begin
-                        off_note_error <= 1'b1;
-                    end
+//                    if(off_note_error_flag)begin
+//                        off_note_error <= 1'b1;
+//                    end
 					if(key_val[slot_off] == 8'hff)begin
 						cur_vel_off<=databyte;
 						off_slot[VOICES-1]<=slot_off;

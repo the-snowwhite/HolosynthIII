@@ -3,18 +3,16 @@
 # Create Clock
 #**************************************************************
 
-create_clock -period 20 [get_ports OSC_50_B3B]
-create_clock -period 20 [get_ports OSC_50_B4A]
-create_clock -period 20 [get_ports OSC_50_B5B]
-create_clock -period 20 [get_ports OSC_50_B8A]
+#create_clock -period 20 [get_ports OSC_50_B3B]
+#create_clock -period 20 [get_ports OSC_50_B4A]
+#create_clock -period 20 [get_ports OSC_50_B5B]
+#create_clock -period 20 [get_ports OSC_50_B8A]
 
 
 #**************************************************************
 # Create Generated Clock
 #**************************************************************
 derive_pll_clocks -create_base_clocks
-
-
 
 
 

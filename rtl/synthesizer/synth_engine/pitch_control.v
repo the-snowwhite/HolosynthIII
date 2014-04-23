@@ -1,20 +1,21 @@
 module pitch_control (
-    input               		reset_reg_N,
-	input						const_clk,
-    input [V_WIDTH+E_WIDTH-1:0] xxxx,
-    input [V_WIDTH-1:0] 		cur_key_adr,
-    input [7:0]         		cur_key_val,
-    input [13:0]        		pitch_val,
-    input               		note_on,
-    input               		note_on_dly,
-    inout [7:0]         		data,
-    input [6:0]         		adr,
-    input               		write,
-	input 						read,
-	input						sysex_data_patch_send,
-    input               		osc_sel,
-    input               		com_sel,
-    output [23:0]    			osc_pitch_val
+	input									reset_reg_N,
+	input									reset_data_N,
+	input									const_clk,
+	input [V_WIDTH+E_WIDTH-1:0]	xxxx,
+	input [V_WIDTH-1:0]				cur_key_adr,
+	input [7:0]							cur_key_val,
+	input [13:0]						pitch_val,
+	input									note_on,
+	input									note_on_dly,
+	inout [7:0]							data,
+	input [6:0]							adr,
+	input									write,
+	input									read,
+	input									sysex_data_patch_send,
+	input									osc_sel,
+	input									com_sel,
+	output [23:0]						osc_pitch_val
 );
 
 parameter VOICES = 8;
@@ -66,8 +67,8 @@ parameter E_WIDTH = O_WIDTH + OE_WIDTH;
             rkey_val[cur_key_adr] <= cur_key_val;
     end
 
-    always@(negedge reset_reg_N or negedge write)begin
-        if(!reset_reg_N) begin
+    always@(negedge reset_data_N or negedge write)begin
+        if(!reset_data_N) begin
             for (loop=0;loop<V_OSC;loop=loop+1)begin
                 osc_ct[loop] <= 8'h40;
                 osc_ft[loop] <= 8'h40;

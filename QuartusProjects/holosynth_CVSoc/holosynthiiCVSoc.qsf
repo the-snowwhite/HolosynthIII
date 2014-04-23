@@ -650,7 +650,7 @@ set_instance_assignment -name IO_STANDARD LVDS -to clk_148_p
 set_instance_assignment -name IO_STANDARD LVDS -to pcie_refclk_p
 set_location_assignment PIN_T9 -to clk_148_p
 set_global_assignment -name ENABLE_SIGNALTAP OFF
-set_global_assignment -name USE_SIGNALTAP_FILE reset.stp
+set_global_assignment -name USE_SIGNALTAP_FILE timing.stp
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
 set_location_assignment PIN_G7 -to i2c_scl_fpga
@@ -683,7 +683,7 @@ set_location_assignment PIN_AC25 -to max_fpga_ssel
 set_location_assignment PIN_AD29 -to pcie_prsnt2_x1
 set_location_assignment PIN_A11 -to pcie_prsnt2_x4
 set_instance_assignment -name IO_STANDARD LVDS -to refclk_ql2_p
-set_global_assignment -name PARTITION_NETLIST_TYPE POST_FIT -section_id Top
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_instance_assignment -name INPUT_TERMINATION "PARALLEL 50 OHM WITH CALIBRATION" -to ddr3_hps_dq[0] -tag __hps_sdram_p0
@@ -910,36 +910,6 @@ set_instance_assignment -name IO_STANDARD "2.5 V" -to hsma_tx_d_n[3]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to hsma_tx_d_n[2]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to hsma_tx_d_n[1]
 set_instance_assignment -name IO_STANDARD "2.5 V" -to hsma_tx_d_n[0]
-set_global_assignment -name QIP_FILE megawizard/audio_pll.qip
-set_global_assignment -name QIP_FILE megawizard/vga_pll.qip
-set_global_assignment -name SDC_FILE holosynthiiCVSoc.sdc
-set_global_assignment -name VERILOG_FILE holosynthiiCVSoc.v
-set_global_assignment -name SYSTEMVERILOG_FILE utils.sv
-set_global_assignment -name SYSTEMVERILOG_FILE synthesizer.sv
-set_global_assignment -name VERILOG_FILE midi_uart.v
-set_global_assignment -name VERILOG_FILE midi_decoder.v
-set_global_assignment -name VERILOG_FILE address_decoder.v
-set_global_assignment -name VERILOG_FILE midi_controllers.v
-set_global_assignment -name VERILOG_FILE synth_engine.v
-set_global_assignment -name VERILOG_FILE synth_clk_gen.v
-set_global_assignment -name VERILOG_FILE timing_gen.v
-set_global_assignment -name VERILOG_FILE reset_delay.v
-set_global_assignment -name VERILOG_FILE env_gen_indexed.v
-set_global_assignment -name VERILOG_FILE div_module.v
-set_global_assignment -name VERILOG_FILE st_reg_ram.v
-set_global_assignment -name VERILOG_FILE pitch_control.v
-set_global_assignment -name VERILOG_FILE constmap2.v
-set_global_assignment -name VERILOG_FILE osc.v
-set_global_assignment -name VERILOG_FILE sine_lookup.v
-set_global_assignment -name QIP_FILE megawizard/blockram512x16bits_2clklatency_cycV.qip
-set_global_assignment -name VERILOG_FILE audio_i2s_driver.v
-set_global_assignment -name VERILOG_FILE I2C_Controller.v
-set_global_assignment -name VERILOG_FILE I2C_AV_Config.v
-set_global_assignment -name SYSTEMVERILOG_FILE mixer_2.sv
-set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/synth_engine/nco2.v
-set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/synth_engine/nco_ram.v
-set_global_assignment -name MIF_FILE ../../megawizard_common/toneconstmap2.mif
-set_global_assignment -name QIP_FILE ../../megawizard_common/constmaprom2.qip
 set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON
 set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
 set_global_assignment -name SAVE_DISK_SPACE OFF
@@ -953,9 +923,41 @@ set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS ON
 set_global_assignment -name ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP ON
 set_global_assignment -name SYNCHRONIZER_IDENTIFICATION AUTO
 set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL ON
-set_global_assignment -name OPTIMIZATION_TECHNIQUE AREA
+set_global_assignment -name OPTIMIZATION_TECHNIQUE BALANCED
 set_global_assignment -name SYNCHRONIZATION_REGISTER_CHAIN_LENGTH 2
-set_global_assignment -name SIGNALTAP_FILE sysex_debug.stp
-set_global_assignment -name SIGNALTAP_FILE reset.stp
+set_global_assignment -name SDC_FILE holosynthiiCVSoc.sdc
+set_global_assignment -name SYSTEMVERILOG_FILE utils.sv
+set_global_assignment -name VERILOG_FILE holosynthiiCVSoc.v
+set_global_assignment -name VERILOG_FILE reset_delay.v
+set_global_assignment -name QIP_FILE megawizard/audio_pll.qip
+set_global_assignment -name QIP_FILE megawizard/vga_pll.qip
+set_global_assignment -name SYSTEMVERILOG_FILE synthesizer.sv
+set_global_assignment -name VERILOG_FILE midi_uart.v
+set_global_assignment -name VERILOG_FILE midi_decoder.v
+set_global_assignment -name VERILOG_FILE address_decoder.v
+set_global_assignment -name VERILOG_FILE midi_controllers.v
+set_global_assignment -name VERILOG_FILE synth_clk_gen.v
+set_global_assignment -name VERILOG_FILE audio_i2s_driver.v
+set_global_assignment -name VERILOG_FILE timing_gen.v
+set_global_assignment -name MIF_FILE ../../megawizard_common/toneconstmap2.mif
+set_global_assignment -name QIP_FILE ../../megawizard_common/constmaprom2.qip
+set_global_assignment -name VERILOG_FILE constmap2.v
+set_global_assignment -name VERILOG_FILE pitch_control.v
+set_global_assignment -name VERILOG_FILE sine_lookup.v
+set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/synth_engine/nco_ram.v
+set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/synth_engine/nco2.v
+set_global_assignment -name VERILOG_FILE osc.v
+set_global_assignment -name SYSTEMVERILOG_FILE mixer_2.sv
+set_global_assignment -name VERILOG_FILE div_module.v
+set_global_assignment -name VERILOG_FILE env_gen_indexed.v
+set_global_assignment -name VERILOG_FILE synth_engine.v
+set_global_assignment -name VERILOG_FILE st_reg_ram.v
+set_global_assignment -name QIP_FILE megawizard/blockram512x16bits_2clklatency_cycV.qip
+set_global_assignment -name VERILOG_FILE I2C_Controller.v
+set_global_assignment -name VERILOG_FILE I2C_AV_Config.v
 set_global_assignment -name CDF_FILE qout/Chain1.cdf
+set_global_assignment -name SIGNALTAP_FILE timing.stp
+set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
+set_global_assignment -name ROUTER_CLOCKING_TOPOLOGY_ANALYSIS ON
+set_global_assignment -name TIMEQUEST_DO_REPORT_TIMING ON
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

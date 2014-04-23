@@ -257,7 +257,7 @@ wire iRST_n;
 //	assign LED = ~LEDG[3:0];
 	assign LED = LEDG[3:0];
 	
-	assign iRST_n = RESET_n;
+//	assign iRST_n = RESET_n;
 
 	
 	
@@ -294,23 +294,21 @@ SFL	SFL_inst (
 */	
 	
 synthesizer #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS))  synthesizer_inst(
-    .EXT_CLOCK_IN(OSC_50_B4A) ,   // input  CLOCK_50_sig
-    .DLY0(iRST_n),
-//    .MIDI_Rx_DAT(~UART_RXD) ,    // input  MIDI_DAT_sig (inverted due to inverter in rs232 chip)
-    .MIDI_Rx_DAT(UART_RXD) ,    // input  MIDI_DAT_sig (inverted due to inverter in rs232 chip)
+	.EXT_CLOCK_IN(OSC_50_B4A) ,   // input  CLOCK_50_sig
+	.reg_DLY0(iRST_n),
+	.MIDI_Rx_DAT(UART_RXD) ,    // input  MIDI_DAT_sig (inverted due to inverter in rs232 chip)
 	.midi_txd ( midi_txd ),		// output midi transmit signal (inverted due to inverter in rs232 chip)
-    .button( KEY[3:0] ),            //  Button[3:0]
+	.button( KEY[3:0] ),            //  Button[3:0]
 //    .SW ( SW[17:0]),
-    .GLED(LEDG),                            //  Green LED [4:1]
-    .RLED(LEDR),                            //  Green LED [4:1]
-//  .hex_disp(hex_disp),
+	.GLED(LEDG),                            //  Green LED [4:1]
+	.RLED(LEDR),                            //  Green LED [4:1]
 `ifdef _Synth
-    .AUD_ADCLRCK(AUD_ADCLRCK),      //  Audio CODEC ADC LR Clock
-    .AUD_DACLRCK(AUD_DACLRCK),      //  Audio CODEC DAC LR Clock
-    .AUD_ADCDAT (AUD_ADCDAT ),      //  Audio CODEC ADC Data
-    .AUD_DACDAT (AUD_DACDAT ),      //  Audio CODEC DAC Data
-    .AUD_BCLK   (AUD_BCLK   ),      //  Audio CODEC Bit-Stream Clock
-    .AUD_XCK    (AUD_XCK    )      //  Audio CODEC Chip Clock
+	.AUD_ADCLRCK(AUD_ADCLRCK),      //  Audio CODEC ADC LR Clock
+	.AUD_DACLRCK(AUD_DACLRCK),      //  Audio CODEC DAC LR Clock
+	.AUD_ADCDAT (AUD_ADCDAT ),      //  Audio CODEC ADC Data
+	.AUD_DACDAT (AUD_DACDAT ),      //  Audio CODEC DAC Data
+	.AUD_BCLK   (AUD_BCLK   ),      //  Audio CODEC Bit-Stream Clock
+	.AUD_XCK    (AUD_XCK    )      //  Audio CODEC Chip Clock
 `endif
 );
 
