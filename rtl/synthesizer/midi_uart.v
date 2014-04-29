@@ -3,7 +3,6 @@ module MIDI_UART(
 	input					CLOCK_25,
 // receiver
 	input					midi_rxd,
-	output	reg		midi_out_ready,
 	output	reg		byteready,
 	output	reg		sys_real,
 	output	reg[7:0]	sys_real_dat,
@@ -11,24 +10,21 @@ module MIDI_UART(
 	output	reg[7:0]	midibyte_nr,
 	output	reg[7:0]	midibyte,
 // Transmitter
+	output	reg		midi_out_ready,
 	input					midi_send_byte,
 	input		[7:0]		midi_out_data,
 	output	reg		midi_txd
 );
     reg midi_dat;
-	reg [3:0]md;
-    wire md_0_ok = ((md == 4'b0000) && !midi_rxd) ? 1'b0 : 1'b1;
-
+	reg [1:0]md;
+	wire md_ok = (midi_rxd && md[0] && md[1]) ? 1'b1 : 1'b0;
 	
  // -------------- Midi receiver  ------------- //
     always @(posedge CLOCK_25)begin
         md[0] <= midi_rxd;
 		md[1] <= md[0];
-		md[2] <= md[1];
-		md[3] <= md[2];
-        if (!md_0_ok) midi_dat <= 1'b0;
-		else midi_dat <= 1'b1;
-    end 
+		midi_dat <= md_ok;
+   end 
 	
  // comment out for debug
     reg startbit_d;

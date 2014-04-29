@@ -141,17 +141,6 @@ reset_delay	reset_data_delay_inst  (
 	.oRST_1(data_DLY1),
 	.oRST_2(data_DLY2)
 );
-/*
-	always @(negedge reset1 or posedge sysclk) begin
-		if (!reset1) MCNT=0;
-		else if(MCNT < 500) MCNT=MCNT+ 1'b1;
-	end
-
-//-----	Clockgens & Timing	----//
-// TIME & Display CLOCK Generater //
-
-	always @( posedge CLOCK_25) VGA_CLK_o = VGA_CLK_o + 1;
-*/
 	//  PLL
 
 vga_pll	sys_disp_pll_inst	(	

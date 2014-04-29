@@ -450,7 +450,8 @@ assign SMA_CLKOUT = AUD_XCK;
     
 synthesizer #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS)) synthesizer_inst(
     .EXT_CLOCK_IN(CLOCK_50) ,   // input  CLOCK_50_sig
-    .DLY0(iRST_n),
+//    .DLY0(iRST_n),
+    .reg_DLY0(iRST_n),
     .MIDI_Rx_DAT(midi_rxd) ,    // input  MIDI_DAT_sig (inverted due to inverter in rs232 chip)
 	.midi_txd ( midi_txd ),		// output midi transmit signal (inverted due to inverter in rs232 chip)
     .button( KEY[3:0] ),            //  Button[3:0]

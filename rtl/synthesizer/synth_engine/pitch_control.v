@@ -7,7 +7,7 @@ module pitch_control (
 	input [7:0]							cur_key_val,
 	input [13:0]						pitch_val,
 	input									note_on,
-	input									note_on_dly,
+//	input									note_on_dly,
 	inout [7:0]							data,
 	input [6:0]							adr,
 	input									write,
