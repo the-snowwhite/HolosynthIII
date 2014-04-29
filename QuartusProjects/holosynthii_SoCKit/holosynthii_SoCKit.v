@@ -225,9 +225,9 @@ module holosynthii_SoCKit(
 //parameter VOICES = 256;
 //parameter VOICES = 128;
 //parameter VOICES = 64;
-parameter VOICES = 32;
+//parameter VOICES = 32;
 //parameter VOICES = 16;
-//parameter VOICES = 8;	// number of simultainious voices 
+parameter VOICES = 8;	// number of simultainious voices 
 //parameter VOICES = 4;	// number of simultainious voices
 //parameter VOICES = 2;	// number of simultainious voices
 //parameter VOICES = 1;	// number of simultainious voices
