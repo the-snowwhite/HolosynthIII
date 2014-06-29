@@ -1,15 +1,16 @@
 module address_decoder (
-    input           CLOCK_25,
-    input           reset_reg_N,
-    input           data_ready,
-    input   [2:0]   bank_adr,
+    input         CLOCK_25,
+    input         reset_reg_N,
+    input         data_ready,
+    input   [2:0] bank_adr,
 
-    output   reg    write ,
-    output   reg    env_sel,
-    output   reg    osc_sel,
-    output   reg    m1_sel,
-    output   reg    m2_sel,
-    output   reg    com_sel
+    output 	reg   read_write ,
+	 output 	reg	write_dataenable, 
+    output  reg   env_sel,
+    output  reg   osc_sel,
+    output  reg   m1_sel,
+    output  reg   m2_sel,
+    output  reg   com_sel
 );
 
     reg syx_data_rdy_r[3:0];
@@ -22,7 +23,8 @@ module address_decoder (
         syx_data_rdy_r[1] <= syx_data_rdy_r[0];
         syx_data_rdy_r[2] <= syx_data_rdy_r[1];
         syx_data_rdy_r[3] <= syx_data_rdy_r[2];
-        write  <= syx_data_rdy_r[3];
+        read_write  <= syx_data_rdy_r[2];
+        write_dataenable  <= syx_data_rdy_r[3] || syx_data_rdy_r[2];
     end
     always @(negedge reset_reg_N or posedge syx_data_rdy_r[1]) begin
         if (!reset_reg_N)begin

@@ -1,7 +1,7 @@
 module synth_engine (
 	input						OSC_CLK,
-//	input			AUDIO_CLK,
-	output					AUDIO_CLK,
+	input						AUDIO_CLK,
+//	output					AUDIO_CLK,
 	input						reset_reg_N,
 	input						reset_data_N,
 	output					AUD_DATA,
@@ -49,6 +49,7 @@ wire		sCLK_XVXOSC;        // ObjectKind=Net|PrimaryId=sCLK_XVXOSC
 wire		n_xxxx_zero;            // ObjectKind=Net|PrimaryId=NetU1_xxxx_max
 wire [V_WIDTH+E_WIDTH-1:0]  xxxx;                  // ObjectKind=Net|PrimaryId=NetU1_xxxx[5..0]
 wire [7:0]  level_mul;        // ObjectKind=Net|PrimaryId=level_mul
+wire [7:0]	level_mul_vel;
 
 wire          byteready;              // ObjectKind=Net|PrimaryId=byteready
 wire [7:0]  cur_status;             // ObjectKind=Net|PrimaryId=cur_status
@@ -69,42 +70,38 @@ wire [16:0] sine_lut_out;                 // ObjectKind=Net|PrimaryId=sine_lut_o
 wire [23:0] osc_pitch_val;      // ObjectKind=Net|PrimaryId=osc_pitch_val
 
 wire [V_ENVS-1:0] osc_accum_zero;
+wire						reg_note_on;
+wire [V_WIDTH-1:0]	reg_cur_key_adr;
+wire [7:0]				reg_cur_key_val;
+wire [7:0]				reg_cur_vel_on;	
+wire [VOICES-1:0]		reg_keys_on;
 
-	reg               reg_note_on[2:0];
-	reg [V_WIDTH-1:0] reg_cur_key_adr;
-	reg [7:0]         reg_cur_key_val;
-	reg [7:0]         reg_cur_vel_on;
-	
-	reg [VOICES-1:0]	reg_keys_on;
-
-	always @(posedge OSC_CLK )begin
-		if(OSC_CLK)begin
-			reg_note_on[1] <= reg_note_on[0];
-			reg_note_on[2] <= reg_note_on[1];
-//			reg_note_on[3] <= reg_note_on[2];
-		end
-	end		
-
-	always @(negedge n_xxxx_zero)begin
-		if(!n_xxxx_zero)begin
-			reg_note_on[0] <= note_on;
-			reg_cur_key_adr <= cur_key_adr;
-			reg_cur_key_val <= cur_key_val;
-			reg_cur_vel_on <= cur_vel_on;
-			reg_keys_on <= keys_on;
-		end
-	 end
+note_key_vel_sync #(.VOICES(VOICES),.V_WIDTH(V_WIDTH)) key_sync_inst
+(
+	.n_xxxx_zero 	(n_xxxx_zero),
+	.OSC_CLK			( OSC_CLK ),  			// input
+	.note_on 		(note_on),
+	.cur_key_adr	(cur_key_adr),
+	.cur_key_val	(cur_key_val),
+	.cur_vel_on		(cur_vel_on),
+	.keys_on			(keys_on),
+	.reg_note_on 		(reg_note_on),
+	.reg_cur_key_adr	(reg_cur_key_adr),
+	.reg_cur_key_val	(reg_cur_key_val),
+	.reg_cur_vel_on	(reg_cur_vel_on),
+	.reg_keys_on		(reg_keys_on)
+);
 
 
 synth_clk_gen #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS))synth_clk_gen_inst  // ObjectKind=Sheet Symbol|PrimaryId=U_synth_clk_gen
  (
-	.reset_reg_N( reset_reg_N ),                               // ObjectKind=Sheet Entry|PrimaryId=synth_clk_gen.v-reset_reg_N
-	.AUDIO_CLK( AUDIO_CLK ),                        // ObjectKind=Sheet Entry|PrimaryId=synth_clk_gen.v-AUDIO_CLK
-	.OSC_CLK( OSC_CLK ),                 // ObjectKind=Sheet Entry|PrimaryId=synth_clk_gen.v-OSC_CLK
-	.sCLK_XVXENVS( sCLK_XVXENVS ),// ObjectKind=Sheet Entry|PrimaryId=synth_clk_gen.v-sCLK_XVXENVS
-	.sCLK_XVXOSC( sCLK_XVXOSC ), // ObjectKind=Sheet Entry|PrimaryId=synth_clk_gen.v-sCLK_XVXOSC
-	.LRCK_1X( AUD_LRCK ) ,	// output  LRCK_1X_sig
-	.oAUD_BCK( AUD_BCK ) 	// output  oAUD_BCK_sig
+	.reset_reg_N( reset_reg_N ),	// input
+	.OSC_CLK( OSC_CLK ),  			// input
+	.AUDIO_CLK( AUDIO_CLK ),      // input
+	.sCLK_XVXENVS( sCLK_XVXENVS ),// output
+	.sCLK_XVXOSC( sCLK_XVXOSC ),	// output
+	.LRCK_1X( AUD_LRCK ) ,			// output  LRCK_1X_sig
+	.oAUD_BCK( AUD_BCK ) 			// output  oAUD_BCK_sig
 );
 
 audio_i2s_driver U_audio_i2s_driver                         // ObjectKind=Sheet Symbol|PrimaryId=U_audio_i2s_driver
@@ -132,9 +129,8 @@ pitch_control #(.VOICES(VOICES),.V_OSC(V_OSC),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH
 	.reset_reg_N( reset_reg_N ),		// ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-reset_reg_N
 	.reset_data_N( reset_data_N ),	// ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-reset_reg_N
 	.xxxx( xxxx ),                  // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-xxxx[5..0]
-	.const_clk (OSC_CLK),
-	.note_on( reg_note_on[2] ),         // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-note_on
-//	.note_on_dly( reg_note_on[3] ),         // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-note_on
+	.sCLK_XVXOSC (sCLK_XVXOSC),
+	.note_on( reg_note_on ),         // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-note_on
 	.cur_key_adr( reg_cur_key_adr ), // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-cur_key_adr[2..0]
 	.cur_key_val( reg_cur_key_val ), // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-cur_key_val[7..0]
 	.pitch_val( pitch_val ), // ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-pitch_val[13..0]
@@ -169,27 +165,19 @@ osc #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.O_WIDTH(O
 	.sine_lut_out( sine_lut_out )        // ObjectKind=Sheet Entry|PrimaryId=osc.v-sine_lut_out[16..0]
 );
 
-	reg  [7:0]r_cur_vel_on[VOICES-1:0];
-	wire [14:0]  level_mul_vel_w;        // ObjectKind=Net|PrimaryId=level_mul
-	wire [7:0]  level_mul_vel;        // ObjectKind=Net|PrimaryId=level_mul
-	wire [V_WIDTH-1:0]  vx;
-	assign vx = xxxx[V_WIDTH+E_WIDTH-1:E_WIDTH];
+velocity velocity_inst
+(
+	.reset_reg_N(reset_reg_N) ,	// input  reset_reg_N_sig
+	.vx(xxxx[V_WIDTH+E_WIDTH-1:E_WIDTH]) ,	// input [V_WIDTH-1:0] vx_sig
+	.reg_note_on(reg_note_on) ,	// input  reg_note_on_sig
+	.reg_cur_vel_on(reg_cur_vel_on) ,	// input [7:0] reg_cur_vel_on_sig
+	.reg_cur_key_adr(reg_cur_key_adr) ,	// input [V_WIDTH-1:0] reg_cur_key_adr_sig
+	.level_mul(level_mul) ,	// input [7:0] level_mul_sig
+	.level_mul_vel(level_mul_vel) 	// output [7:0] level_mul_vel_sig
+);
 
-	integer kloop;
-
-
-    always @(negedge reset_reg_N or posedge reg_note_on[2])begin
-        if(!reset_reg_N)begin
-            for (kloop=0;kloop<VOICES;kloop=kloop+1)begin
-                r_cur_vel_on[kloop] <= 8'hff;
-            end
-        end
-        else
-            r_cur_vel_on[reg_cur_key_adr] <= reg_cur_vel_on;
-    end
-
-assign level_mul_vel_w = r_cur_vel_on[vx] * level_mul;
-assign level_mul_vel = level_mul_vel_w[14:7] ;
+defparam velocity_inst.VOICES = VOICES;
+defparam velocity_inst.V_WIDTH = V_WIDTH;
 
 mixer_2 #(.VOICES(VOICES),.V_OSC(V_OSC),.O_ENVS(O_ENVS),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH),.OE_WIDTH(OE_WIDTH)) mixer_2_inst  // ObjectKind=Sheet Symbol|PrimaryId=U_mixer
 (
@@ -200,6 +188,7 @@ mixer_2 #(.VOICES(VOICES),.V_OSC(V_OSC),.O_ENVS(O_ENVS),.V_WIDTH(V_WIDTH),.O_WID
 	.xxxx( xxxx ),                 // ObjectKind=Sheet Entry|PrimaryId=mixer.v-xxxx[5..0]
 	.n_xxxx_zero( n_xxxx_zero ),        // ObjectKind=Sheet Entry|PrimaryId=mixer.v-n_xxxx_zero
 	.level_mul( level_mul_vel ),  // ObjectKind=Sheet Entry|PrimaryId=mixer.v-level_mul[7..0]
+//	.level_mul( level_mul ),  // ObjectKind=Sheet Entry|PrimaryId=mixer.v-level_mul[7..0]
 	.sine_lut_out( sine_lut_out ),        // ObjectKind=Sheet Entry|PrimaryId=mixer.v-sine_lut_out[16..0]
 	.modulation( modulation ),          // ObjectKind=Sheet Entry|PrimaryId=mixer.v-modulation[10..0]
 	.write( write ),             // ObjectKind=Sheet Entry|PrimaryId=mixer.v-write
@@ -214,7 +203,7 @@ mixer_2 #(.VOICES(VOICES),.V_OSC(V_OSC),.O_ENVS(O_ENVS),.V_WIDTH(V_WIDTH),.O_WID
 	.lsound_out( lsound_out ),         // ObjectKind=Sheet Entry|PrimaryId=mixer.v-rsound_out[23..0]
 	.rsound_out( rsound_out )          // ObjectKind=Sheet Entry|PrimaryId=mixer.v-rsound_out[23..0]
 );
-		
+	
 env_gen_indexed #(.VOICES(VOICES),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.E_WIDTH(E_WIDTH)) env_gen_indexed_inst  // ObjectKind=Sheet Symbol|PrimaryId=U_env_gen_indexed
 (
 	.reset_reg_N( reset_reg_N ),		// ObjectKind=Sheet Entry|PrimaryId=env_gen_indexed.v-reset_reg_N

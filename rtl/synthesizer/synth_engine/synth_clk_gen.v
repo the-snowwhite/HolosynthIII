@@ -1,8 +1,8 @@
 module synth_clk_gen (
 input 		reset_reg_N,
 input 		OSC_CLK,  		//  180.555556 MHz
-//input 		AUDIO_CLK,		//  16.964286  MHz
-output reg 		AUDIO_CLK,		//  16.964286  MHz
+input 		AUDIO_CLK,		//  16.964286  MHz
+//output reg 	AUDIO_CLK,		//  16.964286  MHz
 output reg  LRCK_1X,
 output reg  sCLK_XVXOSC,
 output reg  sCLK_XVXENVS,
@@ -11,14 +11,15 @@ output reg  oAUD_BCK
 parameter   VOICES 			= 8;
 parameter   V_OSC 			= 4; // oscs per Voice
 parameter   V_ENVS 			= 2*V_OSC;
-parameter 	SYNTH_CHANNELS 	= 1;
+parameter 	SYNTH_CHANNELS = 1;
 parameter 	OVERSAMPLING	= 384;
 `ifdef _271MhzOscs
 parameter   OSC_CLK_RATE       =   271250000;  //  271.250000 MHz
 parameter   AUDIO_REF_CLK         =   16953125;   //  16.953125   MHz <<<--- use for 271 
 `else
 
-parameter   OSC_CLK_RATE       =   135625000;  //  135.625000 MHz <<-- use for slow
+//parameter   OSC_CLK_RATE       =   135625000;  //  135.625000 MHz <<-- use for slow
+parameter   OSC_CLK_RATE       =   180833333;  //  180.833333 MHz <<-- use for fast
 parameter   AUDIO_REF_CLK         =   16953125;   //  16.953125   MHz <<<--- use for slow
 `endif
 parameter   SAMPLE_RATE     =   AUDIO_REF_CLK / OVERSAMPLING; //44100;      //  44.1      KHz
@@ -33,14 +34,14 @@ parameter XVOSC_DIV = OSC_CLK_RATE/((SAMPLE_RATE*SYNTH_CHANNELS*VOICES*V_OSC*2)-
 parameter XVXENVS_DIV = OSC_CLK_RATE/((SAMPLE_RATE*SYNTH_CHANNELS*VOICES*V_ENVS*2)-1);
 parameter LRCK_DIV = AUDIO_REF_CLK/((SAMPLE_RATE*2)-1);
 parameter BCK_DIV_FAC = AUDIO_REF_CLK/((SAMPLE_RATE*DATA_WIDTH*CHANNEL_NUM*4)-1);
-parameter ARCK_DIV_FAC = OSC_CLK_RATE/((AUDIO_REF_CLK*2)-1);
+//parameter AUCK_DIV_FAC = OSC_CLK_RATE/((AUDIO_REF_CLK*2)-1);
 
 //  Internal Registers and Wires
 reg     [8:0]	BCK_DIV;
 reg     [12:0]	LRCK_1X_DIV;
 reg     [11:0]	sCLK_XVXOSC_DIV;
 reg     [10:0]	sCLK_XVXENVS_DIV;
-reg     [8:0]	ARCK_DIV;
+reg     [8:0]	AUCK_DIV;
 
 
 ////////////////////////////////////
@@ -52,8 +53,8 @@ begin
         sCLK_XVXENVS_DIV    <=  0;
         sCLK_XVXOSC <=  0;
         sCLK_XVXENVS    <=  0;
-        ARCK_DIV    <=  0;
-        AUDIO_CLK    <=  0;
+//        AUCK_DIV    <=  0;
+//        AUDIO_CLK    <=  0;
     end
     else
     begin
@@ -73,16 +74,16 @@ begin
         else
 			sCLK_XVXENVS_DIV        <=  sCLK_XVXENVS_DIV+1'b1; 
 	/////////// AUD_REF_BCK Generator   //////////////
-       //  AUD_REF_BCK
-        if(ARCK_DIV >= ARCK_DIV_FAC )
+/*       //  AUD_REF_BCK
+        if(AUCK_DIV >= AUCK_DIV_FAC )
         begin
-            ARCK_DIV     <=  1;
+            AUCK_DIV     <=  1;
             AUDIO_CLK    <=  ~AUDIO_CLK;
         end
         else
-			ARCK_DIV     <=  ARCK_DIV+1'b1;
-	end 
-end
+			AUCK_DIV     <=  AUCK_DIV+1'b1;
+*/	end 
+end 
 //////////////////////////////////////////////////
 always@(posedge AUDIO_CLK or negedge reset_reg_N)
 begin
