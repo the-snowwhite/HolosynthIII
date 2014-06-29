@@ -1,13 +1,12 @@
 module pitch_control (
 	input									reset_reg_N,
 	input									reset_data_N,
-	input									const_clk,
+	input									sCLK_XVXOSC,
 	input [V_WIDTH+E_WIDTH-1:0]	xxxx,
 	input [V_WIDTH-1:0]				cur_key_adr,
 	input [7:0]							cur_key_val,
 	input [13:0]						pitch_val,
 	input									note_on,
-//	input									note_on_dly,
 	inout [7:0]							data,
 	input [6:0]							adr,
 	input									write,
@@ -17,14 +16,12 @@ module pitch_control (
 	input									com_sel,
 	output [23:0]						osc_pitch_val
 );
-
 parameter VOICES = 8;
 parameter V_OSC = 4;
 parameter V_WIDTH = 3;
 parameter O_WIDTH = 2;
 parameter OE_WIDTH = 1;
 parameter E_WIDTH = O_WIDTH + OE_WIDTH;
-
 
     reg           [7:0]rkey_val[VOICES-1:0];
 
@@ -36,13 +33,24 @@ parameter E_WIDTH = O_WIDTH + OE_WIDTH;
 
     reg  signed   [7:0]pb_range;
  	
-	reg [7:0] data_out;
+	 reg [7:0] data_out;
 
     wire [O_WIDTH-1:0] ox;
     wire [V_WIDTH-1:0] vx;
-
-		
+	
 	wire [V_OSC-1:0] osc_adr_data;
+
+	assign ox = xxxx[E_WIDTH-1:OE_WIDTH];
+   assign vx = xxxx[V_WIDTH+E_WIDTH-1:E_WIDTH];
+
+	reg [O_WIDTH-1:0] ox_dly[3:0];
+
+	always @(posedge sCLK_XVXOSC)begin
+		ox_dly[0] <= ox;
+		ox_dly[1] <= ox_dly[0];
+		ox_dly[2] <= ox_dly[1];
+		ox_dly[3] <= ox_dly[2];
+	end
 	
 	generate
 		genvar osc3;
@@ -55,7 +63,6 @@ parameter E_WIDTH = O_WIDTH + OE_WIDTH;
 	assign data = (sysex_data_patch_send && (((osc_adr_data != 0) && osc_sel) || (com_sel && adr == 0))) ? data_out : 8'bz;
 
     integer v1,loop,o1,o2,kloop;
-
 
     always @(negedge reset_reg_N or posedge note_on)begin
         if(!reset_reg_N)begin
@@ -95,10 +102,9 @@ parameter E_WIDTH = O_WIDTH + OE_WIDTH;
             end
         end
     end
-
+	 
  /** @brief read data
 */	
-
 	always @(posedge read) begin
 		if(osc_sel)begin
             for (o2=0;o2<V_OSC;o2=o2+1)begin
@@ -117,100 +123,124 @@ parameter E_WIDTH = O_WIDTH + OE_WIDTH;
         end
 	end
 
-
+	
+	
+////////        Internals       ////////
 	wire [8:0]key = (b_ct[ox] <= 63) ?
         ((rkey_val[vx])-( 64 - b_ct[ox])+128) : ((rkey_val[vx])+(b_ct[ox][5:0])+128);
-
-////////        Internals       ////////
-    wire [23:0]ct_res;
-    wire [23:0]pb_res;
-    wire [23:0]ft_ct_res;
-    wire [23:0]ft_pb_res;
-    wire [23:0]key_scale;
 	
-	reg [8:0]key_r;
+	wire [8:0] ft_ct_key = (b_ft[ox] <= 63) ? (key-1) : (key+1);
+
+	wire [23:0]ct_res;
+	wire [23:0]ft_ct_res;
 	
-	reg [8:0] pb_pitch_key_r; 	
-	wire [8:0] pb_pitch_key = (pitch_val <= 14'h1fff) ? (key-(pb_range+1)) : (key+(pb_range+1));
+	constmap2 constmap(.sound(key), .clk(sCLK_XVXOSC), .constant(ct_res));
+	constmap2 ct_pb_pitchmap(.sound(ft_ct_key), .clk(sCLK_XVXOSC), .constant(ft_ct_res));
 
-	reg [8:0] pitch_key_r;	
-	wire [8:0] pitch_key = (pitch_val <= 14'h1fff) ? (key-pb_range) : (key+pb_range);
+	wire [23:0]pb_res;
+	wire [23:0]ft_pb_res;
+	wire [23:0]key_scale;
 	
-	reg [8:0] ft_ct_key_r;
-	wire [8:0] ft_ct_key = (b_ft[ox] <= 63) ? (key_r-1) : (key_r+1);
-
-	always @(posedge const_clk)begin
-		key_r <= key;
-		ft_ct_key_r <= ft_ct_key;
-		pb_pitch_key_r <= pb_pitch_key;
-		pitch_key_r <= pitch_key;
-	end
-
-	constmap2 constmap(.sound(key_r), .clk(const_clk), .constant(ct_res));
-   constmap2 ct_pb_pitchmap(.sound(ft_ct_key_r), .clk(const_clk), .constant(ft_ct_res));
 // Fine tune  //
-	wire [29:0]ft_range_l = (ct_res-ft_ct_res)*(64 - b_ft[ox]);//b_ft(down)
-	wire [29:0]ft_range_h = ((ft_ct_res - ct_res)*b_ft[ox][5:0]);// b_ft(up)
+	wire [29:0]ft_range_l = (ct_res-ft_ct_res)*(64 - b_ft[ox_dly[0]]);//b_ft(down)
+	wire [29:0]ft_range_h = ((ft_ct_res - ct_res)*b_ft[ox_dly[0]][5:0]);// b_ft(up)
 
-	wire [23:0]ft_pitch = (b_ft[ox] <= 63) ? (ct_res- (ft_range_l>>6)) //b_ft(down)
+	wire [23:0]ft_pitch = (b_ft[ox_dly[0]] <= 63) ? (ct_res- (ft_range_l>>6)) //b_ft(down)
 	: ((ct_res + (ft_range_h>>6)));//b_ft(up)
 
 // Pitch bend  //
-    constmap2 pitchmap_pb(.sound(pitch_key_r), .clk(const_clk), .constant(pb_res));
-	
-    constmap2 ft_pb_pitchmap(.sound(pb_pitch_key_r), .clk(const_clk), .constant(ft_pb_res));
+	wire [8:0] pitch_key = (pitch_val <= 14'h1fff) ? (key-pb_range) : (key+pb_range);
+	wire [8:0] pb_pitch_key = (pitch_val <= 14'h1fff) ? (key-(pb_range+1)) : (key+(pb_range+1));
+
+	constmap2 pitchmap_pb(.sound(pitch_key), .clk(sCLK_XVXOSC), .constant(pb_res));	
+   constmap2 ft_pb_pitchmap(.sound(pb_pitch_key), .clk(sCLK_XVXOSC), .constant(ft_pb_res));
 	
     wire [36:0]pb_range_l = (ft_pitch-pb_res)*(14'h2000-pitch_val);//pb(down)
     wire [36:0]pb_range_h = ((pb_res - ft_pitch)*pitch_val[12:0]);//pb(up)
 
-    wire [42:0]pb_ft_range_l = (b_ft[ox] <= 63) ? (pb_res - ft_pb_res)*(14'h2000-pitch_val)*(64-b_ft[ox])
-    : (pb_res - ft_pb_res)*(14'h2000-pitch_val)*b_ft[ox][5:0];
+    wire [42:0]pb_ft_range_l = (b_ft[ox_dly[0]] <= 63) ? (pb_res - ft_pb_res)*(14'h2000-pitch_val)*(64-b_ft[ox_dly[0]])
+    : (pb_res - ft_pb_res)*(14'h2000-pitch_val)*b_ft[ox_dly[0]][5:0];
 
-    wire [42:0]pb_ft_range_h = (b_ft[ox] <= 63) ? ((ft_pb_res - pb_res)*pitch_val[12:0]*(64-b_ft[ox]))//pb_up b_ft(down)
-    : ((ft_pb_res - pb_res)*pitch_val[12:0]*b_ft[ox][5:0]);// pb(up) b_ft(up)
+    wire [42:0]pb_ft_range_h = (b_ft[ox_dly[0]] <= 63) ? ((ft_pb_res - pb_res)*pitch_val[12:0]*(64-b_ft[ox_dly[0]]))//pb_up b_ft(down)
+    : ((ft_pb_res - pb_res)*pitch_val[12:0]*b_ft[ox_dly[0]][5:0]);// pb(up) b_ft(up)
 
-    wire [23:0]pitch_ = (pitch_val <= 14'h1fff) ? (b_ft[ox] <= 63) ? (ft_pitch-(pb_range_l>>13)-(pb_ft_range_l>>19))//pb(down) b_ft(down)
+    wire [23:0]full_pitch = (pitch_val <= 14'h1fff) ? (b_ft[ox_dly[0]] <= 63) ? (ft_pitch-(pb_range_l>>13)-(pb_ft_range_l>>19))//pb(down) b_ft(down)
     : (ft_pitch-(pb_range_l>>13)+(pb_ft_range_l>>19)) //pb(down) b_ft_(up)
-    : (b_ft[ox] <= 63) ? (ft_pitch+(pb_range_h>>13)-(pb_ft_range_h>>19))//pb(up) b_ft(down)
+    : (b_ft[ox_dly[0]] <= 63) ? (ft_pitch+(pb_range_h>>13)-(pb_ft_range_h>>19))//pb(up) b_ft(down)
     : (ft_pitch+(pb_range_h>>13)+(pb_ft_range_h>>19));// pb(up)
 
 // keyboard rate scaling //
-    wire [23:0]base_pitch_val;
-    assign base_pitch_val = pitch_ + (k_scale[ox] << 4);
+    wire [23:0]base_pitch_val = full_pitch + (k_scale[ox_dly[0]] << 4);
 
     wire [30:0]osc_res;
     wire [30:0]osc_res_l;
     wire [30:0]osc_res_h;
-    wire [23:0]osc_transp_range_l;
-    wire [23:0]osc_transp_range_h;
+//    wire [23:0]osc_transp_range_l;
+//    wire [23:0]osc_transp_range_h;
+    wire [30:0]osc_transp_range_l;
+    wire [30:0]osc_transp_range_h;
     wire [30:0]osc_transp_val_l;
     wire [30:0]osc_transp_val_h;
     wire [7:0]osc_ct_64;
-    assign ox = xxxx[E_WIDTH-1:OE_WIDTH];
-    assign vx = xxxx[V_WIDTH+E_WIDTH-1:E_WIDTH];
 
-    assign osc_pitch_val =  (osc_ft[ox] <= 8'h40) ?
-                    (osc_res - (osc_transp_val_l>>6)) :
-                    (osc_res + (osc_transp_val_h>>6));
+	 assign osc_ct_64 = (osc_ct[ox_dly[0]] <= 8'd64) ?
+            (64-osc_ct[ox_dly[0]]+1):(osc_ct[ox_dly[0]][5:0]+1);
 
-        assign osc_ct_64 = (osc_ct[ox] <= 8'd64) ?
-            (64-osc_ct[ox]+1):(osc_ct[ox][5:0]+1);
+	wire [23:0] osc_res_div, osc_res_l_div, osc_res_h_div;
+	
+	pitchdiv	pitchdiv_inst (
+		.denom ( osc_ct_64 ),
+		.numer ( base_pitch_val ),
+		.quotient ( osc_res_div )
+	);
+	pitchdiv	pitchdiv_l_inst (
+		.denom ( osc_ct_64+1 ),
+		.numer ( base_pitch_val ),
+		.quotient ( osc_res_l_div )
+	);
+	pitchdiv	pitchdiv_h_inst (
+		.denom ( osc_ct_64-1 ),
+		.numer ( base_pitch_val ),
+		.quotient ( osc_res_h_div )
+	);
 
-    assign osc_res =  (osc_ct[ox] <= 8'd64) ?// M:C Ratio
-        (base_pitch_val / (osc_ct_64)):
-        (base_pitch_val * (osc_ct_64));
+	reg [7:0]	osc_ct_64_r;
+	reg [23:0] 	osc_res_div_r, osc_res_l_div_r, osc_res_h_div_r, base_pitch_val_r;
+	
+	always @(posedge sCLK_XVXOSC)begin
+		osc_ct_64_r <= osc_ct_64;
+		osc_res_div_r <= osc_res_div;
+		osc_res_l_div_r <= osc_res_l_div;
+		osc_res_h_div_r <= osc_res_h_div;
+		base_pitch_val_r <= base_pitch_val;
+	end
+	
+    assign osc_res =  (osc_ct[ox_dly[1]] <= 8'd64) ?// M:C Ratio
+        (osc_res_div_r):
+        (base_pitch_val_r * (osc_ct_64_r));
 
-    assign osc_res_l =  (osc_ct[ox] <= 8'd64) ?// M:C Ratio
-        (base_pitch_val / (osc_ct_64+1)):
-        (base_pitch_val * (osc_ct_64-1));
+    assign osc_res_l =  (osc_ct[ox_dly[1]] <= 8'd64) ?// M:C Ratio
+        (osc_res_l_div_r):
+        (base_pitch_val_r * (osc_ct_64_r-1));
 
-    assign osc_res_h =  (osc_ct[ox] <= 8'd63) ?// M:C Ratio
-        (base_pitch_val / ((osc_ct_64)-1)):
-        (base_pitch_val * (osc_ct_64+1));
+    assign osc_res_h =  (osc_ct[ox_dly[1]] <= 8'd63) ?// M:C Ratio
+        (osc_res_h_div_r):
+        (base_pitch_val_r * (osc_ct_64_r+1));
 
-    assign osc_transp_range_l = osc_res - osc_res_l;
-    assign osc_transp_range_h = osc_res_h - osc_res;
-    assign osc_transp_val_l = (64 - osc_ft[ox]) * osc_transp_range_l;  //
-    assign osc_transp_val_h = (osc_ft[ox][5:0]) * osc_transp_range_h;    //
+	reg [30:0]	osc_res_r, osc_res_l_r, osc_res_h_r; 
+
+	always @(posedge sCLK_XVXOSC)begin
+		osc_res_r <= osc_res;
+		osc_res_l_r <= osc_res_l;
+		osc_res_h_r <= osc_res_h;
+	end
+    assign osc_transp_range_l = osc_res_r - osc_res_l_r;
+    assign osc_transp_range_h = osc_res_h_r - osc_res_r;
+    assign osc_transp_val_l = (64 - osc_ft[ox_dly[2]]) * osc_transp_range_l;  //
+    assign osc_transp_val_h = (osc_ft[ox_dly[2]][5:0]) * osc_transp_range_h;    //
+
+    assign osc_pitch_val =  (osc_ft[ox_dly[2]] <= 8'h40) ?
+                    (osc_res_r - (osc_transp_val_l>>6)) :
+                    (osc_res_r + (osc_transp_val_h>>6));
 
 endmodule

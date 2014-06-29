@@ -29,7 +29,9 @@ module midi_decoder(
 	output reg [7:0]				prg_ch_data,
 // memory controller
 	output							write,
+	output reg						data_ready,
 	output							read,
+	output							read_write,
 	output reg						sysex_data_patch_send,
 	output [6:0]					adr,
 	inout	 [7:0]					data,
@@ -55,7 +57,6 @@ parameter V_WIDTH = 3;
 
 // -----        End Macros     ---- //
 
-
 reg   key_on[VOICES-1:0];
 
 reg   [7:0]key_val[VOICES-1:0];
@@ -67,6 +68,7 @@ reg [7:0]cur_status_r;
 reg [7:0]midi_bytes,addr_cnt;
 reg signed[7:0]databyte;
 reg voice_free_r[VOICES-1:0];
+reg reg_voice_free [VOICES-1:0];
 reg [V_WIDTH:0]cur_slot;
 
     reg [V_WIDTH-1:0]first_free_voice;
@@ -79,7 +81,6 @@ reg [V_WIDTH:0]cur_slot;
     reg [V_WIDTH-1:0]slot_off;
 //    reg off_note_error_flag;
 
-    reg 		data_ready;
     reg [2:0]	bank_adr_s, bank_adr_l;
 	
 	wire [2:0] bank_adr;
@@ -100,9 +101,12 @@ reg [V_WIDTH:0]cur_slot;
 	
 	assign midi_send_byte = (midi_send_byte_req[1] && ~midi_send_byte_req[2]) ? 1'b1 : 1'b0;
 	
-	assign data = (~sysex_data_patch_send && !read ) ? data_out : 8'bz;
+//	assign data = (~sysex_data_patch_send && !read ) ? data_out : 8'bz;
+	assign data = write_dataenable ? data_out : 8'bz;
 	
-	wire read_write;
+//	wire data_out_enable = ( sysex_data_patch_load || sysex_data_bank_load || sysex_ctrl_data);
+	
+	wire write_dataenable;
 	
 	assign write = (read_write && ~sysex_data_patch_send) ? 1'b1 : 1'b0;
 	assign read = (read_write && sysex_data_patch_send) ? 1'b1 : 1'b0;
@@ -155,7 +159,8 @@ wire is_st_note_on=(
          .data_ready ( data_ready ),
          .bank_adr ( bank_adr ),
 
-         .write  ( read_write  ),
+         .read_write  ( read_write  ),
+			.write_dataenable ( write_dataenable ),
          .env_sel ( env_sel ),
          .osc_sel ( osc_sel ),
          .m1_sel ( m1_sel ),
@@ -166,7 +171,8 @@ wire is_st_note_on=(
 
     always @(posedge CLOCK_25)begin
        for(i0=0; i0 < VOICES ; i0=i0+1) begin
-           voice_free_r[i0] <= voice_free[i0];
+				reg_voice_free[i0] <= voice_free[i0];
+           voice_free_r[i0] <= reg_voice_free[i0]; 
         end
     end
 
@@ -197,21 +203,16 @@ wire is_st_note_on=(
 
     always @(negedge reset_reg_N or posedge is_data_byte_r)begin
         if (!reset_reg_N) begin
-//            free_voice_found <= 1'b1;
-//            first_free_voice<=0;
             free_voice_found = 1'b1;
             first_free_voice = 0;
         end
         else begin
             for(i3=VOICES-1,free_voices_found=0; i3 >= 0 ; i3=i3-1) begin
-//                free_voice_found <= 1'b0;
                 free_voice_found = 1'b0;
                 if(voice_free_r[i3])begin
                     free_voices_found = free_voices_found +1;
-//                    first_free_voice <= i3;
                     first_free_voice = i3;
                 end
-//                if (free_voices_found > 0) free_voice_found <= 1'b1;
                 if (free_voices_found > 0) free_voice_found = 1'b1;
             end
         end

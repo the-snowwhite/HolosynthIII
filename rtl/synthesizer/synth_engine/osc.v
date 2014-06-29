@@ -87,11 +87,6 @@ parameter ox_offset = (V_OSC * VOICES ) - 1;
         end		 
 	end
 
-    sine_lookup osc_sine(.clk( sCLK_XVXENVS ), .addr( tablelookup ), .sine_value( sine_lut_out ));
-
-    assign tablelookup = phase_acc + mod + (o_offs[ox_dly[ox_offset]] << 3);
-
-
 	nco2 #(.VOICES(VOICES),.V_OSC(V_OSC),.V_WIDTH(V_WIDTH),.V_ENVS(V_ENVS),.O_WIDTH(O_WIDTH))  nco_inst (
 		.reset_reg_N(reset_reg_N) ,   // input  reset_reg_N_sig
 		.OSC_CLK ( OSC_CLK ),
@@ -103,5 +98,9 @@ parameter ox_offset = (V_OSC * VOICES ) - 1;
 		.vx    ( vx ),
 		.phase_acc ( phase_acc )
 	);
+
+    assign tablelookup = phase_acc + mod + (o_offs[ox_dly[ox_offset]] << 3);
+
+    sine_lookup osc_sine(.clk( sCLK_XVXENVS ), .addr( tablelookup ), .sine_value( sine_lut_out ));
 
 endmodule

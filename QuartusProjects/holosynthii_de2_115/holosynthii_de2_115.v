@@ -292,17 +292,17 @@ inout		    [16:0]		HSMC_TX_D_P;
 
 //parameter VOICES = 256;
 //parameter VOICES = 128;
-//parameter VOICES = 64;
-parameter VOICES = 32;
+parameter VOICES = 64;
+//parameter VOICES = 32;
 //parameter VOICES = 16;
 //parameter VOICES = 8;	// number of simultainious voices 
 //parameter VOICES = 4;	// number of simultainious voices
 //parameter VOICES = 2;	// number of simultainious voices
 //parameter VOICES = 1;	// number of simultainious voices
 
-//parameter V_OSC = 8;  //!NEEK
+parameter V_OSC = 8;  //!NEEK
 //parameter V_OSC = 6;
-parameter V_OSC = 4;	// number of oscilators pr. voice.
+//parameter V_OSC = 4;	// number of oscilators pr. voice.
 //parameter V_OSC = 3;
 //parameter V_OSC = 2;	// number of oscilators pr. voice.
 //parameter V_OSC = 1;
