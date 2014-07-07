@@ -52,28 +52,28 @@ parameter num_mul = 22;
     reg           [7:0]   r_r[V_ENVS-1:0][3:0];
     reg signed    [7:0]   l_r[V_ENVS-1:0][3:0];
 
-    wire [8:0]st_m;
-    reg [8:0]st;
-    reg [V_WIDTH-1:0]cur_voice;
-    reg [E_WIDTH-1:0]cur_env;
-    reg signed [7:0]r[3:0];
-    reg signed [7:0]l[3:0];
-    wire signed[36:0]level_m;
+	wire [8:0]st_m;
+	reg [8:0]st;
+	reg [V_WIDTH-1:0]cur_voice;
+	reg [E_WIDTH-1:0]cur_env;
+	reg signed [7:0]r[3:0];
+	reg signed [7:0]l[3:0];
+	wire signed[36:0]level_m;
 	reg signed[36:0]level;
 	wire signed[36:0]cur_level = level_m + quotient;
 	wire signed[7:0]oldlevel_m;
-    reg signed[7:0]oldlevel;
-    wire [15:0]cur_denom_m;
-    wire signed [36:0]cur_numer_m;
-    reg [15:0]next_denom;
-    reg signed [36:0]next_numer;
-    wire signed[36:0]quotient;
+	reg signed[7:0]oldlevel;
+	wire [15:0]cur_denom_m;
+	reg [15:0]next_denom;
+	wire signed [36:0]cur_numer_m;
+	reg signed [36:0]next_numer;
+	wire signed[36:0]quotient;
 
-    reg [E_WIDTH-1:0] oi;
-    reg [V_WIDTH-1:0] vi;
-    reg init = 1;
+	reg [E_WIDTH-1:0] oi;
+	reg [V_WIDTH-1:0] vi;
+	reg init = 1;
 
-    reg [VOICES-1:0] go_rate1;
+	reg [VOICES-1:0] go_rate1;
 	
 	reg [7:0] data_out;
 	
@@ -130,8 +130,8 @@ parameter num_mul = 22;
 	
     st_reg_ram #(.VOICES(VOICES),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.E_WIDTH(E_WIDTH))st_reg_ram_inst
 (
-    .q({cur_denom_m,cur_numer_m,level_m,oldlevel_m,st_m}) ,  // output [16+37+37+8+21+9-1:0] q_sig
-    .d({next_denom,next_numer,level,oldlevel,st}) ,    // input [15+36+36+7+20+8:0] d_sig
+    .q({cur_denom_m,cur_numer_m,level_m,oldlevel_m,st_m}) ,  // output [16+37+37+8+9-1:0] q_sig
+    .d({next_denom,next_numer,level,oldlevel,st}) ,    // input 16+37+37+8+9-1:0] d_sig
     .write_address({cur_voice,cur_env}) ,   // input  write_address_sig
     .read_address({e_voice_sel,e_env_sel}) ,    // input  read_address_sig
     .we(1'b1) , // input  we_sig
@@ -177,7 +177,7 @@ parameter num_mul = 22;
                             voice_free[cur_voice] <= 1'b0;
                             go_rate1[cur_voice] <= 1'b1;
                         end
-						osc_accum_zero[cur_env] <= 1'b0;
+								osc_accum_zero[cur_env] <= 1'b0;
                         st <= RATE1;
                     end
                     else begin
@@ -397,9 +397,9 @@ parameter num_mul = 22;
                         next_numer <= 36'h0000000;
                         next_denom <= 8'h01;
                         if(cur_env == mainvol_env_nr) begin
-							voice_free[cur_voice] <= 1'b1;
-							osc_accum_zero[cur_env] <= 1'b1;
-						end
+									voice_free[cur_voice] <= 1'b1;
+									osc_accum_zero[cur_env] <= 1'b1;
+								end
                         st <= IDLE;
                     end
                     else begin
@@ -418,7 +418,7 @@ parameter num_mul = 22;
                             oldlevel <= level_m[36:29];
                             next_numer <= (l[0]-oldlevel_m)<<<num_mul;
                             next_denom <= r[0]*r[0];
-							osc_accum_zero[cur_env] <= 1'b1;
+									 osc_accum_zero[cur_env] <= 1'b1;
                             st <= RATE1;
                         end
                         else begin

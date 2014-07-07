@@ -156,7 +156,7 @@ module audio_pll (
 		altpll_component.c0_mode = "even",
 		altpll_component.c0_ph = 0,
 		altpll_component.c1_high = 32,
-		altpll_component.c1_initial = 17,
+		altpll_component.c1_initial = 1,
 		altpll_component.c1_low = 32,
 		altpll_component.c1_mode = "even",
 		altpll_component.c1_ph = 0,
@@ -227,7 +227,7 @@ endmodule
 // Retrieval info: PRIVATE: PHASE_RECONFIG_FEATURE_ENABLED STRING "1"
 // Retrieval info: PRIVATE: PHASE_RECONFIG_INPUTS_CHECK STRING "0"
 // Retrieval info: PRIVATE: PHASE_SHIFT0 STRING "0.00000000"
-// Retrieval info: PRIVATE: PHASE_SHIFT1 STRING "90.00000000"
+// Retrieval info: PRIVATE: PHASE_SHIFT1 STRING "0.00000000"
 // Retrieval info: PRIVATE: PHASE_SHIFT_STEP_ENABLED_CHECK STRING "0"
 // Retrieval info: PRIVATE: PHASE_SHIFT_UNIT0 STRING "deg"
 // Retrieval info: PRIVATE: PHASE_SHIFT_UNIT1 STRING "deg"
@@ -326,7 +326,7 @@ endmodule
 // Retrieval info: CONSTANT: c0_mode STRING "even"
 // Retrieval info: CONSTANT: c0_ph NUMERIC "0"
 // Retrieval info: CONSTANT: c1_high NUMERIC "32"
-// Retrieval info: CONSTANT: c1_initial NUMERIC "17"
+// Retrieval info: CONSTANT: c1_initial NUMERIC "1"
 // Retrieval info: CONSTANT: c1_low NUMERIC "32"
 // Retrieval info: CONSTANT: c1_mode STRING "even"
 // Retrieval info: CONSTANT: c1_ph NUMERIC "0"

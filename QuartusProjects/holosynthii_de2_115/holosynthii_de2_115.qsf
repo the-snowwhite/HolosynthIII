@@ -925,7 +925,7 @@ set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name VERILOG_INPUT_VERSION VERILOG_2001
 set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
 set_global_assignment -name ENABLE_SIGNALTAP OFF
-set_global_assignment -name USE_SIGNALTAP_FILE pitch_key4.stp
+set_global_assignment -name USE_SIGNALTAP_FILE env_failure.stp
 set_global_assignment -name USE_CONFIGURATION_DEVICE ON
 set_global_assignment -name CYCLONEIII_CONFIGURATION_DEVICE EPCS64
 set_global_assignment -name CRC_ERROR_OPEN_DRAIN OFF
@@ -941,7 +941,7 @@ set_global_assignment -name RESERVE_DATA1_AFTER_CONFIGURATION "USE AS REGULAR IO
 set_global_assignment -name RESERVE_DCLK_AFTER_CONFIGURATION "USE AS REGULAR IO"
 set_global_assignment -name RESERVE_FLASH_NCE_AFTER_CONFIGURATION "USE AS REGULAR IO"
 set_global_assignment -name STRATIXIII_UPDATE_MODE STANDARD
-set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON
+set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS OFF
 set_global_assignment -name SYNCHRONIZER_IDENTIFICATION AUTO
 set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL ON
 set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS ON
@@ -951,24 +951,8 @@ set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
 set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
 set_global_assignment -name ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP ON
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY qout
-set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to "synthesizer:synthesizer_inst|audio_271_pll:audio_pll_inst|altpll:altpll_component|audio_271_pll_altpll:auto_generated|wire_pll1_clk[0]"
-set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to "synthesizer:synthesizer_inst|audio_271_pll:audio_pll_inst|altpll:altpll_component|audio_271_pll_altpll:auto_generated|wire_pll1_clk[1]"
-#set_global_assignment -name SYSTEMVERILOG_FILE TCON.sv
-#set_global_assignment -name SIGNALTAP_FILE stp1.stp
-#set_global_assignment -name VERILOG_FILE Reset_Delay.v
-#set_global_assignment -name VERILOG_FILE ram8x2048.v
-#set_global_assignment -name VERILOG_FILE lcd_spi_cotroller.v
-#set_global_assignment -name SYSTEMVERILOG_FILE display.sv
-#set_global_assignment -name VERILOG_FILE charrom_64.v
-#set_global_assignment -name VERILOG_FILE char_disp.v
-#set_global_assignment -name VERILOG_FILE three_wire_controller.v
-#set_global_assignment -name SYSTEMVERILOG_FILE touch.sv
-#set_global_assignment -name VERILOG_FILE midi_clk_gen.v
-#set_global_assignment -name VERILOG_FILE mul_mem.v
-#set_global_assignment -name VERILOG_FILE adc_spi_controller.v
-#set_global_assignment -name QSYS_FILE nios_2.qsys
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC_FOR_AREA ON
-set_global_assignment -name PHYSICAL_SYNTHESIS_MAP_LOGIC_TO_MEMORY_FOR_AREA ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_MAP_LOGIC_TO_MEMORY_FOR_AREA OFF
 set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE BALANCED
 set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
@@ -976,40 +960,6 @@ set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_ASYNCHRONOUS_SIGNAL_PIPELINING ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name SEED 1
-set_global_assignment -name SDC_FILE holosynthii_de2_115.sdc
-set_global_assignment -name VERILOG_FILE holosynthii_de2_115.v
-set_global_assignment -name SYSTEMVERILOG_FILE synthesizer.sv
-set_global_assignment -name SYSTEMVERILOG_FILE utils.sv
-set_global_assignment -name QIP_FILE megawizard/audio_pll.qip
-set_global_assignment -name QIP_FILE megawizard/sys_pll.qip
-set_global_assignment -name VERILOG_FILE midi_uart.v
-set_global_assignment -name VERILOG_FILE midi_decoder.v
-set_global_assignment -name VERILOG_FILE address_decoder.v
-set_global_assignment -name VERILOG_FILE midi_controllers.v
-set_global_assignment -name VERILOG_FILE synth_engine.v
-set_global_assignment -name QIP_FILE ../../megawizard_common/pitchdiv.qip
-set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/synth_engine/note_key_vel_sync.v
-set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/synth_engine/velocity.v
-set_global_assignment -name VERILOG_FILE synth_clk_gen.v
-set_global_assignment -name VERILOG_FILE timing_gen.v
-set_global_assignment -name VERILOG_FILE reset_delay.v
-set_global_assignment -name VERILOG_FILE env_gen_indexed.v
-set_global_assignment -name VERILOG_FILE div_module.v
-set_global_assignment -name VERILOG_FILE st_reg_ram.v
-set_global_assignment -name VERILOG_FILE pitch_control.v
-set_global_assignment -name VERILOG_FILE osc.v
-set_global_assignment -name VERILOG_FILE sine_lookup.v
-set_global_assignment -name VERILOG_FILE blockram512x16bits_2clklatency.v
-set_global_assignment -name VERILOG_FILE audio_i2s_driver.v
-set_global_assignment -name VERILOG_FILE I2C_Controller.v
-set_global_assignment -name VERILOG_FILE I2C_AV_Config.v
-set_global_assignment -name SYSTEMVERILOG_FILE mixer_2.sv
-set_global_assignment -name SIGNALTAP_FILE sysex_save.stp
-set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/synth_engine/nco2.v
-set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/synth_engine/nco_ram.v
-set_global_assignment -name MIF_FILE ../../megawizard_common/toneconstmap2.mif
-set_global_assignment -name QIP_FILE ../../megawizard_common/constmaprom2.qip
-set_global_assignment -name SIGNALTAP_FILE pitch_key.stp
 set_global_assignment -name SEARCH_PATH ../../rtl
 set_global_assignment -name SEARCH_PATH ../../rtl/synthesizer
 set_global_assignment -name SEARCH_PATH ../../synthesizer/synth_engine
@@ -1020,9 +970,41 @@ set_global_assignment -name SEARCH_PATH ..\\..\\rtl\\synthesizer\\synth_engine
 set_global_assignment -name SEARCH_PATH ..\\..\\megawizard_common
 set_global_assignment -name SEARCH_PATH megawizard
 set_global_assignment -name SEARCH_PATH ./
-set_global_assignment -name SIGNALTAP_FILE pitch_key1.stp
-set_global_assignment -name SIGNALTAP_FILE pitch_key_osc1.stp
-set_global_assignment -name SIGNALTAP_FILE pitch_key2.stp
-set_global_assignment -name SIGNALTAP_FILE pitch_key3.stp
-set_global_assignment -name SIGNALTAP_FILE pitch_key4.stp
+
+
+
+set_global_assignment -name VERILOG_FILE holosynthii_de2_115.v
+set_global_assignment -name SDC_FILE holosynthii_de2_115.sdc
+set_global_assignment -name SYSTEMVERILOG_FILE ../../Verilog_functions/utils.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/synthesizer.sv
+set_global_assignment -name VERILOG_FILE ../../rtl/I2C_Controller.v
+set_global_assignment -name VERILOG_FILE ../../rtl/I2C_AV_Config.v
+set_global_assignment -name QIP_FILE megawizard/audio_pll.qip
+set_global_assignment -name QIP_FILE megawizard/sys_pll.qip
+set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/midi_uart.v
+set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/midi_decoder.v
+set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/address_decoder.v
+set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/midi_controllers.v
+set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/reset_delay.v
+set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/synth_engine.v
+set_global_assignment -name QIP_FILE ../../megawizard_common/pitchdiv.qip
+set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/synth_engine/note_key_vel_sync.v
+set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/synth_engine/velocity.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/synthesizer/synth_engine/synth_clk_gen.sv
+set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/synth_engine/timing_gen.v
+set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/synth_engine/env_gen_indexed.v
+set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/synth_engine/div_module.v
+set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/synth_engine/st_reg_ram.v
+set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/synth_engine/pitch_control.v
+set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/synth_engine/osc.v
+set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/synth_engine/sine_lookup.v
+set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/synth_engine/audio_i2s_driver.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/synthesizer/synth_engine/mixer_2.sv
+set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/synth_engine/nco2.v
+set_global_assignment -name VERILOG_FILE ../../rtl/synthesizer/synth_engine/nco_ram.v
+set_global_assignment -name MIF_FILE ../../megawizard_common/toneconstmap2.mif
+set_global_assignment -name MIF_FILE "../../megawizard_common/quartersine_512-16.mif"
+set_global_assignment -name QIP_FILE ../../megawizard_common/constmaprom2.qip
+set_global_assignment -name QIP_FILE ../../megawizard_common/blockram512x16bits_2clklatency.qip
+set_global_assignment -name SIGNALTAP_FILE env_failure.stp
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
