@@ -10,25 +10,25 @@ module mixer_2 (
 	input signed [7:0]          level_mul,    // envgen output
 	input signed [16:0]         sine_lut_out, // sine
 
-	inout [7:0]         		data,
-	input [6:0]        		 	adr,
-	input               		write,
-	input 						read,
-	input						sysex_data_patch_send,
-	input               		osc_sel,
-	input               		com_sel,
-	input               		m1_sel,
-	input               		m2_sel,
+	inout [7:0]							data,
+	input [6:0]							adr,
+	input									write,
+	input									read,
+	input									sysex_data_patch_send,
+	input									osc_sel,
+	input									com_sel,
+	input									m1_sel,
+	input									m2_sel,
 // Outputs -- //
 // osc
-	output reg signed [10:0] 	modulation,
+	output reg signed [10:0]		modulation,
 // sound data out
 `ifdef	_24BitAudio
-	output signed [23:0]        lsound_out, // 24-bits
-	output signed [23:0]        rsound_out  // 24-bits
+	output signed [23:0]				lsound_out, // 24-bits
+	output signed [23:0]				rsound_out  // 24-bits
 `else
-	output signed [15:0]        lsound_out, // 16-bits
-	output signed [15:0]        rsound_out  // 16-bits
+	output signed [15:0]				lsound_out, // 16-bits
+	output signed [15:0]				rsound_out  // 16-bits
 `endif 
 );
 
@@ -44,7 +44,8 @@ parameter E_WIDTH	= O_WIDTH + OE_WIDTH;
 parameter x_offset = (V_OSC * VOICES ) - 2;
 parameter vo_x_offset = x_offset;
 
-parameter output_volume_scaling = 35 + (V_WIDTH / 2) + O_WIDTH;
+//parameter output_volume_scaling = 35 + (V_WIDTH / 2) + O_WIDTH;
+parameter output_volume_scaling = 37 + (V_WIDTH / 2);
 
    reg  signed [7:0]osc_lvl[V_OSC-1:0];      // osc_lvl  osc_buf[2]
    reg  signed [7:0]osc_mod[V_OSC-1:0];      // osc_mod    osc_buf[3]
@@ -110,13 +111,9 @@ parameter output_volume_scaling = 35 + (V_WIDTH / 2) + O_WIDTH;
 	wire signed [63:0] sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_l;
 	wire signed [63:0] sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_r;
 			
-	wire signed [10:0] modulation_sum;
-	
 	assign sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_l = reg_sine_level_mul_osc_lvl_m_vol_data * reg_voice_vol_env_lvl * (127 - osc_pan[ox_dly[1]]);
 	assign sine_level_mul_osc_lvl_m_vol_osc_pan_main_vol_env_r = reg_sine_level_mul_osc_lvl_m_vol_data * reg_voice_vol_env_lvl * osc_pan[ox_dly[1]];
 
-	assign modulation_sum = (( mod_matrix_out_sum + fb_matrix_out_sum ) >>> (24 + O_WIDTH ));  
-	
 	wire signed [63:0] lsound_out_full = reg_voice_sound_sum_l * m_vol;
 	wire signed [63:0] rsound_out_full = reg_voice_sound_sum_r * m_vol;
 	
@@ -243,6 +240,11 @@ parameter output_volume_scaling = 35 + (V_WIDTH / 2) + O_WIDTH;
 	assign mod_matrix_out_sum = (reg_mod_matrix_mul[ox_dly[V_OSC]] * osc_mod_in[ox_dly[V_OSC]]);// >>> ( O_WIDTH + V_WIDTH);
 	assign fb_matrix_out_sum = (reg_fb_matrix_mul[ox_dly[V_OSC]] * osc_feedb_in[ox_dly[V_OSC]]);// >>> (O_WIDTH + V_WIDTH);
 
+	wire signed [10:0] modulation_sum;
+	
+//	assign modulation_sum = (( mod_matrix_out_sum + fb_matrix_out_sum ) >>> (24 + O_WIDTH ));  
+	assign modulation_sum = (( mod_matrix_out_sum + fb_matrix_out_sum ) >>> (26 ));  
+	
 /**	@brief output mixed sounddata to out register
 */	 
 	integer mmoloop;

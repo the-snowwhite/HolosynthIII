@@ -61,20 +61,26 @@ parameter E_WIDTH = O_WIDTH + OE_WIDTH;
 
 //-----		Registers		-----//
 
-
-/////// LED Display ////////
-assign GLED[8:1] = keys_on[((VOICES -1) & 7):0];
-
-assign RLED[16:1] = voice_free[((VOICES - 1) & 15):0];
-
-
 	wire reg_reset = button[1];
 	wire data_reset = button[2];
-	wire data_DLY0, data_DLY1, data_DLY2, reg_DLY1, reg_DLY2;	
-	
-	wire reset_reg_N = reg_DLY0;
-	wire reset_data_N = data_DLY2;
+	wire data_DLY0, data_DLY1, data_DLY2, reg_DLY1, reg_DLY2;
 
+	reg reset_reg_N, reset_reg_r[3], reset_data_N, reset_data_r[4];
+	
+	always @(posedge CLOCK_25) begin
+		reset_reg_r[0] <= reg_DLY0;
+		reset_reg_r[1] <= reset_reg_r[0];
+		reset_reg_r[2] <= reset_reg_r[1];
+		reset_reg_N <= (!reset_reg_r[2] && !reset_reg_r[1]) ? 1'b0 : 1'b1;
+	end
+	always @(posedge OSC_CLK) begin
+		reset_data_r[0] <= data_DLY2;
+		reset_data_r[1] <= reset_data_r[0];
+		reset_data_r[2] <= reset_data_r[1];
+		reset_data_r[3] <= reset_data_r[2];
+		reset_data_N <= (!reset_data_r[3] && !reset_data_r[2] && !reset_data_r[1]) ? 1'b0 : 1'b1;
+	end
+	
 //---	Midi	---//
 // inputs
 	
@@ -97,6 +103,10 @@ assign RLED[16:1] = voice_free[((VOICES - 1) & 15):0];
 	wire [13:0] 		pitch_val;
 // from env gen
 	wire [VOICES-1:0] 	voice_free;
+/////// LED Display ////////
+assign GLED[8:1] = keys_on[((VOICES -1) & 7):0];
+
+assign RLED[16:1] = voice_free[((VOICES - 1) & 'hF):0];
 
 // inputs
 // outputs
@@ -114,10 +124,8 @@ assign RLED[16:1] = voice_free[((VOICES - 1) & 15):0];
 
 	wire HC_LCD_CLK, HC_VGA_CLOCK;
 
-	wire	CLOCK_25;
-
-	wire AUD_CTRL_CLK;
-	wire TONE_CTRL_CLK;
+	wire CLOCK_25;
+	wire OSC_CLK;
 	
 	wire [63:0] lvoice_out;
 	wire [63:0] rvoice_out;
@@ -201,12 +209,12 @@ sys_pll	sys_disp_pll_inst	(
 	`endif
 	`ifdef _CycloneV
 		.refclk		( EXT_CLOCK_IN ),
-		.outclk_0	( TONE_CTRL_CLK ),  // 180.555556 Mhz  Mhz
+		.outclk_0	( OSC_CLK ),  // 180.555556 Mhz  Mhz
 		.outclk_1	( AUD_XCK ) // 16.927083 Mhz
 //		.outclk_1	( ) // 16.927083 Mhz
 	`else
 		.inclk0		( EXT_CLOCK_IN ),
-		.c0	( TONE_CTRL_CLK ),  // 180.555556 Mhz --> 270 Mhz
+		.c0	( OSC_CLK ),  // 180.555556 Mhz --> 270 Mhz
 		.c1	( AUD_XCK ) // 16.927083 Mhz
 //		.c1	( ) // 16.927083 Mhz
 	`endif
@@ -288,13 +296,11 @@ midi_controllers #(.VOICES(VOICES),.V_OSC(V_OSC)) midi_controllers_inst(
 	//////////// Sound Generation /////////////	
 
 	assign	AUD_ADCLRCK	=	AUD_DACLRCK;
-
-	//assign	AUD_XCK		=	AUD_CTRL_CLK;			
 					
 // 2CH Audio Sound output -- Audio Generater //
 synth_engine #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.O_WIDTH(O_WIDTH),.OE_WIDTH(OE_WIDTH)) synth_engine_inst	(		        
 // AUDIO CODEC //		
-	.OSC_CLK( TONE_CTRL_CLK ),				// input
+	.OSC_CLK( OSC_CLK ),				// input
 		.AUDIO_CLK( AUD_XCK ),				// input
 //	.AUDIO_CLK( AUD_XCK ),					// output
 	.reset_reg_N(reset_reg_N) ,			// input  reset_sig

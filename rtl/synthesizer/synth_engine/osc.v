@@ -1,7 +1,6 @@
 module osc (
     input         				reset_reg_N,
     input         				reset_data_N,
-    input         				OSC_CLK,
     input         				sCLK_XVXENVS,
     input         				sCLK_XVXOSC,
     inout         				[7:0] data,
@@ -89,7 +88,6 @@ parameter ox_offset = (V_OSC * VOICES ) - 1;
 
 	nco2 #(.VOICES(VOICES),.V_OSC(V_OSC),.V_WIDTH(V_WIDTH),.V_ENVS(V_ENVS),.O_WIDTH(O_WIDTH))  nco_inst (
 		.reset_reg_N(reset_reg_N) ,   // input  reset_reg_N_sig
-		.OSC_CLK ( OSC_CLK ),
 		.sCLK_XVXOSC (sCLK_XVXOSC ),
 		.sCLK_XVXENVS (sCLK_XVXENVS ),
 		.osc_pitch_val ( osc_pitch_val ),

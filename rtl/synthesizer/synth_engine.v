@@ -148,7 +148,6 @@ osc #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS),.V_WIDTH(V_WIDTH),.O_WIDTH(O
 (
 	.reset_reg_N( reset_reg_N ),		// ObjectKind=Sheet Entry|PrimaryId=osc.v-reset_reg_N
 	.reset_data_N( reset_data_N ),	// ObjectKind=Sheet Entry|PrimaryId=pitch_control.v-reset_reg_N
-	.OSC_CLK( OSC_CLK ),                 // ObjectKind=Sheet Entry|PrimaryId=osc.v-OSC_CLK
 	.sCLK_XVXENVS( sCLK_XVXENVS ),// ObjectKind=Sheet Entry|PrimaryId=osc.v-sCLK_XVXENVS
 	.sCLK_XVXOSC( sCLK_XVXOSC ),// ObjectKind=Sheet Entry|PrimaryId=osc.v-sCLK_XVXOSC
 	.xxxx( xxxx ),                  // ObjectKind=Sheet Entry|PrimaryId=osc.v-xxxx[5..0]

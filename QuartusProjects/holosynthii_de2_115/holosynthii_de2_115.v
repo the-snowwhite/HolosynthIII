@@ -292,9 +292,9 @@ inout		    [16:0]		HSMC_TX_D_P;
 
 //parameter VOICES = 256;
 //parameter VOICES = 128;
-parameter VOICES = 64;
+//parameter VOICES = 64;
 //parameter VOICES = 32;
-//parameter VOICES = 16;
+parameter VOICES = 16;
 //parameter VOICES = 8;	// number of simultainious voices 
 //parameter VOICES = 4;	// number of simultainious voices
 //parameter VOICES = 2;	// number of simultainious voices
@@ -336,11 +336,8 @@ assign HSMC_TX_D_P[12] = AUD_XCK; // HSMC_TX_D_P12 		Violet
 
 //	assign aud_lrck = AUD_DACLRCK;
 	assign HSMC_TX_D_P[11] = AUD_DACLRCK; // HSMC_TX_D_P11	Green
-	
-	wire aud_dat;
-	
-	assign AUD_DACDAT = aud_dat;
-	assign HSMC_TX_D_N[10] = aud_dat; // HSMC_TX_D_N10 	White
+		
+	assign HSMC_TX_D_N[10] = AUD_DACDAT; // HSMC_TX_D_N10 	White
 
 	
 	
@@ -449,74 +446,53 @@ assign SMA_CLKOUT = AUD_XCK;
 //    assign N_irq[1] = N_load_sig;
     
 synthesizer #(.VOICES(VOICES),.V_OSC(V_OSC),.V_ENVS(V_ENVS)) synthesizer_inst(
-    .EXT_CLOCK_IN(CLOCK_50) ,   // input  CLOCK_50_sig
-//    .DLY0(iRST_n),
-    .reg_DLY0(iRST_n),
-    .MIDI_Rx_DAT(midi_rxd) ,    // input  MIDI_DAT_sig (inverted due to inverter in rs232 chip)
-	.midi_txd ( midi_txd ),		// output midi transmit signal (inverted due to inverter in rs232 chip)
-    .button( KEY[3:0] ),            //  Button[3:0]
+	.EXT_CLOCK_IN			(CLOCK_50) ,   // input  CLOCK_50_sig
+	.reg_DLY0				(iRST_n),
+	.MIDI_Rx_DAT			(midi_rxd) ,    // input  MIDI_DAT_sig (inverted due to inverter in rs232 chip)
+	.midi_txd 				( midi_txd ),		// output midi transmit signal (inverted due to inverter in rs232 chip)
+	.button					( KEY[3:0] ),            //  Button[3:0]
 //    .SW ( SW[17:0]),
     .GLED(LEDG),                            //  Green LED [4:1]
     .RLED(LEDR),                            //  Green LED [4:1]
 //  .hex_disp(hex_disp),
 `ifdef _Nios
-    .N_adr_data_rdy(N_adr_data_rdy) ,   // input  N_ctrl_sig
-    .N_adr(N_adr) , // input [9:0] N_synth_num_sig
-    .N_synth_out_data(N_synth_out_data),    // output [7:0] N_synth_data_sig
-    .N_synth_in_data(N_synth_in_data),  // input [7:0] N_synth_data_sig
-    .N_save_sig (N_save_sig),   //output
-    .N_load_sig (N_load_sig),   //output
-    .N_sound_nr (N_sound_nr),   //output
+	.N_adr_data_rdy(N_adr_data_rdy) ,   // input  N_ctrl_sig
+	.N_adr(N_adr) , // input [9:0] N_synth_num_sig
+	.N_synth_out_data(N_synth_out_data),    // output [7:0] N_synth_data_sig
+	.N_synth_in_data(N_synth_in_data),  // input [7:0] N_synth_data_sig
+	.N_save_sig (N_save_sig),   //output
+	.N_load_sig (N_load_sig),   //output
+	.N_sound_nr (N_sound_nr),   //output
 `endif
-
-`ifdef _Graphics             
-    .VGA_CLK  (VGA_CLK  ),          //  VGA Clock
-    .HS   (VGA_HS   ),          //  VGA H_SYNC
-    .VS   (VGA_VS   ),          //  VGA V_SYNC
-//  .LCD_BLANK(LCD_BLANK),          //  LCD BLANK
-    `ifdef _LTM_Graphics
-        .HD   (LTM_HD   ),          //  LCD H_SYNC
-        .VD   (LTM_VD   ),          //  LCD V_SYNC
-        .DEN    (LTM_DEN),          //  LCD DE_H
-    `endif
-    `ifdef _VEEK_Graphics            
-        .DEN    (LCD_DEN),          //  LCD DE_H
-    `endif
-    .inDisplayArea(VGA_BLANK_N),            //  VGA BLANK
-    .SYNC (VGA_SYNC_N ),            //  VGA SYNC
-    .VGA_R(VGA_R_w),                //  VGA Red[9:0]
-    .VGA_G(VGA_G_w),                    //  VGA Green[9:0]
-    .VGA_B(VGA_B_w),                //  VGA Blue[9:0]
-    .HC_VGA_CLOCK(),
-`endif
-`ifdef _Synth
-    .AUD_ADCLRCK(AUD_ADCLRCK),      //  Audio CODEC ADC LR Clock
-    .AUD_DACLRCK(AUD_DACLRCK),      //  Audio CODEC DAC LR Clock
-    .AUD_ADCDAT (AUD_ADCDAT ),      //  Audio CODEC ADC Data
-    .AUD_DACDAT (aud_dat ),      //  Audio CODEC DAC Data
-    .AUD_BCLK   (AUD_BCLK   ),      //  Audio CODEC Bit-Stream Clock
-    .AUD_XCK    (AUD_XCK    )      //  Audio CODEC Chip Clock
-`endif
-`ifdef _LTM_Graphics             
-    .VGA_CLK  (VGA_CLK  ),          //  VGA Clock
-    .LTM_ADC_BUSY(LTM_ADC_BUSY),
-    .LTM_ADC_DCLK(LTM_ADC_DCLK),
-    .LTM_ADC_DIN(LTM_ADC_DIN),
-    .LTM_ADC_DOUT(LTM_ADC_DOUT),
-    .LTM_ADC_PENIRQ_n(LTM_ADC_PENIRQ_n),
-    .LTM_SCEN(LTM_SCEN),
-    .LTM_SDA(LTM_SDA)
-`endif
-`ifdef _VEEK_Graphics            
-    .LTM_ADC_BUSY(TOUCH_BUSY),
-    .LTM_ADC_DCLK(TOUCH_DCLK),
-    .LTM_ADC_DIN(TOUCH_DIN),
-    .LTM_ADC_DOUT(TOUCH_DOUT),
-    .LTM_ADC_PENIRQ_n(TOUCH_PENIRQ_N)
-//   .LTM_SDA(LTM_SDA)
-`endif
- //  .LTM_SCEN(LTM_SCEN),
- //  .LTM_GREST(LTM_GREST)
+	.AUD_ADCLRCK			( AUD_ADCLRCK),      //  Audio CODEC ADC LR Clock
+	.AUD_DACLRCK			( AUD_DACLRCK),      //  Audio CODEC DAC LR Clock
+	.AUD_ADCDAT				( AUD_ADCDAT ),      //  Audio CODEC ADC Data
+	.AUD_DACDAT				( AUD_DACDAT ),      //  Audio CODEC DAC Data
+	.AUD_BCLK				( AUD_BCLK   ),      //  Audio CODEC Bit-Stream Clock
+	.AUD_XCK					( AUD_XCK    ),      //  Audio CODEC Chip Clock
+/*	.data					(data),
+	.cpu_adr				(cpu_adr),
+	.reg_read_write_act	(reg_read_write_act),
+	.cpu_env_sel		( cpu_env_sel ),
+	.cpu_osc_sel		( cpu_osc_sel ),
+	.cpu_m1_sel			( cpu_m1_sel ),
+	.cpu_m2_sel			( cpu_m2_sel ),
+	.cpu_com_sel		( cpu_com_sel ),
+	.cpu_read			(cpu_read),
+	.cpu_write			(cpu_write),
+	.cpu_chip_sel		(cpu_chip_sel),
+*/
+	.data					(),
+	.cpu_adr				(7'b0),
+	.reg_read_write_act	(),
+	.cpu_env_sel		( 1'b0 ),
+	.cpu_osc_sel		( 1'b0 ),
+	.cpu_m1_sel			( 1'b0 ),
+	.cpu_m2_sel			( 1'b0 ),
+	.cpu_com_sel		( 1'b0 ),
+	.cpu_read			( 1'b0 ),
+	.cpu_write			( 1'b0 ),
+	.cpu_chip_sel		( 1'b0 )
 );
 
 

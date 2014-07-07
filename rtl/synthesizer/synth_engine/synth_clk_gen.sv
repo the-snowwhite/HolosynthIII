@@ -19,7 +19,8 @@ parameter   AUDIO_REF_CLK         =   16953125;   //  16.953125   MHz <<<--- use
 `else
 
 //parameter   OSC_CLK_RATE       =   135625000;  //  135.625000 MHz <<-- use for slow
-parameter   OSC_CLK_RATE       =   180833333;  //  180.833333 MHz <<-- use for fast
+parameter   OSC_CLK_RATE       =   180833333;  //  180.833333 MHz <<-- use for fast 
+//parameter   OSC_CLK_RATE       =   361666666;  //  361.666667 MHz <<-- use for fast 
 parameter   AUDIO_REF_CLK         =   16953125;   //  16.953125   MHz <<<--- use for slow
 `endif
 parameter   SAMPLE_RATE     =   AUDIO_REF_CLK / OVERSAMPLING; //44100;      //  44.1      KHz
@@ -35,13 +36,17 @@ parameter XVXENVS_DIV = OSC_CLK_RATE/((SAMPLE_RATE*SYNTH_CHANNELS*VOICES*V_ENVS*
 parameter LRCK_DIV = AUDIO_REF_CLK/((SAMPLE_RATE*2)-1);
 parameter BCK_DIV_FAC = AUDIO_REF_CLK/((SAMPLE_RATE*DATA_WIDTH*CHANNEL_NUM*4)-1);
 //parameter AUCK_DIV_FAC = OSC_CLK_RATE/((AUDIO_REF_CLK*2)-1);
+parameter XVXOSC_WIDTH = utils::clogb2(XVOSC_DIV);
+parameter XVXENVS_WIDTH = utils::clogb2(XVXENVS_DIV);
+parameter LRCK_WIDTH = utils::clogb2(LRCK_DIV);
+parameter BCK_DIV_WIDTH = utils::clogb2(BCK_DIV_FAC);
 
 //  Internal Registers and Wires
-reg     [8:0]	BCK_DIV;
-reg     [12:0]	LRCK_1X_DIV;
-reg     [11:0]	sCLK_XVXOSC_DIV;
-reg     [10:0]	sCLK_XVXENVS_DIV;
-reg     [8:0]	AUCK_DIV;
+reg     [XVXOSC_WIDTH:0]	sCLK_XVXOSC_DIV;
+reg     [XVXENVS_WIDTH:0]	sCLK_XVXENVS_DIV;
+//reg     [8:0]	AUCK_DIV;
+reg     [LRCK_WIDTH:0]	LRCK_1X_DIV;
+reg     [BCK_DIV_WIDTH:0]	BCK_DIV;
 
 
 ////////////////////////////////////
